@@ -3,19 +3,120 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #121212;
+  --foreground: #e0e0e0;
+  --background-secondary: #1e1e1e;
+  --background-tertiary: #252525;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #60a5fa;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Markdown Editor Styles */
+.w-md-editor {
+  background-color: var(--background-secondary) !important;
+}
+
+.w-md-editor-text-pre,
+.w-md-editor-text-input,
+.w-md-editor-text {
+  color: var(--text-primary) !important;
+}
+
+.wmde-markdown {
+  background-color: var(--background-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.w-md-editor-toolbar {
+  background-color: var(--background-tertiary) !important;
+  border-color: var(--text-secondary) !important;
+}
+
+.w-md-editor-toolbar button {
+  color: var(--text-primary) !important;
+}
+
+.w-md-editor-toolbar button:hover {
+  color: var(--accent-primary) !important;
+}
+
+.w-md-editor-preview {
+  box-shadow: inset 1px 0 0 0 var(--text-secondary) !important;
+}
+
+/* Preview Markdown Styles */
+.wmde-markdown h1,
+.wmde-markdown h2,
+.wmde-markdown h3,
+.wmde-markdown h4,
+.wmde-markdown h5,
+.wmde-markdown h6 {
+  color: var(--text-primary) !important;
+}
+
+.wmde-markdown p,
+.wmde-markdown li {
+  color: var(--text-secondary) !important;
+}
+
+.wmde-markdown code {
+  background-color: var(--background-tertiary) !important;
+  color: var(--accent-primary) !important;
+}
+
+.wmde-markdown pre {
+  background-color: var(--background-tertiary) !important;
+}
+
+.wmde-markdown blockquote {
+  border-left-color: var(--accent-primary) !important;
+  background-color: var(--background-tertiary) !important;
+}
+
+.wmde-markdown hr {
+  border-color: var(--text-secondary) !important;
+}
+
+.wmde-markdown a {
+  color: var(--accent-primary) !important;
+}
+
+.wmde-markdown table {
+  border-color: var(--text-secondary) !important;
+}
+
+.wmde-markdown th,
+.wmde-markdown td {
+  border-color: var(--text-secondary) !important;
+}
+
+/* Custom scrollbar for editor */
+.w-md-editor-text-pre::-webkit-scrollbar,
+.w-md-editor-preview::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.w-md-editor-text-pre::-webkit-scrollbar-track,
+.w-md-editor-preview::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+.w-md-editor-text-pre::-webkit-scrollbar-thumb,
+.w-md-editor-preview::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 4px;
+}
+
+.w-md-editor-text-pre::-webkit-scrollbar-thumb:hover,
+.w-md-editor-preview::-webkit-scrollbar-thumb:hover {
+  background: var(--text-primary);
 }
