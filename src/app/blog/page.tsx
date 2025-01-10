@@ -3,6 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
 import type { Metadata } from 'next';
+import BlogList from '@/components/widgets/BlogList';
+
 
 export const metadata: Metadata = {
   title: 'Blog - Oslo Languages',
@@ -73,6 +75,7 @@ export default async function BlogPage() {
           </article>
         ))}
       </div>
+      <BlogList posts={posts} />
     </div>
   );
 }

@@ -127,13 +127,14 @@ Please analyze the project structure, errors, and code carefully:
 │   ├── types
 │   │   ├── auth.ts
 │   │   ├── md-editor.d.ts
-│   │   └── media.ts
+│   │   ├── media.ts
+│   │   └── next.d.ts
 │   └── types.ts
 ├── tailwind.config.ts
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-49 directories, 81 files
+49 directories, 82 files
 
 
 ================================================================================
@@ -762,18 +763,19 @@ export default function AboutPage() {
 File: src/app/admin/BlogEditor.tsx
 ================================================================================
 
-'use client';
-// src/components/admin/BlogEditor.tsx
+'use client'
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import type { MDEditorProps } from '@uiw/react-md-editor';
 
 // Import the MDX editor dynamically to avoid SSR issues
-const MDEditor = dynamic(
-  () => import('@uiw/react-md-editor' as any).then((mod) => mod.default),
+const MDEditor = dynamic<MDEditorProps>(
+  () => import('@uiw/react-md-editor'),
   { ssr: false }
 );
+
 
 interface BlogPost {
   title: string;
@@ -927,6 +929,7 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
             onChange={(value: string | undefined) => setFormData((prev) => ({ ...prev, content: value || '' }))}
             preview="edit"
             height={400}
+            textareaProps={{ placeholder: 'Write your content here...' }}
           />
         </div>
       </div>
@@ -1043,13 +1046,13 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
+    setFormError(null);
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -1064,12 +1067,15 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError(result.error);
+        const errorMessage = result.error === 'CredentialsSignin' 
+          ? 'Invalid email or password'
+          : result.error;
+        setFormError(errorMessage);
       } else {
         router.push('/admin/dashboard');
       }
-    } catch (error) {
-      setError('An unexpected error occurred');
+    } catch {
+      setFormError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -1084,9 +1090,9 @@ export default function LoginPage() {
           </h1>
         </div>
 
-        {error && (
+        {formError && (
           <div className="bg-red-100 text-red-700 p-3 rounded">
-            {error}
+            {formError}
           </div>
         )}
 
@@ -1153,7 +1159,11 @@ export default async function EditBlogPostPage({ params }: Props) {
   let post;
   try {
     post = await getPostBySlug(params.slug);
+    if (!post) {
+      notFound();
+    }
   } catch (error) {
+    console.error('Error fetching post:', error);
     notFound();
   }
 
@@ -2061,6 +2071,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { PageProps } from '@/types/next';
+
 
 const courseDetails = {
   'norwegian-beginner': {
@@ -2099,7 +2111,7 @@ type Props = {
   params: { courseId: string };
 };
 
-export default function CoursePage({ params }: Props) {
+export default function CoursePage({ params }: PageProps) {
   const course = courseDetails[params.courseId as keyof typeof courseDetails];
 
   if (!course) {
@@ -2243,6 +2255,7 @@ import Link from 'next/link';
 
 import type { Metadata } from 'next';
 
+
 export const metadata: Metadata = {
   title: 'Language Courses - Oslo Languages',
   description: 'Discover our range of language courses in Oslo. Learn Norwegian, English, Spanish and more with expert teachers and flexible schedules.',
@@ -2330,7 +2343,7 @@ export default function CoursesPage({
   searchParams: { page?: string };
 }) {
   // Get current page from URL params or default to 1
-  const currentPage = Number(searchParams.page) || 1;
+  const currentPage = Number(searchParams?.page) || 1;
   const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
 
   // Calculate pagination bounds
@@ -5128,7 +5141,7 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).role = token.role;
+        session.user.role = token.role as string;
       }
       return session;
     }
@@ -6082,7 +6095,11 @@ File: src/types/md-editor.d.ts
 declare module '@uiw/react-md-editor' {
   import { ComponentType, HTMLAttributes } from 'react';
 
-  interface MDEditorProps extends HTMLAttributes<HTMLDivElement> {
+  export interface MDEditorTextAreaProps extends HTMLAttributes<HTMLTextAreaElement> {
+    placeholder?: string;
+  }
+
+  export interface MDEditorProps extends HTMLAttributes<HTMLDivElement> {
     value?: string;
     onChange?: (value?: string) => void;
     preview?: 'edit' | 'live' | 'preview';
@@ -6092,7 +6109,7 @@ declare module '@uiw/react-md-editor' {
     hideToolbar?: boolean;
     enableScroll?: boolean;
     visibleDragbar?: boolean;
-    textareaProps?: HTMLAttributes<HTMLTextAreaElement>;
+    textareaProps?: MDEditorTextAreaProps;
   }
 
   const MDEditor: ComponentType<MDEditorProps>;
@@ -6124,6 +6141,22 @@ export interface MediaUploadResponse {
   file?: MediaFile;
   error?: string;
 }
+
+================================================================================
+File: src/types/next.d.ts
+================================================================================
+
+// src/types/next.d.ts
+import { NextPage } from 'next';
+
+export type PageProps = {
+  params: { [key: string]: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+
+export type NextPageWithProps<P extends Record<string, unknown> = Record<string, unknown>, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: React.ReactElement) => React.ReactNode;
+};
 
 ================================================================================
 File: src/types.ts
@@ -6241,6 +6274,10 @@ File: tsconfig.json
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
     "plugins": [
       {
         "name": "next"
@@ -6249,9 +6286,9 @@ File: tsconfig.json
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["jest", "@testing-library/jest-dom"]
+    "types": ["jest"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/**/*"],
   "exclude": ["node_modules"]
 }
 
