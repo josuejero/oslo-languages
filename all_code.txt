@@ -42,6 +42,12 @@ Please analyze the project structure, errors, and code carefully:
 │   │   │   │   └── page.tsx
 │   │   │   ├── login
 │   │   │   │   └── page.tsx
+│   │   │   ├── media
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── upload
+│   │   │   │       └── route.ts
 │   │   │   └── posts
 │   │   │       ├── [slug]
 │   │   │       │   └── edit
@@ -103,6 +109,7 @@ Please analyze the project structure, errors, and code carefully:
 │   │   ├── providers
 │   │   │   └── AuthProvider.tsx
 │   │   └── widgets
+│   │       ├── BlogList.tsx
 │   │       ├── ContactForm.tsx
 │   │       ├── CourseRegistrationForm.tsx
 │   │       ├── Testimonials.tsx
@@ -134,7 +141,7 @@ Please analyze the project structure, errors, and code carefully:
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-49 directories, 82 files
+52 directories, 86 files
 
 
 ================================================================================
@@ -529,7 +536,9 @@ File: package.json
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
     "schema-dts": "^1.1.2",
-    "swiper": "^11.1.15"
+    "sharp": "^0.33.5",
+    "swiper": "^11.1.15",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
@@ -763,20 +772,20 @@ export default function AboutPage() {
 File: src/app/admin/BlogEditor.tsx
 ================================================================================
 
-'use client'
+// src/app/admin/BlogEditor.tsx
+
+'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import type { MDEditorProps } from '@uiw/react-md-editor';
 
-// Import the MDX editor dynamically to avoid SSR issues
 const MDEditor = dynamic<MDEditorProps>(
   () => import('@uiw/react-md-editor'),
   { ssr: false }
 );
-
-
+// src/app/admin/BlogEditor.tsx
 interface BlogPost {
   title: string;
   excerpt: string;
@@ -784,7 +793,10 @@ interface BlogPost {
   categories: string[];
   tags: string[];
   coverImage: string;
+  status?: 'draft' | 'published'; // Make status optional
+  publishDate?: string;
 }
+
 
 interface BlogEditorProps {
   initialData?: BlogPost;
@@ -795,6 +807,7 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
   
   const [formData, setFormData] = useState<BlogPost>(initialData || {
     title: '',
@@ -803,21 +816,29 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
     categories: [],
     tags: [],
     coverImage: '',
+    status: 'draft',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, status: 'draft' | 'published' = 'draft') => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
     try {
-      const response = await fetch(`/api/admin/posts${isEditing && initialData ? '/' + initialData.title.toLowerCase().replace(/\s+/g, '-') : ''}`, {
-        method: isEditing ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const postData = {
+        ...formData,
+        status,
+        publishDate: status === 'published' ? new Date().toISOString() : undefined,
+      };
+
+      const response = await fetch(
+        `/api/admin/posts${isEditing ? `/${initialData?.title.toLowerCase().replace(/\s+/g, '-')}` : ''}`,
+        {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(postData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to save post');
@@ -831,23 +852,25 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
       setIsSubmitting(false);
     }
   };
+
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleArrayInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     field: 'categories' | 'tags'
   ) => {
-    const values = e.target.value.split(',').map((item) => item.trim());
-    setFormData((prev) => ({ ...prev, [field]: values }));
+    const values = e.target.value.split(',').map(item => item.trim());
+    setFormData(prev => ({ ...prev, [field]: values }));
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={(e) => handleSubmit(e, formData.status)} className="space-y-6">
       {error && (
         <div className="bg-red-100 text-red-700 p-4 rounded-md">
           {error}
@@ -864,7 +887,7 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
           value={formData.title}
           onChange={handleInputChange}
           required
-          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+          className="w-full px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
         />
       </div>
 
@@ -878,21 +901,30 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
           onChange={handleInputChange}
           required
           rows={3}
-          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+          className="w-full px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-text-primary mb-2">
-          Cover Image URL
+          Cover Image
         </label>
-        <input
-          type="url"
-          name="coverImage"
-          value={formData.coverImage}
-          onChange={handleInputChange}
-          className="w-full px-3 py-2 border border-text-secondary rounded-md"
-        />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            name="coverImage"
+            value={formData.coverImage}
+            onChange={handleInputChange}
+            className="flex-1 px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
+          />
+          <button
+            type="button"
+            onClick={() => setShowMediaLibrary(true)}
+            className="px-4 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-secondary"
+          >
+            Browse Media
+          </button>
+        </div>
       </div>
 
       <div>
@@ -903,7 +935,7 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
           type="text"
           value={formData.categories.join(', ')}
           onChange={(e) => handleArrayInputChange(e, 'categories')}
-          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+          className="w-full px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
         />
       </div>
 
@@ -915,7 +947,7 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
           type="text"
           value={formData.tags.join(', ')}
           onChange={(e) => handleArrayInputChange(e, 'tags')}
-          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+          className="w-full px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
         />
       </div>
 
@@ -923,33 +955,81 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
         <label className="block text-sm font-medium text-text-primary mb-2">
           Content
         </label>
-        <div data-color-mode="dark">
-          <MDEditor
-            value={formData.content}
-            onChange={(value: string | undefined) => setFormData((prev) => ({ ...prev, content: value || '' }))}
-            preview="edit"
-            height={400}
-            textareaProps={{ placeholder: 'Write your content here...' }}
-          />
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowMediaLibrary(true)}
+            className="absolute top-2 right-2 z-10 px-3 py-1 bg-accent-primary text-white rounded-md hover:bg-accent-secondary text-sm"
+          >
+            Add Image
+          </button>
+          <div data-color-mode="dark">
+            <MDEditor
+              value={formData.content}
+              onChange={(value) => setFormData(prev => ({ ...prev, content: value || '' }))}
+              preview="edit"
+              height={400}
+              textareaProps={{
+                placeholder: 'Write your content here...',
+              }}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="flex justify-end space-x-4">
+      <div className="flex justify-between">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-4 py-2 border border-text-secondary rounded-md hover:bg-bg-secondary"
+          className="px-4 py-2 border border-text-secondary rounded-md hover:bg-bg-secondary text-text-primary"
         >
           Cancel
         </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-4 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-secondary disabled:opacity-50"
-        >
-          {isSubmitting ? 'Saving...' : isEditing ? 'Update Post' : 'Create Post'}
-        </button>
+        
+        <div className="space-x-4">
+          <button
+            type="submit"
+            onClick={(e) => {
+              e.preventDefault();
+              handleSubmit(e, 'draft');
+            }}
+            disabled={isSubmitting}
+            className="px-4 py-2 border border-accent-primary text-accent-primary rounded-md hover:bg-accent-primary hover:text-white disabled:opacity-50"
+          >
+            Save as Draft
+          </button>
+          <button
+            type="submit"
+            onClick={(e) => {
+              e.preventDefault();
+              handleSubmit(e, 'published');
+            }}
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-secondary disabled:opacity-50"
+          >
+            {isSubmitting ? 'Publishing...' : 'Publish'}
+          </button>
+        </div>
       </div>
+
+      {showMediaLibrary && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-bg-tertiary p-6 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-text-primary">Media Library</h2>
+              <button
+                onClick={() => setShowMediaLibrary(false)}
+                className="text-text-secondary hover:text-text-primary"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Media Library content goes here */}
+          </div>
+        </div>
+      )}
     </form>
   );
 }
@@ -1143,6 +1223,368 @@ export default function LoginPage() {
 }
 
 ================================================================================
+File: src/app/admin/media/[id]/route.ts
+================================================================================
+
+// src/app/api/admin/media/[id]/route.ts
+import { NextResponse } from 'next/server';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const fileId = params.id;
+    // In a real app, you'd fetch the file info from the database
+    const filePath = join(process.cwd(), 'public', 'uploads', fileId);
+
+    await unlink(filePath);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Delete error:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete file' },
+      { status: 500 }
+    );
+  }
+}
+
+================================================================================
+File: src/app/admin/media/page.tsx
+================================================================================
+
+// src/app/admin/media/page.tsx
+
+'use client';
+
+import { useState, useRef } from 'react';
+import Image from 'next/image';
+import { MediaFile } from '@/types/media';
+
+export default function MediaLibrary() {
+  const [files, setFiles] = useState<MediaFile[]>([]);
+  const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files?.length) return;
+
+    setIsUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach(file => {
+        formData.append('files', file);
+      });
+
+      const response = await fetch('/api/admin/media/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      setFiles(prevFiles => [...prevFiles, ...data.files]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload files');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleDelete = async (fileId: string) => {
+    try {
+      const response = await fetch(`/api/admin/media/${fileId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Delete failed');
+      }
+
+      setFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
+      if (selectedFile?.id === fileId) {
+        setSelectedFile(null);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete file');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-bg-secondary p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-text-primary">Media Library</h1>
+          
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="file-upload"
+            />
+            <label
+              htmlFor="file-upload"
+              className="bg-accent-primary text-white px-4 py-2 rounded-md hover:bg-accent-secondary cursor-pointer"
+            >
+              Upload Files
+            </label>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-100 text-red-700 p-4 rounded-md mb-4">
+            {error}
+          </div>
+        )}
+
+        {isUploading && (
+          <div className="bg-blue-100 text-blue-700 p-4 rounded-md mb-4">
+            Uploading files...
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {files.map(file => (
+            <div
+              key={file.id}
+              className={`relative group bg-bg-tertiary rounded-lg overflow-hidden cursor-pointer ${
+                selectedFile?.id === file.id ? 'ring-2 ring-accent-primary' : ''
+              }`}
+              onClick={() => setSelectedFile(file)}
+            >
+              <div className="relative aspect-square">
+                <Image
+                  src={file.path}
+                  alt={file.filename}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              
+              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(file.id);
+                  }}
+                  className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {selectedFile && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-bg-tertiary p-6 rounded-lg max-w-2xl w-full">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-bold text-text-primary">
+                  File Details
+                </h2>
+                <button
+                  onClick={() => setSelectedFile(null)}
+                  className="text-text-secondary hover:text-text-primary"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="relative aspect-square rounded-lg overflow-hidden">
+                  <Image
+                    src={selectedFile.path}
+                    alt={selectedFile.filename}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">
+                      Filename
+                    </label>
+                    <p className="text-text-primary">{selectedFile.filename}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">
+                      Size
+                    </label>
+                    <p className="text-text-primary">
+                      {Math.round(selectedFile.size / 1024)} KB
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">
+                      Dimensions
+                    </label>
+                    <p className="text-text-primary">
+                      {selectedFile.width} x {selectedFile.height}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">
+                      Upload Date
+                    </label>
+                    <p className="text-text-primary">
+                      {new Date(selectedFile.uploadedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-1">
+                      File URL
+                    </label>
+                    <input
+                      type="text"
+                      value={selectedFile.path}
+                      readOnly
+                      className="w-full px-3 py-2 bg-bg-secondary text-text-primary rounded-md"
+                      onClick={(e) => e.currentTarget.select()}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/admin/media/upload/route.ts
+================================================================================
+
+// src/app/api/admin/media/upload/route.ts
+import { NextResponse } from 'next/server';
+import { join } from 'path';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
+import sharp from 'sharp';
+import { v4 as uuidv4 } from 'uuid';
+
+const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads');
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+export async function POST(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const formData = await request.formData();
+    const files = formData.getAll('files') as File[];
+    const savedFiles = [];
+
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: `File ${file.name} exceeds maximum size of 5MB` },
+          { status: 400 }
+        );
+      }
+
+      if (!file.type.startsWith('image/')) {
+        return NextResponse.json(
+          { error: `File ${file.name} is not an image` },
+          { status: 400 }
+        );
+      }
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const image = sharp(buffer);
+      const metadata = await image.metadata();
+
+      const filename = `${uuidv4()}-${file.name.toLowerCase().replace(/[^a-z0-9.]/g, '-')}`;
+      const filepath = join(UPLOAD_DIR, filename);
+
+      // Save optimized image
+      await image
+        .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 80 })
+        .toFile(filepath);
+
+      savedFiles.push({
+        id: uuidv4(),
+        filename: file.name,
+        path: `/uploads/${filename}`,
+        mimeType: file.type,
+        size: file.size,
+        width: metadata.width,
+        height: metadata.height,
+        uploadedAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    return NextResponse.json({ files: savedFiles });
+  } catch (error) {
+    console.error('Upload error:', error);
+    return NextResponse.json(
+      { error: 'Failed to process upload' },
+      { status: 500 }
+    );
+  }
+}
+
+================================================================================
 File: src/app/admin/posts/[slug]/edit/page.tsx
 ================================================================================
 
@@ -1151,12 +1593,24 @@ import { notFound } from 'next/navigation';
 import BlogEditor from '@/app/admin/BlogEditor';
 import { getPostBySlug } from '@/lib/blog';
 
+// Define the BlogPost interface here
+interface BlogPost {
+  title: string;
+  excerpt: string;
+  content: string;
+  categories: string[];
+  tags: string[];
+  coverImage: string;
+  status?: 'draft' | 'published'; // Make status optional
+  publishDate?: string;
+}
+
 interface Props {
   params: { slug: string };
 }
 
 export default async function EditBlogPostPage({ params }: Props) {
-  let post;
+  let post: BlogPost | null = null;
   try {
     post = await getPostBySlug(params.slug);
     if (!post) {
@@ -1165,6 +1619,11 @@ export default async function EditBlogPostPage({ params }: Props) {
   } catch (error) {
     console.error('Error fetching post:', error);
     notFound();
+  }
+
+  // Ensure that post is not null before proceeding
+  if (!post) {
+    return null; // or a fallback UI
   }
 
   return (
@@ -1183,6 +1642,7 @@ export default async function EditBlogPostPage({ params }: Props) {
               categories: post.categories,
               tags: post.tags,
               coverImage: post.coverImage,
+              status: post.status || 'draft', // Add this line
             }} 
             isEditing={true} 
           />
@@ -1191,6 +1651,7 @@ export default async function EditBlogPostPage({ params }: Props) {
     </div>
   );
 }
+
 
 ================================================================================
 File: src/app/admin/posts/new/page.tsx
@@ -1922,6 +2383,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
 import type { Metadata } from 'next';
+import BlogList from '@/components/widgets/BlogList';
+
 
 export const metadata: Metadata = {
   title: 'Blog - Oslo Languages',
@@ -1992,6 +2455,7 @@ export default async function BlogPage() {
           </article>
         ))}
       </div>
+      <BlogList posts={posts} />
     </div>
   );
 }
@@ -4035,6 +4499,86 @@ export default function AuthProvider({
 }) {
   return <SessionProvider>{children}</SessionProvider>;
 }
+
+================================================================================
+File: src/components/widgets/BlogList.tsx
+================================================================================
+
+// src/components/widgets/BlogList.tsx
+
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { BlogPost } from '@/lib/blog';
+
+interface BlogListProps {
+  posts: BlogPost[];
+  className?: string;
+}
+
+const BlogList = ({ posts, className = '' }: BlogListProps) => {
+  return (
+    <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-8 ${className}`}>
+      {posts.map((post) => (
+        <article key={post.slug} className="bg-bg-secondary rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+          {post.coverImage && (
+            <div className="relative h-48">
+              <Image
+                src={post.coverImage}
+                alt={post.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+          
+          <div className="p-6">
+            <div className="flex flex-wrap gap-2 mb-3">
+              {post.categories.map((category) => (
+                <Link
+                  key={category}
+                  href={`/blog/category/${category.toLowerCase()}`}
+                  className="text-sm bg-accent-primary text-white px-2 py-1 rounded-full hover:bg-accent-secondary transition-colors"
+                >
+                  {category}
+                </Link>
+              ))}
+            </div>
+
+            <h2 className="text-xl font-bold mb-2 text-text-primary">
+              <Link href={`/blog/${post.slug}`} className="hover:text-accent-primary">
+                {post.title}
+              </Link>
+            </h2>
+
+            <p className="text-text-secondary mb-4">{post.excerpt}</p>
+
+            <div className="flex items-center justify-between text-sm text-text-secondary">
+              <span>{post.author}</span>
+              <time dateTime={post.date}>
+                {new Date(post.date).toLocaleDateString()}
+              </time>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/blog/tag/${tag.toLowerCase()}`}
+                  className="text-sm text-text-secondary hover:text-accent-primary"
+                >
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+};
+
+export default BlogList;
 
 ================================================================================
 File: src/components/widgets/ContactForm.tsx

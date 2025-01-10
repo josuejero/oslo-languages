@@ -3,12 +3,24 @@ import { notFound } from 'next/navigation';
 import BlogEditor from '@/app/admin/BlogEditor';
 import { getPostBySlug } from '@/lib/blog';
 
+// Define the BlogPost interface here
+interface BlogPost {
+  title: string;
+  excerpt: string;
+  content: string;
+  categories: string[];
+  tags: string[];
+  coverImage: string;
+  status?: 'draft' | 'published'; // Make status optional
+  publishDate?: string;
+}
+
 interface Props {
   params: { slug: string };
 }
 
 export default async function EditBlogPostPage({ params }: Props) {
-  let post;
+  let post: BlogPost | null = null;
   try {
     post = await getPostBySlug(params.slug);
     if (!post) {
@@ -17,6 +29,11 @@ export default async function EditBlogPostPage({ params }: Props) {
   } catch (error) {
     console.error('Error fetching post:', error);
     notFound();
+  }
+
+  // Ensure that post is not null before proceeding
+  if (!post) {
+    return null; // or a fallback UI
   }
 
   return (
@@ -35,6 +52,7 @@ export default async function EditBlogPostPage({ params }: Props) {
               categories: post.categories,
               tags: post.tags,
               coverImage: post.coverImage,
+              status: post.status || 'draft', // Add this line
             }} 
             isEditing={true} 
           />
