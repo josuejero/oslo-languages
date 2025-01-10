@@ -1,15 +1,17 @@
-'use client';
-// src/components/admin/BlogEditor.tsx
+'use client'
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import type MDEditorProps from '@uiw/react-md-editor';
+import type { MDEditorProps } from '@uiw/react-md-editor';
 
 // Import the MDX editor dynamically to avoid SSR issues
-const MDEditor = dynamic<typeof MDEditorProps>(
-  () => import('@uiw/react-md-editor').then((mod) => mod.default as any),  { ssr: false }
+const MDEditor = dynamic<MDEditorProps>(
+  () => import('@uiw/react-md-editor'),
+  { ssr: false }
 );
+
+
 interface BlogPost {
   title: string;
   excerpt: string;
@@ -159,7 +161,7 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
         <div data-color-mode="dark">
           <MDEditor
             value={formData.content}
-            onChange={(value) => setFormData((prev) => ({ ...prev, content: value || '' }))}
+            onChange={(value: string | undefined) => setFormData((prev) => ({ ...prev, content: value || '' }))}
             preview="edit"
             height={400}
             textareaProps={{ placeholder: 'Write your content here...' }}

@@ -2,7 +2,11 @@
 declare module '@uiw/react-md-editor' {
   import { ComponentType, HTMLAttributes } from 'react';
 
-  interface MDEditorProps extends HTMLAttributes<HTMLDivElement> {
+  export interface MDEditorTextAreaProps extends HTMLAttributes<HTMLTextAreaElement> {
+    placeholder?: string;
+  }
+
+  export interface MDEditorProps extends HTMLAttributes<HTMLDivElement> {
     value?: string;
     onChange?: (value?: string) => void;
     preview?: 'edit' | 'live' | 'preview';
@@ -12,7 +16,7 @@ declare module '@uiw/react-md-editor' {
     hideToolbar?: boolean;
     enableScroll?: boolean;
     visibleDragbar?: boolean;
-    textareaProps?: HTMLAttributes<HTMLTextAreaElement>;
+    textareaProps?: MDEditorTextAreaProps;
   }
 
   const MDEditor: ComponentType<MDEditorProps>;
