@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
+import typography from '@tailwindcss/typography';
 
-export default {
+const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,8 +12,16 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        'bg-secondary': "var(--background-secondary)",
+        'bg-tertiary': "var(--background-tertiary)",
+        'text-primary': "var(--text-primary)",
+        'text-secondary': "var(--text-secondary)",
+        'accent-primary': "var(--accent-primary)",
+        'accent-secondary': "var(--accent-secondary)",
       },
     },
   },
-  plugins: [],
-} satisfies Config;
+  plugins: [typography],
+};
+
+export default config;

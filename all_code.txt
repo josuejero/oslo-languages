@@ -1,0 +1,6257 @@
+
+
+Please analyze the project structure, errors, and code carefully:
+
+.
+├── README.md
+├── all_code.txt
+├── content
+│   ├── pages
+│   └── posts
+│       └── hello-world.md
+├── e2e
+│   └── basic-navigation.test.ts
+├── eslint.config.js
+├── jest.config.ts
+├── jest.setup.ts
+├── next-env.d.ts
+├── next.config.ts
+├── output.txt
+├── package-lock.json
+├── package.json
+├── playwright.config.ts
+├── postcss.config.mjs
+├── prisma
+│   └── schema.prisma
+├── problem.js
+├── public
+│   ├── blog
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── uploads
+│   ├── vercel.svg
+│   └── window.svg
+├── src
+│   ├── app
+│   │   ├── about
+│   │   │   └── page.tsx
+│   │   ├── admin
+│   │   │   ├── BlogEditor.tsx
+│   │   │   ├── dashboard
+│   │   │   │   └── page.tsx
+│   │   │   ├── login
+│   │   │   │   └── page.tsx
+│   │   │   └── posts
+│   │   │       ├── [slug]
+│   │   │       │   └── edit
+│   │   │       │       └── page.tsx
+│   │   │       ├── new
+│   │   │       │   └── page.tsx
+│   │   │       └── page.tsx
+│   │   ├── api
+│   │   │   ├── admin
+│   │   │   │   └── posts
+│   │   │   │       └── route.ts
+│   │   │   ├── auth
+│   │   │   ├── contact
+│   │   │   │   └── route.ts
+│   │   │   ├── og
+│   │   │   │   └── route.tsx
+│   │   │   └── register
+│   │   │       └── route.ts
+│   │   ├── blog
+│   │   │   ├── [slug]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── contact
+│   │   │   └── page.tsx
+│   │   ├── courses
+│   │   │   ├── [courseId]
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── register
+│   │   │       └── page.tsx
+│   │   ├── error.tsx
+│   │   ├── faq
+│   │   │   └── page.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── not-found.tsx
+│   │   ├── page.tsx
+│   │   ├── privacy-policy
+│   │   │   └── page.tsx
+│   │   ├── robots.ts
+│   │   ├── sitemap.ts
+│   │   └── terms-of-service
+│   │       └── page.tsx
+│   ├── components
+│   │   ├── ErrorBoundary.tsx
+│   │   ├── ImageWithFallback.tsx
+│   │   ├── LoadingSpinner.tsx
+│   │   ├── OptimizedImage.tsx
+│   │   ├── __tests__
+│   │   │   └── ErrorBoundary.test.tsx
+│   │   ├── layout
+│   │   │   ├── footer
+│   │   │   │   └── Footer.tsx
+│   │   │   └── header
+│   │   │       ├── Header.tsx
+│   │   │       └── __tests__
+│   │   │           └── Header.test.tsx
+│   │   ├── providers
+│   │   │   └── AuthProvider.tsx
+│   │   └── widgets
+│   │       ├── ContactForm.tsx
+│   │       ├── CourseRegistrationForm.tsx
+│   │       ├── Testimonials.tsx
+│   │       └── __tests__
+│   │           └── ContactForm.test.tsx
+│   ├── data.ts
+│   ├── lib
+│   │   ├── auth
+│   │   │   └── config.ts
+│   │   ├── blog.ts
+│   │   ├── courses.ts
+│   │   ├── hooks
+│   │   │   └── useDataFetching.ts
+│   │   ├── logger.ts
+│   │   ├── metadata.ts
+│   │   ├── middleware
+│   │   │   └── sanitize.ts
+│   │   ├── rate-limit.ts
+│   │   ├── schema.ts
+│   │   └── seo.ts
+│   ├── middleware.ts
+│   ├── types
+│   │   ├── auth.ts
+│   │   ├── md-editor.d.ts
+│   │   └── media.ts
+│   └── types.ts
+├── tailwind.config.ts
+├── tsconfig.json
+└── tsconfig.tsbuildinfo
+
+49 directories, 81 files
+
+
+================================================================================
+File: README.md
+================================================================================
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+================================================================================
+File: content/posts/hello-world.md
+================================================================================
+
+---
+title: "Hello World"
+date: "2024-03-26"
+excerpt: "Welcome to my first blog post using Next.js and Markdown"
+author: "Your Name"
+categories: ["Next.js", "Web Development"]
+tags: ["react", "markdown"]
+coverImage: "/blog/hello-world.jpg"
+---
+
+# Hello World
+
+Welcome to my first blog post! This is a sample post to demonstrate how we can use Markdown files to create blog content.
+
+## Features
+
+- Markdown Support
+- Syntax Highlighting
+- Categories and Tags
+- Cover Images
+
+You can write your content here using **Markdown** syntax. This will be converted to HTML when displayed on the website.
+
+================================================================================
+File: e2e/basic-navigation.test.ts
+================================================================================
+
+import { test, expect } from '@playwright/test';
+
+test.describe('Basic Navigation', () => {
+  test('should navigate through main pages', async ({ page }) => {
+    // Home page
+    await page.goto('/');
+    await expect(page).toHaveTitle(/Oslo Languages/);
+    
+    // Navigate to Courses
+    await page.click('text=Courses');
+    await expect(page).toHaveURL(/.*courses/);
+    await expect(page.locator('h1')).toContainText('Our Language Courses');
+    
+    // Navigate to About
+    await page.click('text=About');
+    await expect(page).toHaveURL(/.*about/);
+    await expect(page.locator('h1')).toContainText('About Oslo Languages');
+    
+    // Navigate to Contact
+    await page.click('text=Contact');
+    await expect(page).toHaveURL(/.*contact/);
+    await expect(page.locator('h1')).toContainText('Contact Us');
+  });
+
+  test('contact form submission', async ({ page }) => {
+    await page.goto('/contact');
+    
+    // Fill out the form
+    await page.fill('input[name="name"]', 'Test User');
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="subject"]', 'Test Subject');
+    await page.fill('textarea[name="message"]', 'Test Message');
+    
+    // Submit the form
+    await page.click('button[type="submit"]');
+    
+    // Check for success message
+    await expect(page.locator('text=Thank you for your message')).toBeVisible();
+  });
+});
+
+================================================================================
+File: eslint.config.js
+================================================================================
+
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
+import pluginReact from "eslint-plugin-react";
+
+/** @type {import('eslint').Linter.Config[]} */
+export default [
+  { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
+  { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+  pluginReact.configs.flat.recommended,
+  {
+    languageOptions: {
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    },
+    settings: {
+      react: {
+        version: "detect"
+      }
+    },
+    rules: {
+      // Since we're using Next.js 13+ with App Router, we don't need React in scope
+      "react/react-in-jsx-scope": "off",
+      "react/jsx-uses-react": "off",
+      "react/prop-types": "off"
+    }
+  }
+];
+
+================================================================================
+File: jest.config.ts
+================================================================================
+
+// jest.config.ts
+import type { Config } from 'jest';
+import nextJest from 'next/jest';
+
+const createJestConfig = nextJest({
+  dir: './',
+});
+
+const config: Config = {
+  testEnvironment: 'jest-environment-jsdom',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  testMatch: [
+    '**/__tests__/**/*.ts?(x)',
+    '**/?(*.)+(spec|test).ts?(x)'
+  ],
+  // Add coverage configuration
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/types.ts',
+    '!src/middleware.ts',
+    '!src/**/generated/**',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
+  // Add test timeout
+  testTimeout: 10000,
+  // Add verbose output
+  verbose: true,
+};
+
+export default createJestConfig(config);
+
+================================================================================
+File: jest.setup.ts
+================================================================================
+
+// jest.setup.ts
+import '@testing-library/jest-dom';
+
+================================================================================
+File: next-env.d.ts
+================================================================================
+
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+
+
+================================================================================
+File: next.config.ts
+================================================================================
+
+// next.config.ts
+import type { NextConfig } from "next";
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+
+const securityHeaders = [
+  {
+    key: 'X-DNS-Prefetch-Control',
+    value: 'on'
+  },
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload'
+  },
+  {
+    key: 'X-XSS-Protection',
+    value: '1; mode=block'
+  },
+  {
+    key: 'X-Frame-Options',
+    value: 'SAMEORIGIN'
+  },
+  {
+    key: 'X-Content-Type-Options',
+    value: 'nosniff'
+  },
+  {
+    key: 'Referrer-Policy',
+    value: 'origin-when-cross-origin'
+  },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+  }
+];
+
+const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: securityHeaders,
+      },
+    ];
+  },
+  images: {
+    domains: [
+      'loremflickr.com',
+      'cloudflare-ipfs.com',
+      'avatars.githubusercontent.com',
+      'picsum.photos',
+      'fastly.picsum.photos',
+    ],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  
+  // Add cache configuration
+  onDemandEntries: {
+    // period (in ms) where the server will keep pages in the buffer
+    maxInactiveAge: 25 * 1000,
+    // number of pages that should be kept simultaneously without being disposed
+    pagesBufferLength: 2,
+  },
+    // Enable compression
+    compress: true,
+
+    // Enable source maps in production for better error tracking
+    productionBrowserSourceMaps: true,
+  
+    // Add webpack optimizations
+    webpack: (config, { dev, isServer }) => {
+      // Only run in production client-side builds
+      if (!dev && !isServer) {
+        // Enable React profiling in production
+        config.resolve.alias['react-dom$'] = 'react-dom/profiling';
+        config.resolve.alias['scheduler/tracing'] = 'scheduler/tracing-profiling';
+  
+        // Minify JavaScript
+        config.optimization = {
+          ...config.optimization,
+          minimize: true,
+          splitChunks: {
+            chunks: 'all',
+            minSize: 20000,
+            maxSize: 244000,
+            minChunks: 1,
+            maxAsyncRequests: 30,
+            maxInitialRequests: 30,
+            automaticNameDelimiter: '~',
+            enforceSizeThreshold: 50000,
+            cacheGroups: {
+              defaultVendors: {
+                test: /[\\/]node_modules[\\/]/,
+                priority: -10
+              },
+              default: {
+                minChunks: 2,
+                priority: -20,
+                reuseExistingChunk: true
+              }
+            }
+          }
+        };
+      }
+      return config;
+    },
+  
+    // Add build-time optimizations
+    experimental: {
+      optimizeCss: true, // enables CSS optimization
+      optimizePackageImports: ['@mui/icons-material', '@mui/material', 'date-fns'],
+    },
+  };
+  
+  // Enable bundle analysis in production
+  const withAnalyzer = withBundleAnalyzer({
+    enabled: process.env.ANALYZE === 'true',
+  });
+  
+  export default withAnalyzer(nextConfig);
+
+================================================================================
+File: package.json
+================================================================================
+
+{
+  "name": "tito-website",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "type-check": "tsc --noEmit",
+    "check": "npm run lint ; npm run type-check",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "analyze": "cross-env ANALYZE=true npm run build",
+    "analyze:server": "cross-env BUNDLE_ANALYZE=server npm run build",
+    "analyze:browser": "cross-env BUNDLE_ANALYZE=browser npm run build"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.3.0",
+    "@next/bundle-analyzer": "^15.1.3",
+    "@next/env": "^15.1.3",
+    "@prisma/client": "^6.1.0",
+    "@sendgrid/mail": "^8.1.4",
+    "@uiw/react-md-editor": "^4.0.5",
+    "bcryptjs": "^2.4.3",
+    "bundle-analyzer": "^0.0.6",
+    "clipboardy": "^4.0.0",
+    "cross-env": "^7.0.3",
+    "gray-matter": "^4.0.3",
+    "isomorphic-dompurify": "^2.19.0",
+    "next": "15.1.3",
+    "next-auth": "^4.24.11",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.54.2",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1",
+    "schema-dts": "^1.1.2",
+    "swiper": "^11.1.15"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.26.0",
+    "@eslint/eslintrc": "^3",
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.49.1",
+    "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jest": "^29.5.14",
+    "@types/node": "20.17.11",
+    "@types/react": "19.0.2",
+    "@types/react-dom": "^19",
+    "@types/testing-library__jest-dom": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.19.1",
+    "@typescript-eslint/parser": "^8.19.1",
+    "babel-jest": "^29.7.0",
+    "define-properties": "^1.2.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.1.3",
+    "eslint-plugin-jest": "^28.10.0",
+    "eslint-plugin-react": "^7.37.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.14.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "postcss": "^8",
+    "prisma": "^6.1.0",
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5",
+    "typescript-eslint": "^8.19.0"
+  }
+}
+
+
+================================================================================
+File: playwright.config.ts
+================================================================================
+
+import { PlaywrightTestConfig } from '@playwright/test';
+
+const config: PlaywrightTestConfig = {
+  testDir: './e2e',
+  use: {
+    baseURL: 'http://localhost:3000',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    timeout: 120000,
+    reuseExistingServer: !process.env.CI,
+  },
+};
+
+export default config;
+
+================================================================================
+File: postcss.config.mjs
+================================================================================
+
+/** @type {import('postcss-load-config').Config} */
+const config = {
+  plugins: {
+    tailwindcss: {},
+  },
+};
+
+export default config;
+
+
+================================================================================
+File: src/app/about/page.tsx
+================================================================================
+
+// src/app/about/page.tsx
+
+import Image from 'next/image';
+import { post, teachers } from '../../data';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'About Us - Oslo Languages',
+  description: 'Learn about Oslo Languages, our expert teachers, and our proven teaching methodology. Established in 2015, we are one of Oslo\'s leading language schools.',
+  keywords: [
+    'language school oslo',
+    'norwegian teachers',
+    'english teachers oslo', 
+    'spanish teachers norway',
+    'about oslo languages',
+    'language teaching methodology'
+  ],
+  openGraph: {
+    title: 'About Oslo Languages - Language School in Oslo',
+    description: 'Meet our expert language teachers and learn about our teaching methodology.',
+    images: ['/og/about.jpg'],
+  },
+};
+
+export default function AboutPage() {
+  return (
+    <div className="container mx-auto px-4 py-12">
+      {/* History Section */}
+      <section className="mb-20">
+        <h1 className="text-4xl font-bold mb-4 text-center">About Oslo Languages</h1>
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="space-y-4">
+            <p className="text-lg">
+              Founded in 2015, Oslo Languages has grown to become one of Oslo&apos;s leading 
+              language schools, specializing in Norwegian, English, and Spanish instruction.
+            </p>
+            <p className="text-lg">
+              Our mission is to provide high-quality language education through 
+              engaging, practical, and culturally enriching courses that prepare 
+              students for real-world communication.
+            </p>
+            <p className="text-lg">
+              Located in central Oslo, we serve both individuals and corporate 
+              clients, offering flexible learning options including in-person 
+              and online courses.
+            </p>
+          </div>
+          <div className="relative h-[400px] rounded-lg overflow-hidden">
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, 1200px"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Methodology Section */}
+      <section className="mb-20">
+        <h2 className="text-3xl font-bold mb-8 text-center">Our Teaching Methodology</h2>
+        <div className="grid md:grid-cols-3 gap-8  text-gray-800">
+          <div className="p-6 bg-white rounded-lg shadow-lg">
+            <h3 className="text-xl font-semibold mb-4">Communicative Approach</h3>
+            <p>
+              We emphasize practical communication skills through interactive 
+              activities, role-play, and real-world scenarios.
+            </p>
+          </div>
+          <div className="p-6 bg-white rounded-lg shadow-lg">
+            <h3 className="text-xl font-semibold mb-4">Small Group Sizes</h3>
+            <p>
+              Classes are limited to 12 students to ensure individual attention 
+              and maximize speaking practice opportunities.
+            </p>
+          </div>
+          <div className="p-6 bg-white rounded-lg shadow-lg">
+            <h3 className="text-xl font-semibold mb-4">Cultural Integration</h3>
+            <p>
+              Language learning is combined with cultural insights to provide 
+              a comprehensive understanding of the target language.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Teachers Section */}
+      <section className="mb-20">
+        <h2 className="text-3xl font-bold mb-8 text-center">Meet Our Teachers</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          {teachers.map((teacher, index) => (
+            <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="relative h-64">
+                <Image
+                  src={teacher.image}
+                  alt={teacher.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold mb-2">{teacher.name}</h3>
+                <p className="text-blue-600 mb-2">{teacher.role}</p>
+                <p className="text-gray-600 mb-4">{teacher.bio}</p>
+                <div className="flex flex-wrap gap-2">
+                  {teacher.languages.map((language, i) => (
+                    <span 
+                      key={i}
+                      className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm"
+                    >
+                      {language}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="bg-blue-600 text-white py-12 rounded-lg">
+        <div className="grid md:grid-cols-4 gap-8 text-center">
+          <div>
+            <div className="text-4xl font-bold mb-2">800+</div>
+            <div>Students Taught</div>
+          </div>
+          <div>
+            <div className="text-4xl font-bold mb-2">15</div>
+            <div>Expert Teachers</div>
+          </div>
+          <div>
+            <div className="text-4xl font-bold mb-2">98%</div>
+            <div>Student Satisfaction</div>
+          </div>
+          <div>
+            <div className="text-4xl font-bold mb-2">8</div>
+            <div>Years Experience</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/admin/BlogEditor.tsx
+================================================================================
+
+'use client';
+// src/components/admin/BlogEditor.tsx
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+// Import the MDX editor dynamically to avoid SSR issues
+const MDEditor = dynamic(
+  () => import('@uiw/react-md-editor' as any).then((mod) => mod.default),
+  { ssr: false }
+);
+
+interface BlogPost {
+  title: string;
+  excerpt: string;
+  content: string;
+  categories: string[];
+  tags: string[];
+  coverImage: string;
+}
+
+interface BlogEditorProps {
+  initialData?: BlogPost;
+  isEditing?: boolean;
+}
+
+export default function BlogEditor({ initialData, isEditing = false }: BlogEditorProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [formData, setFormData] = useState<BlogPost>(initialData || {
+    title: '',
+    excerpt: '',
+    content: '',
+    categories: [],
+    tags: [],
+    coverImage: '',
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/admin/posts${isEditing && initialData ? '/' + initialData.title.toLowerCase().replace(/\s+/g, '-') : ''}`, {
+        method: isEditing ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save post');
+      }
+
+      router.push('/admin/posts');
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleArrayInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: 'categories' | 'tags'
+  ) => {
+    const values = e.target.value.split(',').map((item) => item.trim());
+    setFormData((prev) => ({ ...prev, [field]: values }));
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="bg-red-100 text-red-700 p-4 rounded-md">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <label className="block text-sm font-medium text-text-primary mb-2">
+          Title
+        </label>
+        <input
+          type="text"
+          name="title"
+          value={formData.title}
+          onChange={handleInputChange}
+          required
+          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-text-primary mb-2">
+          Excerpt
+        </label>
+        <textarea
+          name="excerpt"
+          value={formData.excerpt}
+          onChange={handleInputChange}
+          required
+          rows={3}
+          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-text-primary mb-2">
+          Cover Image URL
+        </label>
+        <input
+          type="url"
+          name="coverImage"
+          value={formData.coverImage}
+          onChange={handleInputChange}
+          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-text-primary mb-2">
+          Categories (comma-separated)
+        </label>
+        <input
+          type="text"
+          value={formData.categories.join(', ')}
+          onChange={(e) => handleArrayInputChange(e, 'categories')}
+          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-text-primary mb-2">
+          Tags (comma-separated)
+        </label>
+        <input
+          type="text"
+          value={formData.tags.join(', ')}
+          onChange={(e) => handleArrayInputChange(e, 'tags')}
+          className="w-full px-3 py-2 border border-text-secondary rounded-md"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-text-primary mb-2">
+          Content
+        </label>
+        <div data-color-mode="dark">
+          <MDEditor
+            value={formData.content}
+            onChange={(value: string | undefined) => setFormData((prev) => ({ ...prev, content: value || '' }))}
+            preview="edit"
+            height={400}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end space-x-4">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="px-4 py-2 border border-text-secondary rounded-md hover:bg-bg-secondary"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="px-4 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-secondary disabled:opacity-50"
+        >
+          {isSubmitting ? 'Saving...' : isEditing ? 'Update Post' : 'Create Post'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+================================================================================
+File: src/app/admin/dashboard/page.tsx
+================================================================================
+
+// src/app/admin/dashboard/page.tsx
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
+
+export default async function AdminDashboard() {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect('/admin/login');
+  }
+
+  return (
+    <div className="min-h-screen bg-bg-secondary p-8">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold text-text-primary">Admin Dashboard</h1>
+          <p className="text-text-secondary">
+            Welcome back, {session.user?.email}
+          </p>
+        </header>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Blog Posts Management */}
+          <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-text-primary">
+              Blog Posts
+            </h2>
+            <p className="text-text-secondary mb-4">
+              Manage your blog posts, create new content, and edit existing articles.
+            </p>
+            <a
+              href="/admin/posts"
+              className="inline-block bg-accent-primary text-white px-4 py-2 rounded hover:bg-accent-secondary transition-colors"
+            >
+              Manage Posts
+            </a>
+          </div>
+
+          {/* Course Management */}
+          <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-text-primary">
+              Courses
+            </h2>
+            <p className="text-text-secondary mb-4">
+              Update course information, schedules, and pricing.
+            </p>
+            <a
+              href="/admin/courses"
+              className="inline-block bg-accent-primary text-white px-4 py-2 rounded hover:bg-accent-secondary transition-colors"
+            >
+              Manage Courses
+            </a>
+          </div>
+
+          {/* Media Library */}
+          <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold mb-4 text-text-primary">
+              Media Library
+            </h2>
+            <p className="text-text-secondary mb-4">
+              Upload and manage images and other media files.
+            </p>
+            <a
+              href="/admin/media"
+              className="inline-block bg-accent-primary text-white px-4 py-2 rounded hover:bg-accent-secondary transition-colors"
+            >
+              Media Library
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/admin/login/page.tsx
+================================================================================
+
+// src/app/admin/login/page.tsx
+'use client';
+
+import { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+
+export default function LoginPage() {
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        router.push('/admin/dashboard');
+      }
+    } catch (error) {
+      setError('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-bg-secondary">
+      <div className="max-w-md w-full space-y-8 p-8 bg-bg-tertiary rounded-lg shadow-xl">
+        <div>
+          <h1 className="text-3xl font-bold text-center text-text-primary">
+            Admin Login
+          </h1>
+        </div>
+
+        {error && (
+          <div className="bg-red-100 text-red-700 p-3 rounded">
+            {error}
+          </div>
+        )}
+
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div>
+            <label 
+              htmlFor="email" 
+              className="block text-sm font-medium text-text-primary"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="mt-1 block w-full px-3 py-2 bg-bg-secondary border border-text-secondary rounded-md shadow-sm focus:outline-none focus:ring-accent-primary focus:border-accent-primary"
+            />
+          </div>
+
+          <div>
+            <label 
+              htmlFor="password" 
+              className="block text-sm font-medium text-text-primary"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="mt-1 block w-full px-3 py-2 bg-bg-secondary border border-text-secondary rounded-md shadow-sm focus:outline-none focus:ring-accent-primary focus:border-accent-primary"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-primary hover:bg-accent-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-primary disabled:opacity-50"
+          >
+            {isLoading ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/admin/posts/[slug]/edit/page.tsx
+================================================================================
+
+// src/app/admin/posts/[slug]/edit/page.tsx
+import { notFound } from 'next/navigation';
+import BlogEditor from '@/app/admin/BlogEditor';
+import { getPostBySlug } from '@/lib/blog';
+
+interface Props {
+  params: { slug: string };
+}
+
+export default async function EditBlogPostPage({ params }: Props) {
+  let post;
+  try {
+    post = await getPostBySlug(params.slug);
+  } catch (error) {
+    notFound();
+  }
+
+  return (
+    <div className="min-h-screen bg-bg-secondary p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-text-primary">
+          Edit Blog Post: {post.title}
+        </h1>
+        
+        <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
+          <BlogEditor 
+            initialData={{
+              title: post.title,
+              excerpt: post.excerpt,
+              content: post.content,
+              categories: post.categories,
+              tags: post.tags,
+              coverImage: post.coverImage,
+            }} 
+            isEditing={true} 
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/admin/posts/new/page.tsx
+================================================================================
+
+// src/app/admin/posts/new/page.tsx
+import BlogEditor from '@/app/admin/BlogEditor';
+
+export default function NewBlogPostPage() {
+  return (
+    <div className="min-h-screen bg-bg-secondary p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-text-primary">Create New Blog Post</h1>
+        
+        <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
+          <BlogEditor />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/admin/posts/page.tsx
+================================================================================
+
+// src/app/admin/posts/page.tsx
+import { getAllPosts } from '@/lib/blog';
+import Link from 'next/link';
+
+export default async function BlogManagementPage() {
+  const posts = await getAllPosts();
+
+  return (
+    <div className="min-h-screen bg-bg-secondary p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-text-primary">Manage Blog Posts</h1>
+          <Link
+            href="/admin/posts/new"
+            className="bg-accent-primary text-white px-4 py-2 rounded-md hover:bg-accent-secondary"
+          >
+            Create New Post
+          </Link>
+        </div>
+
+        <div className="bg-bg-tertiary rounded-lg shadow-lg overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-bg-secondary">
+              <tr>
+                <th className="px-6 py-3 text-left text-text-primary">Title</th>
+                <th className="px-6 py-3 text-left text-text-primary">Author</th>
+                <th className="px-6 py-3 text-left text-text-primary">Date</th>
+                <th className="px-6 py-3 text-left text-text-primary">Categories</th>
+                <th className="px-6 py-3 text-right text-text-primary">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-text-secondary">
+              {posts.map((post) => (
+                <tr key={post.slug} className="hover:bg-bg-secondary">
+                  <td className="px-6 py-4 text-text-primary">{post.title}</td>
+                  <td className="px-6 py-4 text-text-secondary">{post.author}</td>
+                  <td className="px-6 py-4 text-text-secondary">
+                    {new Date(post.date).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-2">
+                      {post.categories.map((category) => (
+                        <span
+                          key={category}
+                          className="bg-accent-primary text-white px-2 py-1 rounded-full text-sm"
+                        >
+                          {category}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right space-x-2">
+                    <Link
+                      href={`/admin/posts/${post.slug}/edit`}
+                      className="text-accent-primary hover:text-accent-secondary"
+                    >
+                      Edit
+                    </Link>
+                    <button
+                      onClick={async () => {
+                        if (confirm('Are you sure you want to delete this post?')) {
+                          await fetch(`/api/admin/posts/${post.slug}`, {
+                            method: 'DELETE',
+                          });
+                          window.location.reload();
+                        }
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/api/admin/posts/route.ts
+================================================================================
+
+// src/app/api/admin/posts/route.ts
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
+import fs from 'fs/promises';
+import path from 'path';
+import matter from 'gray-matter';
+import { User } from 'next-auth';
+
+interface SessionUser extends User {
+  role: string;
+}
+
+const postsDirectory = path.join(process.cwd(), 'content/posts');
+
+export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  const user = session?.user as SessionUser | undefined;
+  
+  if (!user || user.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const data = await request.json();
+    
+    // Create slug from title
+    const slug = data.title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-');
+
+    // Create frontmatter
+    const frontmatter = {
+      title: data.title,
+      date: new Date().toISOString(),
+      excerpt: data.excerpt,
+      author: user.email,
+      categories: data.categories,
+      tags: data.tags,
+      coverImage: data.coverImage,
+    };
+
+    // Create markdown content
+    const fileContent = matter.stringify(data.content, frontmatter);
+
+    // Write to file
+    await fs.writeFile(
+      path.join(postsDirectory, `${slug}.md`),
+      fileContent,
+      'utf8'
+    );
+
+    return NextResponse.json({ success: true, slug });
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error creating post:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to create post' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { slug: string } }
+) {
+  const session = await getServerSession(authOptions);
+  const user = session?.user as SessionUser | undefined;
+  
+  if (!user || user.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const data = await request.json();
+    const slug = params.slug;
+
+    // Create frontmatter
+    const frontmatter = {
+      title: data.title,
+      excerpt: data.excerpt,
+      author: user.email,
+      categories: data.categories,
+      tags: data.tags,
+      coverImage: data.coverImage,
+      date: new Date().toISOString(),
+    };
+
+    // Create markdown content
+    const fileContent = matter.stringify(data.content, frontmatter);
+
+    // Write to file
+    await fs.writeFile(
+      path.join(postsDirectory, `${slug}.md`),
+      fileContent,
+      'utf8'
+    );
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error updating post:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to update post' },
+      { status: 500 }
+    );
+  }
+}
+
+================================================================================
+File: src/app/api/contact/route.ts
+================================================================================
+
+import { NextRequest, NextResponse } from 'next/server';
+import { writeFile } from 'fs/promises';
+import { join } from 'path';
+import { mkdir } from 'fs/promises';
+import { getRateLimitMiddleware } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
+
+const rateLimitMiddleware = getRateLimitMiddleware({
+  limit: 5,
+  windowMs: 60 * 1000,
+});
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
+  'image/jpeg',
+  'image/png'
+];
+
+const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads');
+
+export async function POST(request: NextRequest) {
+  try {
+    // Check rate limit
+    const rateLimitResponse = await rateLimitMiddleware(request);
+    if (rateLimitResponse) {
+      logger.warn('Rate limit exceeded', {
+        ip: request.headers.get('x-forwarded-for'),
+        path: request.url,
+      });
+      return rateLimitResponse;
+    }
+
+    // Ensure upload directory exists
+    try {
+      await mkdir(UPLOAD_DIR, { recursive: true });
+    } catch (error) {
+      logger.error('Failed to create upload directory', { error });
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
+    // Parse form data
+    const formData = await request.formData();
+    const files = formData.getAll('attachments') as File[];
+    
+    // Validate files
+    for (const file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: `File ${file.name} exceeds maximum size of 5MB` },
+          { status: 400 }
+        );
+      }
+
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+        return NextResponse.json(
+          { error: `File type ${file.type} is not allowed` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Process form data
+    const data = {
+      name: formData.get('name')?.toString().trim(),
+      email: formData.get('email')?.toString().trim(),
+      subject: formData.get('subject')?.toString().trim(),
+      message: formData.get('message')?.toString().trim(),
+      attachments: [] as string[],
+    };
+
+    // Validate required fields
+    const errors: string[] = [];
+    if (!data.name) errors.push('Name is required');
+    if (!data.email) errors.push('Email is required');
+    if (!data.subject) errors.push('Subject is required');
+    if (!data.message) errors.push('Message is required');
+
+    // Validate email format
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    if (data.email && !emailRegex.test(data.email)) {
+      errors.push('Invalid email address');
+    }
+
+    // Return validation errors if any
+    if (errors.length > 0) {
+      logger.warn('Contact form validation failed', { errors, data });
+      return NextResponse.json({ errors }, { status: 400 });
+    }
+
+    // Save files
+    const savedFiles = [];
+    for (const file of files) {
+      try {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        
+        // Generate unique filename
+        const timestamp = Date.now();
+        const safeFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const filename = `${timestamp}-${safeFilename}`;
+        const filepath = join(UPLOAD_DIR, filename);
+        
+        await writeFile(filepath, buffer);
+        savedFiles.push(filename);
+        
+        logger.info('File saved successfully', { 
+          filename,
+          size: file.size,
+          type: file.type 
+        });
+      } catch (error) {
+        logger.error('File save failed', { 
+          filename: file.name,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
+        return NextResponse.json(
+          { error: `Failed to save file ${file.name}` },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Update data with saved file information
+    data.attachments = savedFiles;
+
+    // Log the submission
+    logger.info('Processing contact form submission', {
+      email: data.email,
+      subject: data.subject,
+      attachments: savedFiles.length
+    });
+
+    // Here you would typically:
+    // 1. Send notification email
+    // 2. Store in database
+    // 3. Process attachments as needed
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Thank you for your message. We will contact you soon.',
+        data: {
+          ...data,
+          attachments: savedFiles.map(file => `/uploads/${file}`)
+        }
+      },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate'
+        }
+      }
+    );
+
+  } catch (error) {
+    logger.error('Contact form submission failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to process your request. Please try again later.',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// Handle preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Methods': 'POST',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Max-Age': '86400'
+    },
+  });
+}
+
+================================================================================
+File: src/app/api/og/route.tsx
+================================================================================
+
+// src/app/api/og/route.tsx
+
+import { ImageResponse } from 'next/og';
+import { NextRequest } from 'next/server';
+
+export const runtime = 'edge';
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+
+    const title = searchParams.get('title') || 'Oslo Languages';
+    const description = searchParams.get('description') || '';
+    const siteName = searchParams.get('siteName') || 'Oslo Languages';
+
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: '#1a1a1a',
+            padding: '40px 50px',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+            }}
+          >
+            <h1
+              style={{
+                fontSize: '64px',
+                fontWeight: 'bold',
+                color: '#ffffff',
+                lineHeight: 1.2,
+              }}
+            >
+              {title}
+            </h1>
+            {description && (
+              <p
+                style={{
+                  fontSize: '32px',
+                  color: '#888888',
+                  marginTop: '20px',
+                }}
+              >
+                {description}
+              </p>
+            )}
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderTop: '1px solid #333',
+              paddingTop: '20px',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '28px',
+                color: '#888888',
+              }}
+            >
+              {siteName}
+            </span>
+          </div>
+        </div>
+      ),
+      {
+        width: 1200,
+        height: 630,
+      }
+    );
+  } catch (error) {
+    console.error('Error generating image:', error);
+    return new Response(`Failed to generate image`, {
+      status: 500,
+    });
+  }
+}
+
+================================================================================
+File: src/app/api/register/route.ts
+================================================================================
+
+// src/app/api/register/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getRateLimitMiddleware } from '@/lib/rate-limit';
+
+const rateLimitMiddleware = getRateLimitMiddleware({
+  limit: 5,
+  windowMs: 60 * 1000,
+});
+
+export async function POST(request: NextRequest) {
+  // Check rate limit
+  const rateLimitResponse = await rateLimitMiddleware(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  try {
+    const data = await request.json();
+
+    // Input validation
+    const errors = [];
+    if (!data.firstName?.trim()) errors.push('First name is required');
+    if (!data.lastName?.trim()) errors.push('Last name is required');
+    if (!data.email?.trim()) errors.push('Email is required');
+    if (!data.phone?.trim()) errors.push('Phone is required');
+    if (!data.courseId?.trim()) errors.push('Course selection is required');
+    if (!data.preferredSchedule?.trim()) errors.push('Preferred schedule is required');
+    if (!data.currentLevel?.trim()) errors.push('Current level is required');
+
+    // Email validation
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    if (data.email && !emailRegex.test(data.email)) {
+      errors.push('Invalid email address');
+    }
+
+    // Phone validation
+    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+    if (data.phone && !phoneRegex.test(data.phone)) {
+      errors.push('Invalid phone number');
+    }
+
+    if (errors.length > 0) {
+      return NextResponse.json({ errors }, { status: 400 });
+    }
+
+    // Sanitize input
+    const sanitizedData = {
+      firstName: data.firstName.trim().slice(0, 100),
+      lastName: data.lastName.trim().slice(0, 100),
+      email: data.email.trim().slice(0, 100),
+      phone: data.phone.trim().slice(0, 20),
+      courseId: data.courseId.trim(),
+      preferredSchedule: data.preferredSchedule.trim(),
+      currentLevel: data.currentLevel.trim(),
+      goals: (data.goals || '').trim().slice(0, 1000),
+      specialRequirements: (data.specialRequirements || '').trim().slice(0, 1000),
+      heardFrom: (data.heardFrom || '').trim(),
+      marketingConsent: !!data.marketingConsent,
+    };
+
+    // Here you would typically:
+    // 1. Save to database
+    // 2. Send confirmation email
+    // 3. Send notification to staff
+    // 4. Log the registration
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Registration submitted successfully.',
+        data: sanitizedData,
+      },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        }
+      }
+    );
+
+  } catch (error) {
+    console.error('Registration error:', error);
+    
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to process registration. Please try again later.',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+================================================================================
+File: src/app/blog/[slug]/page.tsx
+================================================================================
+
+// src/app/blog/[slug]/page.tsx
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getPostBySlug, getAllPosts } from '@/lib/blog';
+import type { Metadata } from 'next';
+
+interface Props {
+  params: { slug: string };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  try {
+    const post = await getPostBySlug(params.slug);
+    
+    return {
+      title: `${post.title} - Oslo Languages Blog`,
+      description: post.excerpt,
+      openGraph: {
+        title: post.title,
+        description: post.excerpt,
+        images: post.coverImage ? [post.coverImage] : [],
+      },
+    };
+  } catch {
+    return {
+      title: 'Post Not Found - Oslo Languages Blog',
+    };
+  }
+}
+
+export async function generateStaticParams() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+export default async function BlogPost({ params }: Props) {
+  let post;
+  try {
+    post = await getPostBySlug(params.slug);
+  } catch {
+    notFound();
+  }
+
+  return (
+    <article className="container mx-auto px-4 py-12">
+      {/* Header */}
+      <header className="max-w-4xl mx-auto mb-12">
+        {post.coverImage && (
+          <div className="relative h-[400px] mb-8 rounded-lg overflow-hidden">
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        )}
+
+        <h1 className="text-4xl font-bold mb-4 text-text-primary">{post.title}</h1>
+
+        <div className="flex flex-wrap items-center gap-4 text-text-secondary mb-6">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{post.author}</span>
+          </div>
+          <time dateTime={post.date}>
+            {new Date(post.date).toLocaleDateString()}
+          </time>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-8">
+          {post.categories.map((category) => (
+            <Link
+              key={category}
+              href={`/blog/category/${category.toLowerCase()}`}
+              className="bg-accent-primary text-white px-3 py-1 rounded-full hover:bg-accent-secondary transition-colors"
+            >
+              {category}
+            </Link>
+          ))}
+        </div>
+
+        <p className="text-xl text-text-secondary">{post.excerpt}</p>
+      </header>
+
+      {/* Content */}
+      <div className="max-w-4xl mx-auto">
+        <div 
+          className="prose prose-lg dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
+
+        {/* Tags */}
+        <div className="mt-12 pt-6 border-t border-text-secondary">
+          <div className="flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/blog/tag/${tag.toLowerCase()}`}
+                className="text-text-secondary hover:text-accent-primary"
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+================================================================================
+File: src/app/blog/page.tsx
+================================================================================
+
+// src/app/blog/page.tsx
+import Image from 'next/image';
+import Link from 'next/link';
+import { getAllPosts } from '@/lib/blog';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Blog - Oslo Languages',
+  description: 'Read our latest articles about language learning, Norwegian culture, and more.',
+};
+
+export default async function BlogPage() {
+  const posts = await getAllPosts();
+
+  return (
+    <div className="container mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold mb-8 text-text-primary">Blog</h1>
+      
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {posts.map((post) => (
+          <article key={post.slug} className="bg-bg-secondary rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+            {post.coverImage && (
+              <div className="relative h-48">
+                <Image
+                  src={post.coverImage}
+                  alt={post.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            
+            <div className="p-6">
+              <div className="flex flex-wrap gap-2 mb-3">
+                {post.categories.map((category) => (
+                  <Link
+                    key={category}
+                    href={`/blog/category/${category.toLowerCase()}`}
+                    className="text-sm bg-accent-primary text-white px-2 py-1 rounded-full hover:bg-accent-secondary transition-colors"
+                  >
+                    {category}
+                  </Link>
+                ))}
+              </div>
+
+              <h2 className="text-xl font-bold mb-2 text-text-primary">
+                <Link href={`/blog/${post.slug}`} className="hover:text-accent-primary">
+                  {post.title}
+                </Link>
+              </h2>
+
+              <p className="text-text-secondary mb-4">{post.excerpt}</p>
+
+              <div className="flex items-center justify-between text-sm text-text-secondary">
+                <span>{post.author}</span>
+                <time dateTime={post.date}>
+                  {new Date(post.date).toLocaleDateString()}
+                </time>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/blog/tag/${tag.toLowerCase()}`}
+                    className="text-sm text-text-secondary hover:text-accent-primary"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/contact/page.tsx
+================================================================================
+
+import ContactForm from '@/components/widgets/ContactForm';
+
+export default function ContactPage() {
+  return (
+    <div className="container mx-auto px-4 py-12">
+      <section className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4 text-text-primary">Contact Us</h1>
+        <p className="text-xl text-text-secondary max-w-2xl mx-auto">
+          Get in touch with us. We&apos;d love to hear from you and will respond as soon as possible.
+        </p>
+      </section>
+
+      <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        {/* Contact Information */}
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-2xl font-semibold mb-4 text-text-primary">Contact Information</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-text-primary">Address</h3>
+                <p className="text-text-secondary">
+                  123 Business Street<br />
+                  Suite 100<br />
+                  City, State 12345
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary">Phone</h3>
+                <p className="text-text-secondary">(123) 456-7890</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-text-primary">Email</h3>
+                <p className="text-text-secondary">info@yourcompany.com</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-semibold mb-4 text-text-primary">Business Hours</h2>
+            <div className="space-y-2">
+              <p className="text-text-secondary">
+                <span className="font-semibold text-text-primary">Monday - Friday:</span> 9:00 AM - 6:00 PM
+              </p>
+              <p className="text-text-secondary">
+                <span className="font-semibold text-text-primary">Saturday:</span> 10:00 AM - 4:00 PM
+              </p>
+              <p className="text-text-secondary">
+                <span className="font-semibold text-text-primary">Sunday:</span> Closed
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Form */}
+        <div className="bg-bg-secondary p-6 rounded-lg shadow-lg border border-text-secondary">
+          <h2 className="text-2xl font-semibold mb-6 text-text-primary">Send us a Message</h2>
+          <ContactForm />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/courses/[courseId]/page.tsx
+================================================================================
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+
+const courseDetails = {
+  'norwegian-beginner': {
+    title: 'Norwegian for Beginners (A1)',
+    language: 'Norwegian',
+    level: 'A1',
+    duration: '10 weeks',
+    schedule: 'Mon & Wed 18:00-20:00',
+    price: 'NOK 8,500',
+    description: 'Perfect for newcomers to Norway. Learn essential Norwegian for daily life.',
+    image: '/courses/norwegian-a1.jpg',
+    syllabus: [
+      'Basic grammar and pronunciation',
+      'Everyday conversations',
+      'Numbers and basic mathematics',
+      'Shopping and ordering food',
+      'Introducing yourself and family',
+      'Basic workplace communication',
+    ],
+    includes: [
+      'Course materials and textbook',
+      'Online learning platform access',
+      'Progress tests and feedback',
+      'Course completion certificate',
+      '2 one-on-one sessions with teacher',
+    ],
+    upcomingDates: [
+      'January 15, 2024 - March 20, 2024',
+      'March 1, 2024 - May 10, 2024',
+      'April 15, 2024 - June 25, 2024',
+    ],
+  },
+};
+
+type Props = {
+  params: { courseId: string };
+};
+
+export default function CoursePage({ params }: Props) {
+  const course = courseDetails[params.courseId as keyof typeof courseDetails];
+
+  if (!course) {
+    notFound();
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-12 bg-gray-50">
+      {/* Course Header */}
+      <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="relative h-[400px] rounded-lg overflow-hidden">
+          <Image
+            src={course.image}
+            alt={course.title}
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+        <div className="space-y-4">
+          <h1 className="text-4xl font-bold text-gray-900">{course.title}</h1>
+          <div className="flex gap-2">
+            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded">
+              {course.level}
+            </span>
+            <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded">
+              {course.language}
+            </span>
+          </div>
+          <p className="text-xl text-gray-600">{course.description}</p>
+          <div className="space-y-2 text-gray-600">
+            <p>Duration: {course.duration}</p>
+            <p>Schedule: {course.schedule}</p>
+            <p className="text-2xl font-bold text-gray-900">{course.price}</p>
+          </div>
+          <Link 
+            href={`/contact?course=${params.courseId}`}
+            className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Register Interest
+          </Link>
+        </div>
+      </div>
+
+      {/* Course Details */}
+      <div className="grid md:grid-cols-3 gap-8">
+        {/* Syllabus */}
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">Course Syllabus</h2>
+          <ul className="space-y-2">
+            {course.syllabus.map((item, index) => (
+              <li key={index} className="flex items-start text-gray-700">
+                <span className="text-blue-600 mr-2">•</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* What's Included */}
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">What&apos;s Included</h2>
+          <ul className="space-y-2">
+            {course.includes.map((item, index) => (
+              <li key={index} className="flex items-start text-gray-700">
+                <span className="text-green-600 mr-2">✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Upcoming Dates */}
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">Upcoming Course Dates</h2>
+          <ul className="space-y-2">
+            {course.upcomingDates.map((date, index) => (
+              <li key={index} className="flex items-start text-gray-700">
+                <span className="text-gray-600 mr-2">📅</span>
+                {date}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* FAQ Section */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-6 text-gray-900">Frequently Asked Questions</h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="font-bold mb-2 text-gray-900">What level is this course for?</h3>
+            <p className="text-gray-600">This course is designed for {course.level} level students. Not sure about your level? Contact us for a free assessment.</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="font-bold mb-2 text-gray-900">How many students are in each class?</h3>
+            <p className="text-gray-600">We maintain small class sizes with a maximum of 12 students to ensure quality interaction and personal attention.</p>
+          </div>
+          {/* Add more FAQs as needed */}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function generateMetadata({ params }: Props): Metadata {
+  const course = courseDetails[params.courseId as keyof typeof courseDetails];
+
+  if (!course) {
+    return {
+      title: 'Course Not Found - Oslo Languages',
+    };
+  }
+
+  return {
+    title: `${course.title} - Oslo Languages`,
+    description: course.description,
+    openGraph: {
+      title: `${course.title} - Oslo Languages`,
+      description: course.description,
+      images: [course.image],
+    },
+    keywords: [
+      'language course oslo',
+      'learn ' + course.language.toLowerCase(),
+      course.language.toLowerCase() + ' classes oslo',
+      'language school norway',
+      course.level + ' ' + course.language.toLowerCase(),
+    ],
+  };
+}
+
+================================================================================
+File: src/app/courses/page.tsx
+================================================================================
+
+// src/app/courses/page.tsx
+
+import Image from 'next/image';
+import Link from 'next/link';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Language Courses - Oslo Languages',
+  description: 'Discover our range of language courses in Oslo. Learn Norwegian, English, Spanish and more with expert teachers and flexible schedules.',
+  keywords: [
+    'language courses oslo',
+    'norwegian classes',
+    'english courses norway',
+    'spanish classes oslo',
+    'language school norway',
+    'business english oslo'
+  ],
+  openGraph: {
+    title: 'Language Courses - Oslo Languages',
+    description: 'Learn languages in Oslo with expert teachers and flexible schedules.',
+    images: ['/og/courses.jpg'],
+  },
+};
+
+type Course = {
+  id: string;
+  title: string;
+  language: string;
+  level: string;
+  duration: string;
+  schedule: string;
+  price: string;
+  description: string;
+  image: string;
+};
+
+
+const courses: Course[] =  [
+  {
+    id: 'norwegian-beginner',
+    title: 'Norwegian for Beginners (A1)',
+    language: 'Norwegian',
+    level: 'A1',
+    duration: '10 weeks',
+    schedule: 'Mon & Wed 18:00-20:00',
+    price: 'NOK 8,500',
+    description: 'Perfect for newcomers to Norway. Learn essential Norwegian for daily life.',
+    image: '/courses/norwegian-a1.jpg'
+  },
+  {
+    id: 'norwegian-intermediate',
+    title: 'Intermediate Norwegian (B1)',
+    language: 'Norwegian',
+    level: 'B1',
+    duration: '12 weeks',
+    schedule: 'Tue & Thu 18:00-20:00',
+    price: 'NOK 9,500',
+    description: 'Advance your Norwegian with focus on conversation and workplace communication.',
+    image: '/courses/norwegian-b1.jpg'
+  },
+  {
+    id: 'business-english',
+    title: 'Business English',
+    language: 'English',
+    level: 'B2-C1',
+    duration: '8 weeks',
+    schedule: 'Tue & Thu 17:00-19:00',
+    price: 'NOK 7,500',
+    description: 'Professional English for business contexts and workplace communication.',
+    image: '/courses/business-english.jpg'
+  },
+  {
+    id: 'spanish-beginner',
+    title: 'Spanish for Beginners',
+    language: 'Spanish',
+    level: 'A1',
+    duration: '10 weeks',
+    schedule: 'Mon & Wed 17:00-19:00',
+    price: 'NOK 7,500',
+    description: 'Start your journey with Spanish in small, interactive groups.',
+    image: '/courses/spanish-a1.jpg'
+  }
+];
+
+const ITEMS_PER_PAGE = 6;
+
+
+export default function CoursesPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  // Get current page from URL params or default to 1
+  const currentPage = Number(searchParams.page) || 1;
+  const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
+
+  // Calculate pagination bounds
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentCourses = courses.slice(startIndex, endIndex);
+
+  return (
+    <div className="container mx-auto px-4 py-12">
+      {/* Page Header */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4">Our Language Courses</h1>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          Choose from our range of language courses taught by experienced native speakers.
+          All courses include study materials and certification upon completion.
+        </p>
+      </div>
+
+      {/* Course Filter */}
+      <div className="flex flex-wrap gap-4 mb-8 justify-center">
+        <button className="px-4 py-2 rounded-full bg-blue-600 text-white">
+          All Courses
+        </button>
+        <button className="px-4 py-2 rounded-full border border-gray-300 hover:border-blue-600">
+          Norwegian
+        </button>
+        <button className="px-4 py-2 rounded-full border border-gray-300 hover:border-blue-600">
+          English
+        </button>
+        <button className="px-4 py-2 rounded-full border border-gray-300 hover:border-blue-600">
+          Spanish
+        </button>
+      </div>
+
+      {/* Course Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {currentCourses.map((course) => (
+          <div 
+            key={course.id} 
+            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+          >
+            <div className="relative h-48">
+              <Image
+                src={course.image}
+                alt={course.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-bold text-gray-900">{course.title}</h2>
+                <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded">
+                  {course.level}
+                </span>
+              </div>
+              <div className="space-y-2 mb-4">
+                <p className="text-gray-700">{course.description}</p>
+                <div className="text-sm text-gray-700">
+                  <p><span className="font-medium">Duration:</span> {course.duration}</p>
+                  <p><span className="font-medium">Schedule:</span> {course.schedule}</p>
+                  <p className="font-semibold text-gray-900">Price: {course.price}</p>
+                </div>
+              </div>
+              <Link 
+                href={`/courses/${course.id}`}
+                className="block w-full text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
+              >
+                Learn More
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center items-center gap-2">
+          <Link
+            href={`/courses?page=${Math.max(1, currentPage - 1)}`}
+            className={`px-4 py-2 rounded-md ${
+              currentPage === 1
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+            aria-disabled={currentPage === 1}
+          >
+            Previous
+          </Link>
+          
+          {[...Array(totalPages)].map((_, i) => (
+            <Link
+              key={i + 1}
+              href={`/courses?page=${i + 1}`}
+              className={`px-4 py-2 rounded-md ${
+                currentPage === i + 1
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 hover:bg-gray-200'
+              }`}
+            >
+              {i + 1}
+            </Link>
+          ))}
+
+          <Link
+            href={`/courses?page=${Math.min(totalPages, currentPage + 1)}`}
+            className={`px-4 py-2 rounded-md ${
+              currentPage === totalPages
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+            aria-disabled={currentPage === totalPages}
+          >
+            Next
+          </Link>
+        </div>
+      )}
+
+      {/* Call to Action */}
+      <div className="mt-16 text-center bg-gray-50 rounded-lg p-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-900">Not sure which course to choose?</h2>
+        <p className="text-gray-600 mb-6">
+          Contact us for a free consultation and level assessment.
+        </p>
+        <Link
+          href="/contact"
+          className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Contact Us
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/courses/register/page.tsx
+================================================================================
+
+// src/app/courses/register/page.tsx
+import { Metadata } from 'next';
+import CourseRegistrationForm from '@/components/widgets/CourseRegistrationForm';
+
+export const metadata: Metadata = {
+  title: 'Course Registration - Oslo Languages',
+  description: 'Register for language courses at Oslo Languages. Choose from Norwegian, English, Spanish and more.',
+};
+
+export default function RegisterPage() {
+  return (
+    <div className="container mx-auto px-4 py-12">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-4xl font-bold mb-4">Course Registration</h1>
+        <p className="text-lg text-gray-600 mb-8">
+          Please fill out the form below to register for your chosen course. 
+          We&apos;ll contact you within 1-2 business days to confirm your registration 
+          and provide payment details.
+        </p>
+        
+        <CourseRegistrationForm />
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/error.tsx
+================================================================================
+
+// src/app/error.tsx
+'use client';
+
+import { useEffect } from 'react';
+import { logger } from '@/lib/logger';
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    logger.error('Application error', {
+      message: error.message,
+      stack: error.stack,
+      digest: error.digest,
+    });
+  }, [error]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-bg-secondary">
+      <div className="text-center p-8 bg-bg-tertiary rounded-lg shadow-xl max-w-lg">
+        <h2 className="text-2xl font-bold text-text-primary mb-4">
+          Something went wrong!
+        </h2>
+        <p className="text-text-secondary mb-6">
+          We apologize for the inconvenience. Our team has been notified and is working to fix the issue.
+        </p>
+        <div className="space-x-4">
+          <button
+            onClick={() => reset()}
+            className="bg-accent-primary text-white px-6 py-2 rounded hover:bg-accent-secondary transition-colors"
+          >
+            Try again
+          </button>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="border border-accent-primary text-accent-primary px-6 py-2 rounded hover:bg-bg-secondary transition-colors"
+          >
+            Go Home
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/faq/page.tsx
+================================================================================
+
+// src/app/faq/page.tsx
+
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import React from 'react';
+
+
+export const metadata: Metadata = {
+  title: 'Frequently Asked Questions - Oslo Languages',
+  description: 'Find answers to common questions about our language courses, teaching methods, and registration process at Oslo Languages.',
+  keywords: ['oslo languages faq', 'language course questions', 'norwegian course faq', 'language school oslo faq'],
+};
+
+type FAQCategory = {
+  title: string;
+  questions: {
+    question: string;
+    answer: string | React.ReactNode;
+  }[];
+};
+
+const faqData: FAQCategory[] = [
+  {
+    title: "Course Information",
+    questions: [
+      {
+        question: "What levels do you offer?",
+        answer: "We offer courses from complete beginner (A1) to advanced (C1) levels in Norwegian, English, and Spanish. Each level follows the Common European Framework of Reference for Languages (CEFR)."
+      },
+      {
+        question: "How long are the courses?",
+        answer: "Most of our courses run for 10 weeks with two 2-hour sessions per week. We also offer intensive courses and private tutoring with flexible schedules."
+      },
+      {
+        question: "What is the maximum class size?",
+        answer: "To ensure quality instruction and individual attention, we limit our classes to a maximum of 12 students."
+      }
+    ]
+  },
+  {
+    title: "Registration & Payment",
+    questions: [
+      {
+        question: "How do I register for a course?",
+        answer: <>You can register through our <Link href="/contact" className="text-blue-600 hover:underline">contact form</Link> or visit our school in person. Once we receive your registration, we&apos;ll guide you through the enrollment process.</>
+      },
+      {
+        question: "What payment methods do you accept?",
+        answer: "We accept credit/debit cards, bank transfers, and Vipps. Payment plans are available for course fees over NOK 15,000."
+      },
+      {
+        question: "What is your cancellation policy?",
+        answer: "Full refunds are available up to 14 days before the course starts. Cancellations within 14 days of the start date are eligible for a 50% refund or course credit."
+      }
+    ]
+  },
+  {
+    title: "Teaching Method",
+    questions: [
+      {
+        question: "What teaching methodology do you use?",
+        answer: "We use a communicative approach focusing on practical language skills. Our lessons combine speaking, listening, reading, and writing with an emphasis on real-world communication."
+      },
+      {
+        question: "Are the teachers native speakers?",
+        answer: "Yes, all our teachers are native speakers or have native-level proficiency. They are also certified language teachers with extensive teaching experience."
+      },
+      {
+        question: "Do you provide learning materials?",
+        answer: "Yes, all course materials are included in the course fee. Students receive textbooks, workbooks, and access to our online learning platform."
+      }
+    ]
+  },
+  {
+    title: "Online Learning",
+    questions: [
+      {
+        question: "Do you offer online courses?",
+        answer: "Yes, we offer online versions of most of our courses. These follow the same curriculum as our in-person courses and include live video sessions with teachers."
+      },
+      {
+        question: "What technology do I need for online courses?",
+        answer: "You need a reliable internet connection, a computer or tablet with a webcam, and a quiet space for learning. We use Zoom for live sessions."
+      },
+      {
+        question: "Can I switch between online and in-person classes?",
+        answer: "Yes, subject to availability, students can switch between online and in-person formats with advance notice."
+      }
+    ]
+  }
+];
+
+export default function FAQPage() {
+  return (
+    <div className="container mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold text-center mb-8">
+        Frequently Asked Questions
+      </h1>
+
+      <p className="text-center text-gray-600 max-w-2xl mx-auto mb-12">
+        Find answers to common questions about our language courses. If you can&apos;t find
+        what you&apos;re looking for, please <Link href="/contact" className="text-blue-600 hover:underline">contact us</Link>.
+      </p>
+
+      <div className="space-y-12">
+        {faqData.map((category, categoryIndex) => (
+          <div key={categoryIndex}>
+            <h2 className="text-2xl font-semibold mb-6 text-blue-800">
+              {category.title}
+            </h2>
+            <div className="space-y-6">
+              {category.questions.map((item, itemIndex) => (
+                <div 
+                  key={itemIndex}
+                  className="bg-white rounded-lg shadow-lg p-6"
+                >
+                  <h3 className="text-lg font-semibold mb-3">
+                    {item.question}
+                  </h3>
+                  <div className="text-gray-600">
+                    {item.answer}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick Contact Section */}
+      <div className="mt-16 bg-blue-50 rounded-xl p-8 text-center">
+        <h2 className="text-2xl font-bold mb-4">
+          Still have questions?
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Our team is here to help you find the perfect language course.
+        </p>
+        <div className="space-x-4">
+          <Link 
+            href="/contact"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block"
+          >
+            Contact Us
+          </Link>
+          <Link
+            href="/courses"
+            className="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors inline-block"
+          >
+            View Courses
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/globals.css
+================================================================================
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #121212;
+  --foreground: #e0e0e0;
+  --background-secondary: #1e1e1e;
+  --background-tertiary: #252525;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #60a5fa;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Markdown Editor Styles */
+.w-md-editor {
+  background-color: var(--background-secondary) !important;
+}
+
+.w-md-editor-text-pre,
+.w-md-editor-text-input,
+.w-md-editor-text {
+  color: var(--text-primary) !important;
+}
+
+.wmde-markdown {
+  background-color: var(--background-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.w-md-editor-toolbar {
+  background-color: var(--background-tertiary) !important;
+  border-color: var(--text-secondary) !important;
+}
+
+.w-md-editor-toolbar button {
+  color: var(--text-primary) !important;
+}
+
+.w-md-editor-toolbar button:hover {
+  color: var(--accent-primary) !important;
+}
+
+.w-md-editor-preview {
+  box-shadow: inset 1px 0 0 0 var(--text-secondary) !important;
+}
+
+/* Preview Markdown Styles */
+.wmde-markdown h1,
+.wmde-markdown h2,
+.wmde-markdown h3,
+.wmde-markdown h4,
+.wmde-markdown h5,
+.wmde-markdown h6 {
+  color: var(--text-primary) !important;
+}
+
+.wmde-markdown p,
+.wmde-markdown li {
+  color: var(--text-secondary) !important;
+}
+
+.wmde-markdown code {
+  background-color: var(--background-tertiary) !important;
+  color: var(--accent-primary) !important;
+}
+
+.wmde-markdown pre {
+  background-color: var(--background-tertiary) !important;
+}
+
+.wmde-markdown blockquote {
+  border-left-color: var(--accent-primary) !important;
+  background-color: var(--background-tertiary) !important;
+}
+
+.wmde-markdown hr {
+  border-color: var(--text-secondary) !important;
+}
+
+.wmde-markdown a {
+  color: var(--accent-primary) !important;
+}
+
+.wmde-markdown table {
+  border-color: var(--text-secondary) !important;
+}
+
+.wmde-markdown th,
+.wmde-markdown td {
+  border-color: var(--text-secondary) !important;
+}
+
+/* Custom scrollbar for editor */
+.w-md-editor-text-pre::-webkit-scrollbar,
+.w-md-editor-preview::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.w-md-editor-text-pre::-webkit-scrollbar-track,
+.w-md-editor-preview::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+.w-md-editor-text-pre::-webkit-scrollbar-thumb,
+.w-md-editor-preview::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 4px;
+}
+
+.w-md-editor-text-pre::-webkit-scrollbar-thumb:hover,
+.w-md-editor-preview::-webkit-scrollbar-thumb:hover {
+  background: var(--text-primary);
+}
+
+================================================================================
+File: src/app/layout.tsx
+================================================================================
+
+// src/app/layout.tsx
+
+import type { Metadata } from "next";
+import { Inter } from "next/font/google"; 
+import Header from "@/components/layout/header/Header";
+import Footer from "@/components/layout/footer/Footer";
+import "./globals.css";
+import ErrorBoundary from '@/components/ErrorBoundary';
+import React from 'react';
+import AuthProvider from '@/components/providers/AuthProvider';
+
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: '--font-inter',
+});
+
+export const metadata: Metadata = {
+  title: "Oslo Languages - Language School in Oslo",
+  description: "Learn languages with Oslo's premier language school. We offer courses in Norwegian, English, Spanish and more.",
+  keywords: "language school oslo, norwegian courses, english courses, spanish courses, language learning norway",
+};
+
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
+        <AuthProvider>
+          <ErrorBoundary>
+            <Header />
+            <main id="main-content" className="flex-grow" tabIndex={-1}>
+              {children}
+            </main>
+            <Footer />
+          </ErrorBoundary>
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}
+
+================================================================================
+File: src/app/not-found.tsx
+================================================================================
+
+// src/app/not-found.tsx
+import Link from 'next/link';
+
+export default function NotFound() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-bg-secondary">
+      <div className="text-center p-8 bg-bg-tertiary rounded-lg shadow-xl max-w-lg">
+        <h1 className="text-4xl font-bold text-text-primary mb-4">404</h1>
+        <h2 className="text-2xl font-semibold text-text-primary mb-4">
+          Page Not Found
+        </h2>
+        <p className="text-text-secondary mb-6">
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+        </p>
+        <div className="space-x-4">
+          <Link 
+            href="/"
+            className="bg-accent-primary text-white px-6 py-2 rounded hover:bg-accent-secondary transition-colors inline-block"
+          >
+            Go Home
+          </Link>
+          <Link
+            href="/contact"
+            className="border border-accent-primary text-accent-primary px-6 py-2 rounded hover:bg-bg-secondary transition-colors inline-block"
+          >
+            Contact Support
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/page.tsx
+================================================================================
+
+// src/app/page.tsx
+
+import Image from "next/image";
+import Link from "next/link";
+import Testimonials from '@/components/widgets/Testimonials';
+import { features } from '@/data';
+
+export default function Home() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              Learn Languages in the Heart of Oslo
+            </h1>
+            <p className="text-xl mb-8">
+              Join Oslo&apos;s premier language school offering Norwegian, English, Spanish and more.
+              Expert teachers, flexible schedules, and proven learning methods.
+            </p>
+            <Link 
+              href="/courses"
+              className="bg-bg-secondary text-accent-primary px-8 py-3 rounded-lg font-semibold hover:bg-accent-secondary transition-colors"
+            >
+              Explore Our Courses
+            </Link>
+          </div>
+        </div>
+      </section>
+      
+      <Testimonials />
+      
+      {/* Features Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12 text-text-primary">Our Language Courses</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className="bg-bg-secondary p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+              >
+                <div className="w-12 h-12 mb-4">
+                  <Image
+                    src={feature.icon}
+                    alt={feature.title}
+                    width={48}
+                    height={48}
+                  />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-text-primary">{feature.title}</h3>
+                <p className="text-text-secondary">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-bg-tertiary py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-6 text-text-primary">Ready to Start Your Language Journey?</h2>
+          <p className="text-xl text-text-secondary mb-8">
+            Contact us today to discuss your language learning goals and find the perfect course for you.
+          </p>
+          <div className="space-x-4">
+            <Link 
+              href="/contact"
+              className="bg-accent-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-accent-secondary transition-colors"
+            >
+              Contact Us
+            </Link>
+            <Link
+              href="/courses" 
+              className="border border-accent-primary text-accent-primary px-8 py-3 rounded-lg font-semibold hover:bg-bg-secondary transition-colors"
+            >
+              View Courses
+            </Link>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/privacy-policy/page.tsx
+================================================================================
+
+// src/app/privacy-policy/page.tsx
+
+import type { Metadata } from 'next';
+import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy - Oslo Languages',
+  description: 'Read our privacy policy to understand how Oslo Languages collects, uses, and protects your personal information.',
+};
+
+export default function PrivacyPolicyPage() {
+  return (
+    <div className="container mx-auto px-4 py-12">
+      <article className="prose prose-lg max-w-3xl mx-auto text-text-primary">
+        <h1>Privacy Policy</h1>
+        <p>Last updated: {new Date().toLocaleDateString()}</p>
+
+        <section>
+          <h2>1. Information We Collect</h2>
+          <p>We collect information that you provide directly to us, including:</p>
+          <ul>
+            <li>Name and contact information</li>
+            <li>Course registration details</li>
+            <li>Payment information</li>
+            <li>Communication preferences</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>2. How We Use Your Information</h2>
+          <p>We use the information we collect to:</p>
+          <ul>
+            <li>Process your course registrations</li>
+            <li>Communicate with you about our services</li>
+            <li>Improve our courses and services</li>
+            <li>Send you marketing communications (with your consent)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>3. Data Security</h2>
+          <p>
+            We implement appropriate technical and organizational measures to protect
+            your personal data against unauthorized access, alteration, disclosure,
+            or destruction.
+          </p>
+        </section>
+
+        <section>
+          <h2>4. Your Rights</h2>
+          <p>You have the right to:</p>
+          <ul>
+            <li>Access your personal data</li>
+            <li>Correct inaccurate data</li>
+            <li>Request deletion of your data</li>
+            <li>Object to data processing</li>
+            <li>Data portability</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>5. Cookies</h2>
+          <p>
+            We use cookies and similar tracking technologies to track activity on our
+            website and improve your experience. You can control cookies through your
+            browser settings.
+          </p>
+        </section>
+
+        <section>
+          <h2>6. Contact Us</h2>
+          <p>
+            If you have questions about this Privacy Policy, please{' '}
+            <Link href="/contact" className="text-accent-primary hover:underline">
+              contact us
+            </Link>
+            .
+          </p>
+        </section>
+      </article>
+    </div>
+  );
+}
+
+================================================================================
+File: src/app/robots.ts
+================================================================================
+
+// src/app/robots.ts
+import { MetadataRoute } from 'next';
+
+/**
+ * Generates a robots.txt configuration object for the Next.js application.
+ *
+ * This file controls how search engines and other web robots crawl the site.
+ * It specifies which parts of the site should be crawled and which should be ignored.
+ *
+ * @returns {MetadataRoute.Robots} The robots.txt configuration object.
+ */
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+interface RobotsRule {
+  userAgent: string;
+  allow?: string | string[];
+  disallow?: string | string[];
+  crawlDelay?: number;
+}
+
+// Define specific rules for different bot types
+const rules: RobotsRule[] = [
+  // General rules for all bots
+  {
+    userAgent: '*',
+    allow: [
+      '/',
+      '/about',
+      '/courses',
+      '/contact',
+      '/sitemap.xml',
+    ],
+    disallow: [
+      '/api/',
+      '/private/',
+      '/admin/',
+      '/*?*', // Block URLs with query parameters
+      '/*.json$', // Block JSON files
+      '/*.php$', // Block PHP files
+      '/wp-*', // Block any WordPress-related URLs
+      '/*/feed/', // Block feed URLs
+      '*/trackback/', // Block trackback URLs
+      '/cdn-cgi/', // Block Cloudflare system files
+      '/.git/', // Block git directory
+      '/.env', // Block environment files
+      '/node_modules/',
+      '/error',
+      '/_next/static/development/', // Block Next.js development files
+      '/draft/', // Block draft pages
+      '/preview/', // Block preview pages
+      '/assets/private/', // Block private assets
+    ],
+    crawlDelay: 1, // 1 second delay between requests
+  },
+
+  // Stricter rules for archive bots
+  {
+    userAgent: 'archive.org_bot',
+    allow: '/',
+    disallow: [
+      '/private/',
+      '/api/',
+      '/admin/',
+      '/members/',
+      '/account/',
+    ],
+    crawlDelay: 3,
+  },
+
+  // Block GPTBot by default (prevent AI training on your content)
+  {
+    userAgent: 'GPTBot',
+    disallow: '/',
+  },
+
+  // Block ChatGPT Plugin
+  {
+    userAgent: 'ChatGPT-User',
+    disallow: '/',
+  },
+
+  // Block Google-Extended
+  {
+    userAgent: 'Google-Extended',
+    disallow: '/',
+  },
+
+  // Rules for Bing Bot
+  {
+    userAgent: 'bingbot',
+    allow: '/',
+    disallow: [
+      '/api/',
+      '/admin/',
+      '/private/',
+      '/*.json$',
+    ],
+    crawlDelay: 1,
+  },
+
+  // Rules for Google Bot
+  {
+    userAgent: 'Googlebot',
+    allow: [
+      '/', 
+      '/courses/',
+      '/sitemap.xml',
+    ],
+    disallow: [
+      '/*.json$',
+      '/api/',
+      '/private/',
+      '/admin/',
+      '/draft/',
+      '/preview/',
+    ],
+  },
+
+  // Rules for Google Image Bot
+  {
+    userAgent: 'Googlebot-Image',
+    allow: [
+      '/images/',
+      '/photos/',
+      '/assets/public/',
+    ],
+    disallow: [
+      '/assets/private/',
+      '/placeholder/',
+    ],
+  },
+];
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
+  };
+}
+
+================================================================================
+File: src/app/sitemap.ts
+================================================================================
+
+// src/app/sitemap.ts
+import { MetadataRoute } from 'next';
+
+// Types
+type SitemapFrequency = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
+
+interface SitemapEntry {
+  url: string;
+  lastModified?: string | Date;
+  changeFrequency?: SitemapFrequency;
+  priority?: number;
+}
+
+// Configuration
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+const COURSE_SLUGS = [
+  'norwegian-beginner',
+  'norwegian-intermediate',
+  'business-english',
+  'spanish-beginner',
+] as const;
+
+const STATIC_ROUTES = {
+  HOME: {
+    url: '',
+    changeFreq: 'daily' as const,
+    priority: 1.0,
+  },
+  ABOUT: {
+    url: 'about',
+    changeFreq: 'monthly' as const,
+    priority: 0.8,
+  },
+  COURSES: {
+    url: 'courses',
+    changeFreq: 'weekly' as const,
+    priority: 0.9,
+  },
+  BLOG: {
+    url: 'blog',
+    changeFreq: 'daily' as const,
+    priority: 0.8,
+  },
+  CONTACT: {
+    url: 'contact',
+    changeFreq: 'monthly' as const,
+    priority: 0.8,
+  },
+  FAQ: {
+    url: 'faq',
+    changeFreq: 'monthly' as const,
+    priority: 0.7,
+  }
+} as const;
+
+/**
+ * Generates sitemap entries for static pages
+ */
+function generateStaticPages(): SitemapEntry[] {
+  return Object.values(STATIC_ROUTES).map(({ url, changeFreq, priority }) => ({
+    url: `${SITE_URL}/${url}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: changeFreq,
+    priority,
+  }));
+}
+
+/**
+ * Generates sitemap entries for course pages
+ */
+function generateCoursePages(): SitemapEntry[] {
+  return COURSE_SLUGS.map(slug => ({
+    url: `${SITE_URL}/courses/${slug}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.9,
+  }));
+}
+
+/**
+ * Generates sitemap entries for blog posts
+//  */
+// async function generateBlogPages(): Promise<SitemapEntry[]> {
+//   return [];
+// }
+
+/**
+ * Generates sitemap entries for blog category pages
+//  */
+// async function generateBlogCategoryPages(): Promise<SitemapEntry[]> {
+//   return [];
+// }
+
+/**
+ * Generates sitemap entries for blog tag pages
+ */
+// async function generateBlogTagPages(): Promise<SitemapEntry[]> {
+//   return [];
+// }
+
+/**
+ * Main sitemap generation function
+ */
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  try {
+    // Generate all sitemap entries concurrently
+    // const [blogPages, categoryPages, tagPages] = await Promise.all([
+    //   generateBlogPages(),
+    //   generateBlogCategoryPages(),
+    //   generateBlogTagPages(),
+    // ]);
+
+    // Combine all entries
+    const allEntries: SitemapEntry[] = [
+      ...generateStaticPages(),
+      ...generateCoursePages(),
+      // ...blogPages,
+      // ...categoryPages,
+      // ...tagPages,
+    ];
+
+    // Sort URLs alphabetically for consistency
+    return allEntries.sort((a, b) => a.url.localeCompare(b.url));
+
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+    
+    // Return basic sitemap with essential pages if there's an error
+    return generateStaticPages();
+  }
+}
+
+// Type guard to ensure sitemap entry properties are valid
+// function validateSitemapEntry(entry: SitemapEntry): boolean {
+//   if (!entry.url) return false;
+//   if (entry.priority && (entry.priority < 0 || entry.priority > 1)) return false;
+//   if (entry.lastModified && isNaN(new Date(entry.lastModified).getTime())) return false;
+//   return true;
+// }
+
+================================================================================
+File: src/app/terms-of-service/page.tsx
+================================================================================
+
+// src/app/terms-of-service/page.tsx
+
+import type { Metadata } from 'next';
+import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service - Oslo Languages',
+  description: 'Read our terms of service to understand the rules and regulations governing the use of Oslo Languages services.',
+};
+
+export default function TermsOfServicePage() {
+  return (
+    <div className="container mx-auto px-4 py-12">
+      <article className="prose prose-lg max-w-3xl mx-auto text-text-primary">
+        <h1>Terms of Service</h1>
+        <p>Last updated: {new Date().toLocaleDateString()}</p>
+
+        <section>
+          <h2>1. Agreement to Terms</h2>
+          <p>
+            By accessing or using our services, you agree to be bound by these Terms
+            of Service. If you disagree with any part of the terms, you do not have
+            permission to access our services.
+          </p>
+        </section>
+
+        <section>
+          <h2>2. Course Registration and Payment</h2>
+          <ul>
+            <li>Course fees must be paid in full before the course start date</li>
+            <li>Registration is confirmed only after payment is received</li>
+            <li>Course materials are included in the course fee unless stated otherwise</li>
+            <li>Prices are subject to change without notice</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>3. Cancellation Policy</h2>
+          <ul>
+            <li>Full refund available up to 14 days before course start</li>
+            <li>50% refund available 7-14 days before course start</li>
+            <li>No refund available less than 7 days before course start</li>
+            <li>Course transfers may be available subject to availability</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>4. Class Attendance</h2>
+          <ul>
+            <li>Students are expected to attend all scheduled classes</li>
+            <li>Missed classes cannot be refunded</li>
+            <li>Make-up classes may be arranged subject to availability</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>5. Course Materials</h2>
+          <p>
+            All course materials provided are protected by copyright and may not be
+            reproduced or distributed without permission.
+          </p>
+        </section>
+
+        <section>
+          <h2>6. Code of Conduct</h2>
+          <p>
+            Students are expected to behave respectfully towards teachers and fellow
+            students. Any form of harassment or discrimination will not be tolerated.
+          </p>
+        </section>
+
+        <section>
+          <h2>7. Changes to Terms</h2>
+          <p>
+            We reserve the right to modify these terms at any time. We will notify
+            students of any material changes via email.
+          </p>
+        </section>
+
+        <section>
+          <h2>8. Contact</h2>
+          <p>
+            If you have any questions about these Terms, please{' '}
+            <Link href="/contact" className="text-accent-primary hover:underline">
+              contact us
+            </Link>
+            .
+          </p>
+        </section>
+      </article>
+    </div>
+  );
+}
+
+================================================================================
+File: src/components/ErrorBoundary.tsx
+================================================================================
+
+// src/components/ErrorBoundary.tsx - UPDATED
+'use client';
+
+import { Component, ErrorInfo, ReactNode } from 'react';
+import { logger } from '@/lib/logger';
+
+interface Props {
+  children?: ReactNode;
+  fallback?: ReactNode;
+  onReset?: () => void;
+}
+
+interface State {
+  hasError: boolean;
+  error?: Error;
+  errorInfo?: ErrorInfo;
+}
+
+export default class ErrorBoundary extends Component<Props, State> {
+  public state: State = {
+    hasError: false
+  };
+
+  public static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    logger.error('Error caught by boundary:', {
+      error: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+    });
+  }
+
+  private handleReset = () => {
+    this.props.onReset?.();
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+  };
+
+  public render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="min-h-[400px] flex items-center justify-center bg-bg-secondary">
+          <div className="text-center p-8 bg-bg-tertiary rounded-lg shadow-xl max-w-lg">
+            <h2 className="text-2xl font-bold text-text-primary mb-4">
+              Something went wrong
+            </h2>
+            <p className="text-text-secondary mb-6">
+              {this.state.error?.message || 'An unexpected error occurred.'}
+            </p>
+            <div className="space-x-4">
+              <button
+                onClick={this.handleReset}
+                className="bg-accent-primary text-white px-6 py-2 rounded hover:bg-accent-secondary transition-colors"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="border border-accent-primary text-accent-primary px-6 py-2 rounded hover:bg-bg-secondary transition-colors"
+              >
+                Refresh Page
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+================================================================================
+File: src/components/ImageWithFallback.tsx
+================================================================================
+
+// // src/components/ImageWithFallback.tsx
+
+// import Image from 'next/image';
+// import { useState } from 'react';
+
+// interface ImageWithFallbackProps {
+//   src: string;
+//   alt: string;
+//   fallbackSrc?: string;
+//   fill?: boolean;
+//   className?: string;
+//   width?: number;
+//   height?: number;
+// }
+
+// export default function ImageWithFallback({
+//   src,
+//   alt,
+//   fallbackSrc = '/images/placeholder.jpg',
+//   ...props
+// }: ImageWithFallbackProps) {
+//   const [error, setError] = useState(false);
+
+//   return (
+//     <Image
+//       {...props}
+//       src={error ? fallbackSrc : src}
+//       alt={alt}
+//       onError={() => setError(true)}
+//     />
+//   );
+// }
+
+================================================================================
+File: src/components/LoadingSpinner.tsx
+================================================================================
+
+// src/components/LoadingSpinner.tsx
+export default function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center w-full h-full p-8">
+      <div className="relative">
+        <div className="h-24 w-24 rounded-full border-t-4 border-b-4 border-accent-primary animate-spin"></div>
+        <div className="mt-4 text-center text-text-secondary">Loading...</div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/components/OptimizedImage.tsx
+================================================================================
+
+// src/components/OptimizedImage.tsx
+'use client';
+
+import Image, { ImageProps } from 'next/image';
+import { useState, useEffect } from 'react';
+
+type OptimizedImageProps = ImageProps & {
+  fallbackSrc?: string;
+  lowQualitySrc?: string;
+};
+
+export default function OptimizedImage({
+  src,
+  alt,
+  fallbackSrc = '/images/placeholder.jpg',
+  lowQualitySrc,
+  ...props
+}: OptimizedImageProps) {
+  const [imgSrc, setImgSrc] = useState(lowQualitySrc || src);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (lowQualitySrc && !error) {
+      const img = new window.Image();
+      img.src = typeof src === 'string' ? src : '';
+      img.onload = () => {
+        setImgSrc(src);
+        setLoading(false);
+      };
+    }
+  }, [src, lowQualitySrc, error]);
+
+  return (
+    <div className={`relative ${loading ? 'blur-sm' : 'blur-0'} transition-all duration-300`}>
+      <Image
+        {...props}
+        src={error ? fallbackSrc : imgSrc}
+        alt={alt}
+        onError={() => {
+          setError(true);
+          setLoading(false);
+        }}
+        onLoad={() => setLoading(false)}
+        quality={90}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        loading="lazy"
+        placeholder={lowQualitySrc ? 'blur' : 'empty'}
+        blurDataURL={lowQualitySrc}
+      />
+    </div>
+  );
+}
+
+================================================================================
+File: src/components/__tests__/ErrorBoundary.test.tsx
+================================================================================
+
+import { render, screen } from '@testing-library/react';
+import ErrorBoundary from '../ErrorBoundary';
+
+const ErrorComponent = () => {
+  throw new Error('Test error');
+};
+
+// Suppress console.error for our test error
+const originalError = console.error;
+beforeAll(() => {
+  console.error = jest.fn();
+});
+
+afterAll(() => {
+  console.error = originalError;
+});
+
+describe('ErrorBoundary', () => {
+  it('renders children when there is no error', () => {
+    render(
+      <ErrorBoundary>
+        <div>Test content</div>
+      </ErrorBoundary>
+    );
+    
+    expect(screen.getByText('Test content')).toBeInTheDocument();
+  });
+
+  it('renders error message when there is an error', () => {
+    render(
+      <ErrorBoundary>
+        <ErrorComponent />
+      </ErrorBoundary>
+    );
+    
+    expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /refresh page/i })).toBeInTheDocument();
+  });
+
+  it('renders custom fallback when provided', () => {
+    const fallback = <div>Custom error message</div>;
+    
+    render(
+      <ErrorBoundary fallback={fallback}>
+        <ErrorComponent />
+      </ErrorBoundary>
+    );
+    
+    expect(screen.getByText('Custom error message')).toBeInTheDocument();
+  });
+});
+
+================================================================================
+File: src/components/layout/footer/Footer.tsx
+================================================================================
+
+// src/components/layout/footer/Footer.tsx
+
+import Link from 'next/link';
+
+const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <footer className="bg-bg-secondary mt-auto">
+      <div className="container mx-auto px-4">
+        {/* Footer Widgets Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-12">
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-text-primary">About Oslo Languages</h3>
+            <p className="text-text-secondary">
+              Dedicated to providing quality language education in Oslo. We offer courses in Norwegian, English, Spanish, and more.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-text-primary">Quick Links</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/courses" className="text-text-secondary hover:text-accent-primary">
+                  Our Courses
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy-policy" className="text-text-secondary hover:text-accent-primary">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms-of-service" className="text-text-secondary hover:text-accent-primary">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-text-secondary hover:text-accent-primary">
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-text-primary">Contact Info</h3>
+            <ul className="space-y-2 text-text-secondary">
+              <li>Email: contact@oslolanguages.no</li>
+              <li>Phone: (47) XXX XX XXX</li>
+              <li>Address: Oslo, Norway</li>
+            </ul>
+          </div>
+        </div>
+        
+        {/* Copyright Bar */}
+        <div className="border-t border-text-secondary py-4">
+          <div className="text-center text-text-secondary">
+            <p>&copy; {currentYear} Oslo Languages. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
+
+
+================================================================================
+File: src/components/layout/header/Header.tsx
+================================================================================
+
+// src/components/layout/header/Header.tsx
+
+'use client'
+
+import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
+
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      const focusableElements = menuRef.current?.querySelectorAll(
+        'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      
+      if (focusableElements && focusableElements.length > 0) {
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        const handleTabKey = (e: KeyboardEvent) => {
+          if (e.key === 'Tab') {
+            if (e.shiftKey) {
+              if (document.activeElement === firstElement) {
+                e.preventDefault();
+                lastElement.focus();
+              }
+            } else {
+              if (document.activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+              }
+            }
+          }
+        };
+
+        document.addEventListener('keydown', handleTabKey);
+        return () => document.removeEventListener('keydown', handleTabKey);
+      }
+    }
+  }, [isMenuOpen]);
+
+  return (
+    <header className="bg-bg-secondary shadow-md" role="banner">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex-shrink-0">
+            <Link href="/" className="text-xl font-bold text-text-primary" aria-label="Oslo Languages, go to home page">
+              Oslo Languages
+            </Link>
+          </div>
+
+          <button
+            ref={buttonRef}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-text-primary hover:bg-bg-tertiary"
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+            aria-label={isMenuOpen ? "Close main menu" : "Open main menu"}
+          >
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              />
+            </svg>
+          </button>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-4" role="navigation" aria-label="Main navigation">
+            <Link href="/" className="text-text-primary hover:text-accent-primary" aria-current={typeof window !== 'undefined' && window.location.pathname === '/' ? 'page' : undefined}>
+              Home
+            </Link>
+            <Link href="/courses" className="text-text-primary hover:text-accent-primary" aria-current={typeof window !== 'undefined' && window.location.pathname === '/courses' ? 'page' : undefined}>
+              Courses
+            </Link>
+            <Link href="/about" className="text-text-primary hover:text-accent-primary" aria-current={typeof window !== 'undefined' && window.location.pathname === '/about' ? 'page' : undefined}>
+              About
+            </Link>
+            <Link href="/contact" className="text-text-primary hover:text-accent-primary" aria-current={typeof window !== 'undefined' && window.location.pathname === '/contact' ? 'page' : undefined}>
+              Contact
+            </Link>
+          </nav>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div 
+          ref={menuRef}
+          id="mobile-menu"
+          className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}
+          role="navigation"
+          aria-label="Mobile navigation"
+        >
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <Link href="/" className="block text-text-primary hover:text-accent-primary py-2" aria-current={typeof window !== 'undefined' && window.location.pathname === '/' ? 'page' : undefined}>
+              Home
+            </Link>
+            <Link href="/courses" className="block text-text-primary hover:text-accent-primary py-2" aria-current={typeof window !== 'undefined' && window.location.pathname === '/courses' ? 'page' : undefined}>
+              Courses
+            </Link>
+            <Link href="/about" className="block text-text-primary hover:text-accent-primary py-2" aria-current={typeof window !== 'undefined' && window.location.pathname === '/about' ? 'page' : undefined}>
+              About
+            </Link>
+            <Link href="/contact" className="block text-text-primary hover:text-accent-primary py-2" aria-current={typeof window !== 'undefined' && window.location.pathname === '/contact' ? 'page' : undefined}>
+              Contact
+            </Link>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
+
+================================================================================
+File: src/components/layout/header/__tests__/Header.test.tsx
+================================================================================
+
+import { render, screen, fireEvent } from '@testing-library/react';
+import Header from '../Header';
+
+// Mock useRouter
+jest.mock('next/router', () => ({
+  useRouter() {
+    return {
+      pathname: '/',
+    };
+  },
+}));
+
+describe('Header', () => {
+  it('renders logo and navigation links', () => {
+    render(<Header />);
+    
+    // Check logo
+    expect(screen.getByText('Oslo Languages')).toBeInTheDocument();
+    
+    // Check navigation links
+    expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /courses/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /contact/i })).toBeInTheDocument();
+  });
+
+  it('toggles mobile menu', () => {
+    render(<Header />);
+    
+    // Mobile menu should be hidden initially
+    expect(screen.getByRole('navigation')).toHaveClass('hidden');
+    
+    // Click hamburger menu
+    fireEvent.click(screen.getByRole('button', { name: /open main menu/i }));
+    
+    // Mobile menu should be visible
+    expect(screen.getByRole('navigation')).not.toHaveClass('hidden');
+    
+    // Click again to hide
+    fireEvent.click(screen.getByRole('button', { name: /open main menu/i }));
+    
+    // Mobile menu should be hidden again
+    expect(screen.getByRole('navigation')).toHaveClass('hidden');
+  });
+
+  it('shows correct active link', () => {
+    render(<Header />);
+    
+    const homeLink = screen.getByRole('link', { name: /home/i });
+    expect(homeLink).toHaveClass('text-accent-primary');
+  });
+});
+
+================================================================================
+File: src/components/providers/AuthProvider.tsx
+================================================================================
+
+// src/components/providers/AuthProvider.tsx
+'use client';
+
+import { SessionProvider } from 'next-auth/react';
+
+export default function AuthProvider({ 
+  children 
+}: { 
+  children: React.ReactNode 
+}) {
+  return <SessionProvider>{children}</SessionProvider>;
+}
+
+================================================================================
+File: src/components/widgets/ContactForm.tsx
+================================================================================
+
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
+
+// Form data type
+type FormData = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  attachments: FileList;
+};
+
+// Error summary type
+type ErrorSummary = {
+  field: string;
+  message: string;
+}[];
+
+const STORAGE_KEY = 'contact_form_draft';
+const AUTOSAVE_DELAY = 1000; // 1 second
+
+const ContactForm = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [errorSummary, setErrorSummary] = useState<ErrorSummary>([]);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+    watch,
+    setValue,
+  } = useForm<FormData>();
+
+  // Watch form values for autosave
+  const formValues = watch();
+
+  // Load saved form data on component mount
+  useEffect(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      Object.keys(parsedData).forEach((key) => {
+        if (key !== 'attachments') { // Skip file inputs
+          setValue(key as keyof FormData, parsedData[key]);
+        }
+      });
+    }
+  }, [setValue]);
+
+  // Autosave functionality
+  useEffect(() => {
+    if (!isDirty) return;
+
+    const timer = setTimeout(() => {
+      const dataToSave = { ...formValues };
+      if ('attachments' in dataToSave) {
+        delete (dataToSave as Partial<FormData>).attachments; // Don't save file inputs
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+      logger.info('Form autosaved');
+    }, AUTOSAVE_DELAY);
+    return () => clearTimeout(timer);
+  }, [formValues, isDirty]);
+
+  // Update error summary when errors change
+  useEffect(() => {
+    const newErrorSummary: ErrorSummary = [];
+    Object.entries(errors).forEach(([field, error]) => {
+      if (error?.message) {
+        newErrorSummary.push({
+          field,
+          message: error.message,
+        });
+      }
+    });
+    setErrorSummary(newErrorSummary);
+  }, [errors]);
+
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setUploadProgress(0);
+    
+    try {
+      logger.info('Submitting contact form', { email: data.email });
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('name', data.name);
+      formData.append('email', data.email);
+      formData.append('subject', data.subject);
+      formData.append('message', data.message);
+      
+      // Append each file
+      Array.from(data.attachments || []).forEach((file) => {
+        formData.append('attachments', file);
+      });
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/contact', true);
+
+      xhr.upload.onprogress = (progressEvent) => {
+        if (progressEvent.lengthComputable) {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(progress);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          logger.info('Contact form submitted successfully', { email: data.email });
+          setSubmitSuccess(true);
+          localStorage.removeItem(STORAGE_KEY); // Clear saved form data
+          reset();
+        } else {
+          throw new Error(`HTTP error! status: ${xhr.status}`);
+        }
+      };
+
+      xhr.onerror = () => {
+        throw new Error('Network error occurred');
+      };
+
+      xhr.send(formData);
+
+    } catch (error) {
+      logger.error('Contact form submission failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        data: { email: data.email },
+      });
+      setSubmitError('Failed to submit the form. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+      setUploadProgress(0);
+    }
+  };
+  const clearSavedData = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    reset();
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Error Summary */}
+      {errorSummary.length > 0 && (
+        <div className="p-4 bg-red-100 text-red-700 rounded-md mb-4">
+          <h3 className="font-semibold mb-2">Please fix the following errors:</h3>
+          <ul className="list-disc list-inside">
+            {errorSummary.map((error, index) => (
+              <li key={index}>
+                <a
+                  href={`#${error.field}`}
+                  className="underline hover:text-red-900"
+                >
+                  {error.message}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Success Message */}
+      {submitSuccess && (
+        <div className="p-4 bg-green-100 text-green-700 rounded-md mb-4">
+          Thank you for your message! We&apos;ll get back to you soon.
+        </div>
+      )}
+      
+      {/* Error Message */}
+      {submitError && (
+        <div className="p-4 bg-red-100 text-red-700 rounded-md mb-4">
+          {submitError}
+        </div>
+      )}
+
+      {/* Form Fields */}
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          Name
+        </label>
+        <input
+          {...register('name', { required: 'Name is required' })}
+          type="text"
+          id="name"
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+        {errors.name && (
+          <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          Email
+        </label>
+        <input
+          {...register('email', { 
+            required: 'Email is required',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Invalid email address'
+            }
+          })}
+          type="email"
+          id="email"
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+        {errors.email && (
+          <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+          Subject
+        </label>
+        <input
+          {...register('subject', { required: 'Subject is required' })}
+          type="text"
+          id="subject"
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+        {errors.subject && (
+          <p className="mt-1 text-sm text-red-600">{errors.subject.message}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+          Message
+        </label>
+        <textarea
+          {...register('message', { required: 'Message is required' })}
+          id="message"
+          rows={5}
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+        {errors.message && (
+          <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
+        )}
+      </div>
+
+      {/* File Upload */}
+      <div>
+        <label htmlFor="attachments" className="block text-sm font-medium text-gray-700 mb-1">
+          Attachments
+        </label>
+        <input
+          {...register('attachments')}
+          type="file"
+          id="attachments"
+          multiple
+          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        />
+        <p className="mt-1 text-sm text-gray-500">
+          Max file size: 5MB. Allowed types: PDF, DOC, DOCX, TXT, JPG, PNG
+        </p>
+      </div>
+
+      {/* Upload Progress */}
+      {uploadProgress > 0 && uploadProgress < 100 && (
+        <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div
+            className="bg-blue-600 h-2.5 rounded-full"
+            style={{ width: `${uploadProgress}%` }}
+          ></div>
+        </div>
+      )}
+
+      {/* Form Actions */}
+      <div className="flex justify-between">
+        <button
+          type="button"
+          onClick={clearSavedData}
+          className="text-gray-600 hover:text-gray-900"
+        >
+          Clear Form
+        </button>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-blue-300"
+        >
+          {isSubmitting ? 'Sending...' : 'Send Message'}
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export default ContactForm;
+
+================================================================================
+File: src/components/widgets/CourseRegistrationForm.tsx
+================================================================================
+
+// src/components/widgets/CourseRegistrationForm.tsx
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+
+type FormData = {
+  // Personal Information
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  // Course Details
+  courseId: string;
+  preferredSchedule: string;
+  startDate: string;
+  // Additional Information
+  currentLevel: string;
+  goals: string;
+  specialRequirements: string;
+  // Marketing
+  heardFrom: string;
+  marketingConsent: boolean;
+};
+
+const SCHEDULE_OPTIONS = [
+  'Morning (09:00-11:00)',
+  'Afternoon (14:00-16:00)',
+  'Evening (18:00-20:00)',
+  'Weekend (10:00-14:00)',
+] as const;
+
+const LEVEL_OPTIONS = [
+  'Complete Beginner',
+  'Basic Knowledge (A1)',
+  'Elementary (A2)',
+  'Intermediate (B1)',
+  'Upper Intermediate (B2)',
+  'Advanced (C1/C2)',
+] as const;
+
+const HEARD_FROM_OPTIONS = [
+  'Google Search',
+  'Social Media',
+  'Friend/Family',
+  'Advertisement',
+  'Other',
+] as const;
+
+const CourseRegistrationForm = ({ courseId = '', courseName = '' }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>();
+
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit registration');
+      }
+
+      setSubmitSuccess(true);
+      reset();
+    } catch (error) {
+      setSubmitError('Failed to submit registration. Please try again later.');
+      console.error('Registration error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {submitSuccess && (
+        <div className="p-4 bg-green-100 text-green-700 rounded-md">
+          Thank you for your registration! We&apos;ll contact you shortly to confirm your enrollment.
+        </div>
+      )}
+
+      {submitError && (
+        <div className="p-4 bg-red-100 text-red-700 rounded-md">
+          {submitError}
+        </div>
+      )}
+
+      {/* Course Selection */}
+      <div className="bg-blue-50 p-4 rounded-lg mb-6">
+        <h3 className="font-semibold mb-2">Selected Course</h3>
+        <p>{courseName || 'Please select a course'}</p>
+        <input 
+          type="hidden" 
+          {...register('courseId')} 
+          value={courseId} 
+        />
+      </div>
+
+      {/* Personal Information */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="firstName">
+            First Name
+          </label>
+          <input
+            {...register('firstName', { required: 'First name is required' })}
+            type="text"
+            id="firstName"
+            className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+          {errors.firstName && (
+            <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="lastName">
+            Last Name
+          </label>
+          <input
+            {...register('lastName', { required: 'Last name is required' })}
+            type="text"
+            id="lastName"
+            className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+          {errors.lastName && (
+            <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Contact Information */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="email">
+            Email
+          </label>
+          <input
+            {...register('email', {
+              required: 'Email is required',
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: 'Invalid email address',
+              },
+            })}
+            type="email"
+            id="email"
+            className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="phone">
+            Phone Number
+          </label>
+          <input
+            {...register('phone', {
+              required: 'Phone number is required',
+              pattern: {
+                value: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
+                message: 'Invalid phone number',
+              },
+            })}
+            type="tel"
+            id="phone"
+            className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+          {errors.phone && (
+            <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Schedule Preferences */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="preferredSchedule">
+          Preferred Schedule
+        </label>
+        <select
+          {...register('preferredSchedule', { required: 'Please select a preferred schedule' })}
+          id="preferredSchedule"
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Select a schedule</option>
+          {SCHEDULE_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        {errors.preferredSchedule && (
+          <p className="mt-1 text-sm text-red-600">{errors.preferredSchedule.message}</p>
+        )}
+      </div>
+
+      {/* Current Level */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="currentLevel">
+          Current Language Level
+        </label>
+        <select
+          {...register('currentLevel', { required: 'Please select your current level' })}
+          id="currentLevel"
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Select your level</option>
+          {LEVEL_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        {errors.currentLevel && (
+          <p className="mt-1 text-sm text-red-600">{errors.currentLevel.message}</p>
+        )}
+      </div>
+
+      {/* Learning Goals */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="goals">
+          Learning Goals
+        </label>
+        <textarea
+          {...register('goals')}
+          id="goals"
+          rows={3}
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+          placeholder="What do you hope to achieve with this course?"
+        />
+      </div>
+
+      {/* Special Requirements */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="specialRequirements">
+          Special Requirements
+        </label>
+        <textarea
+          {...register('specialRequirements')}
+          id="specialRequirements"
+          rows={3}
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Any special requirements or accommodations needed?"
+        />
+      </div>
+
+      {/* Marketing Information */}
+      <div>
+        <label className="block text-sm font-medium mb-1" htmlFor="heardFrom">
+          How did you hear about us?
+        </label>
+        <select
+          {...register('heardFrom')}
+          id="heardFrom"
+          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Select an option</option>
+          {HEARD_FROM_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Marketing Consent */}
+      <div className="flex items-start">
+        <input
+          {...register('marketingConsent')}
+          type="checkbox"
+          id="marketingConsent"
+          className="mt-1"
+        />
+        <label htmlFor="marketingConsent" className="ml-2 text-sm">
+          I agree to receive marketing communications about special offers and updates. You can unsubscribe at any time.
+        </label>
+      </div>
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
+      >
+        {isSubmitting ? 'Submitting...' : 'Register for Course'}
+      </button>
+    </form>
+  );
+};
+
+export default CourseRegistrationForm;
+
+================================================================================
+File: src/components/widgets/Testimonials.tsx
+================================================================================
+
+// src/components/widgets/Testimonials.tsx
+
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+
+type Testimonial = {
+  id: number;
+  name: string;
+  role: string;
+  image: string;
+  course: string;
+  text: string;
+  rating: number;
+};
+
+const testimonials: Testimonial[] = [
+  {
+    id: 1,
+    name: "Maria Johnson",
+    role: "Software Developer",
+    image: "/testimonials/maria.jpg",
+    course: "Norwegian A1",
+    text: "The Norwegian course at Oslo Languages exceeded my expectations. The teachers are incredibly supportive and the small class size ensures everyone gets attention.",
+    rating: 5
+  },
+  {
+    id: 2,
+    name: "Thomas Berg",
+    role: "Business Consultant",
+    image: "/testimonials/thomas.jpg",
+    course: "Business English",
+    text: "Their Business English course helped me significantly improve my professional communication skills. The focus on real-world scenarios was particularly valuable.",
+    rating: 5
+  },
+  {
+    id: 3,
+    name: "Sofia Garcia",
+    role: "Student",
+    image: "/testimonials/sofia.jpg",
+    course: "Spanish B1",
+    text: "Love the interactive teaching style! Made learning Spanish fun and practical. The cultural aspects included in the lessons were a great bonus.",
+    rating: 5
+  }
+];
+
+export default function Testimonials() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const nextTestimonial = () => {
+    setActiveIndex((current) => 
+      current === testimonials.length - 1 ? 0 : current + 1
+    );
+  };
+
+  const prevTestimonial = () => {
+    setActiveIndex((current) => 
+      current === 0 ? testimonials.length - 1 : current - 1
+    );
+  };
+
+  return (
+    <div className="bg-bg-tertiary py-16">
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold text-center mb-12 text-text-primary">
+          What Our Students Say
+        </h2>
+        
+        <div className="max-w-4xl mx-auto">
+          <div className="relative">
+            {/* Navigation Buttons */}
+            <button 
+              onClick={prevTestimonial}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 bg-bg-secondary p-2 rounded-full shadow-lg hover:bg-bg-secondary"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button 
+              onClick={nextTestimonial}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 bg-bg-secondary p-2 rounded-full shadow-lg hover:bg-bg-secondary"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            {/* Testimonial Card */}
+            <div className="bg-bg-secondary rounded-2xl shadow-xl p-8">
+              <div className="flex flex-col items-center text-center">
+                <div className="relative w-20 h-20 mb-4">
+                  <Image
+                    src={testimonials[activeIndex].image}
+                    alt={testimonials[activeIndex].name}
+                    fill
+                    className="rounded-full object-cover"
+                  />
+                </div>
+                
+                {/* Rating Stars */}
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonials[activeIndex].rating)].map((_, i) => (
+                    <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+
+                <blockquote className="text-lg mb-4 text-text-primary">
+                  “{testimonials[activeIndex].text}”
+                </blockquote>
+                
+                <div className="text-text-secondary">
+                  <p className="font-semibold">{testimonials[activeIndex].name}</p>
+                  <p className="text-sm">{testimonials[activeIndex].role}</p>
+                  <p className="text-accent-primary text-sm">{testimonials[activeIndex].course}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dots Navigation */}
+          <div className="flex justify-center gap-2 mt-6">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveIndex(index)}
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  index === activeIndex ? 'bg-accent-primary' : 'bg-text-secondary'
+                }`}
+              >
+                <span className="sr-only">Testimonial {index + 1}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+================================================================================
+File: src/components/widgets/__tests__/ContactForm.test.tsx
+================================================================================
+
+// src/components/widgets/__tests__/ContactForm.test.tsx
+
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import ContactForm from '../ContactForm';
+
+interface XHRMock {
+  open: jest.Mock;
+  send: jest.Mock;
+  setRequestHeader: jest.Mock;
+  readyState: number;
+  status: number;
+  response: string;
+  onload: jest.Mock;
+  onerror: jest.Mock;
+  upload: {
+    onprogress: jest.Mock;
+  };
+}
+
+// Mock the XMLHttpRequest
+const xhrMockClass = (): XHRMock => ({
+  open: jest.fn(),
+  send: jest.fn(),
+  setRequestHeader: jest.fn(),
+  readyState: 4,
+  status: 200,
+  response: JSON.stringify({ success: true }),
+  onload: jest.fn(),
+  onerror: jest.fn(),
+  upload: {
+    onprogress: jest.fn()
+  }
+});
+
+describe('ContactForm', () => {
+  let xhrMock: XHRMock;
+
+  beforeEach(() => {
+    // Setup XHR mock
+    xhrMock = xhrMockClass();
+    (global.XMLHttpRequest as unknown) = jest.fn(() => xhrMock);
+    
+    // Clear localStorage before each test
+    window.localStorage.clear();
+  });
+
+  it('renders all form fields', () => {
+    render(<ContactForm />);
+    
+    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/subject/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send message/i })).toBeInTheDocument();
+  });
+
+  it('shows validation errors for empty fields', async () => {
+    render(<ContactForm />);
+    
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+    await userEvent.click(submitButton);
+
+    expect(await screen.findByText(/name is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/email is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/subject is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/message is required/i)).toBeInTheDocument();
+  });
+
+  it('validates email format', async () => {
+    render(<ContactForm />);
+    
+    const emailInput = screen.getByLabelText(/email/i);
+    await userEvent.type(emailInput, 'invalid-email');
+    
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+    await userEvent.click(submitButton);
+
+    expect(await screen.findByText(/invalid email address/i)).toBeInTheDocument();
+  });
+
+  it('submits form successfully', async () => {
+    render(<ContactForm />);
+
+    // Fill out the form
+    await userEvent.type(screen.getByLabelText(/name/i), 'John Doe');
+    await userEvent.type(screen.getByLabelText(/email/i), 'john@example.com');
+    await userEvent.type(screen.getByLabelText(/subject/i), 'Test Subject');
+    await userEvent.type(screen.getByLabelText(/message/i), 'Test Message');
+
+    // Submit the form
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+    await userEvent.click(submitButton);
+
+    // Simulate successful XHR response
+    const xhr = xhrMock;
+    xhr.status = 200;
+    xhr.response = JSON.stringify({ success: true });
+    if (xhr.onload) xhr.onload();
+
+    await waitFor(() => {
+      expect(screen.getByText(/thank you for your message/i)).toBeInTheDocument();
+    });
+  });
+
+  it('handles submission error', async () => {
+    render(<ContactForm />);
+
+    // Fill out the form
+    await userEvent.type(screen.getByLabelText(/name/i), 'John Doe');
+    await userEvent.type(screen.getByLabelText(/email/i), 'john@example.com');
+    await userEvent.type(screen.getByLabelText(/subject/i), 'Test Subject');
+    await userEvent.type(screen.getByLabelText(/message/i), 'Test Message');
+
+    // Submit the form
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+    await userEvent.click(submitButton);
+
+    // Simulate XHR error
+    const xhr = xhrMock;
+    xhr.status = 500;
+    if (xhr.onerror) xhr.onerror(new Error('Network error'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/failed to submit/i)).toBeInTheDocument();
+    });
+  });
+
+  it('saves form data to localStorage', async () => {
+    render(<ContactForm />);
+    
+    await userEvent.type(screen.getByLabelText(/name/i), 'John Doe');
+    
+    await waitFor(() => {
+      const savedData = JSON.parse(localStorage.getItem('contact_form_draft') || '{}');
+      expect(savedData.name).toBe('John Doe');
+    });
+  });
+
+  it('clears form and localStorage on successful submission', async () => {
+    render(<ContactForm />);
+
+    // Fill and submit form
+    await userEvent.type(screen.getByLabelText(/name/i), 'John Doe');
+    await userEvent.type(screen.getByLabelText(/email/i), 'john@example.com');
+    await userEvent.type(screen.getByLabelText(/subject/i), 'Test Subject');
+    await userEvent.type(screen.getByLabelText(/message/i), 'Test Message');
+    
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+    await userEvent.click(submitButton);
+
+    // Simulate successful submission
+    const xhr = xhrMock;
+    xhr.status = 200;
+    xhr.response = JSON.stringify({ success: true });
+    if (xhr.onload) xhr.onload();
+
+    await waitFor(() => {
+      expect(localStorage.getItem('contact_form_draft')).toBeNull();
+      expect(screen.getByLabelText(/name/i)).toHaveValue('');
+    });
+  });
+});
+
+================================================================================
+File: src/data.ts
+================================================================================
+
+// src/data.ts
+
+import { faker } from '@faker-js/faker';
+import { Teacher, Course, Feature, Testimonial, Post, CourseDetail } from './types';
+
+// Define valid image categories
+type ImageCategory = 'business' | 'animals' | 'nature' | 'tech'; // Update as per faker's actual categories
+
+// Helper function to generate consistent images by category
+function generateFakerImage(category: ImageCategory, width: number, height: number): string {
+  return faker.image.url({ width, height }); // Using faker.image.url instead
+}
+
+// Generate fake teachers with consistent avatars
+export const teachers: Teacher[] = Array.from({ length: 3 }).map(() => ({
+  name: faker.person.fullName(),
+  role: faker.person.jobTitle(),
+  bio: faker.lorem.sentences(2),
+  image: faker.image.avatar(), // This generates a consistent avatar URL
+  languages: faker.helpers.arrayElements(['Norwegian', 'English', 'Swedish', 'Spanish', 'German'], 3),
+}));
+
+// Generate fake courses with business-related images
+export const courses: Course[] = Array.from({ length: 4 }).map(() => ({
+  id: faker.string.uuid(),
+  title: faker.lorem.words(3),
+  image: generateFakerImage('business', 800, 600),
+  schedule: faker.helpers.arrayElement(['Morning', 'Afternoon', 'Evening']),
+  level: faker.helpers.arrayElement(['A1', 'A2', 'B1', 'B2', 'C1']),
+  language: faker.helpers.arrayElement(['Norwegian', 'English', 'Spanish'])
+}));
+
+// Features remain static but icons are now from Faker
+export const features: Feature[] = [
+  {
+    title: "Norwegian Courses",
+    description: "From beginners to advanced levels - master Norwegian with our expert teachers",
+    icon: faker.image.url({ width: 24, height: 24 }),
+  },
+  {
+    title: "English Courses",
+    description: "Business English, conversational English, and exam preparation courses",
+    icon: faker.image.url({ width: 24, height: 24 }),
+  },
+  {
+    title: "Spanish Courses", 
+    description: "Learn Spanish for travel, work or personal enrichment",
+    icon: faker.image.url({ width: 24, height: 24 }),
+  },
+  {
+    title: "Online Learning",
+    description: "Flexible online courses to fit your schedule",
+    icon: faker.image.url({ width: 24, height: 24 }),
+  },
+];
+
+// Generate fake testimonials with avatars
+export const testimonials: Testimonial[] = Array.from({ length: 3 }).map(() => ({
+  id: faker.string.uuid(),
+  name: faker.person.fullName(),
+  role: faker.person.jobTitle(),
+  image: faker.image.avatar(),
+  course: faker.helpers.arrayElement(['Norwegian A1', 'Business English', 'Spanish B1']),
+  text: faker.lorem.paragraph(),
+  rating: faker.number.int({ min: 4, max: 5 })
+}));
+
+// Generate a fake post with a relevant image
+export const post: Post = {
+  title: faker.lorem.words(5),
+  coverImage: generateFakerImage('business', 1200, 800),
+  date: faker.date.past().toISOString(),
+  author: {
+    name: faker.person.fullName(),
+    image: faker.image.avatar(),
+    role: faker.person.jobTitle()
+  }
+};
+
+// Generate fake course details
+export const courseDetails: { [key: string]: CourseDetail } = {
+  'norwegian-beginner': {
+    title: 'Norwegian for Beginners (A1)',
+    level: 'A1',
+    duration: '10 weeks',
+    schedule: faker.helpers.arrayElement(['Mon & Wed', 'Tue & Thu']) + ' 18:00-20:00',
+    price: `NOK ${faker.number.int({ min: 7000, max: 10000 })}`,
+    description: faker.lorem.paragraph(),
+    image: generateFakerImage('business', 800, 600),
+    syllabus: Array.from({ length: 6 }).map(() => faker.lorem.sentence()),
+    includes: Array.from({ length: 5 }).map(() => faker.lorem.sentence()),
+    upcomingDates: Array.from({ length: 3 }).map(() => {
+      const startDate = faker.date.future();
+      return faker.date.between({ from: startDate, to: new Date(startDate.getTime() + 8640000000) }).toLocaleDateString();
+    })
+  },
+  // Add other courses as needed
+};
+
+================================================================================
+File: src/lib/auth/config.ts
+================================================================================
+
+// src/lib/auth/config.ts
+import { AuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
+
+// In a real application, this would be in a database
+const ADMIN_USER = {
+  id: '1',
+  email: process.env.ADMIN_EMAIL,
+  // This should be a hashed password in production
+  hashedPassword: process.env.ADMIN_PASSWORD ? 
+    bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10) : '',
+};
+
+export const authOptions: AuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Please enter both email and password');
+        }
+
+        // Check if it's the admin user
+        if (credentials.email !== ADMIN_USER.email) {
+          throw new Error('Invalid email or password');
+        }
+
+        // Verify password
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          ADMIN_USER.hashedPassword
+        );
+
+        if (!isValid) {
+          throw new Error('Invalid email or password');
+        }
+
+        return {
+          id: ADMIN_USER.id,
+          email: ADMIN_USER.email,
+          role: 'admin'
+        };
+      }
+    })
+  ],
+  pages: {
+    signIn: '/admin/login',
+    error: '/admin/login',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role;
+      }
+      return session;
+    }
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+};
+
+================================================================================
+File: src/lib/blog.ts
+================================================================================
+
+// src/lib/blog.ts
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkHtml from 'remark-html';
+
+const postsDirectory = path.join(process.cwd(), 'content/posts');
+
+export type BlogPost = {
+  slug: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  author: string;
+  categories: string[];
+  tags: string[];
+  coverImage: string;
+  content: string;
+};
+
+export async function getPostSlugs() {
+  const fileNames = await fs.promises.readdir(postsDirectory);
+  return fileNames.filter(fileName => fileName.endsWith('.md'));
+}
+
+export async function getPostBySlug(slug: string): Promise<BlogPost> {
+  const realSlug = slug.replace(/\.md$/, '');
+  const fullPath = path.join(postsDirectory, `${realSlug}.md`);
+  const fileContents = await fs.promises.readFile(fullPath, 'utf8');
+  
+  // Parse the frontmatter
+  const { data, content } = matter(fileContents);
+  
+  // Convert markdown to HTML
+  const processedContent = await unified()
+    .use(remarkParse)
+    .use(remarkHtml)
+    .process(content);
+
+  return {
+    slug: realSlug,
+    title: data.title,
+    date: data.date,
+    excerpt: data.excerpt,
+    author: data.author,
+    categories: data.categories || [],
+    tags: data.tags || [],
+    coverImage: data.coverImage,
+    content: processedContent.toString()
+  };
+}
+
+export async function getAllPosts(): Promise<BlogPost[]> {
+  const slugs = await getPostSlugs();
+  const posts = await Promise.all(
+    slugs.map(async (slug) => await getPostBySlug(slug))
+  );
+  
+  // Sort posts by date in descending order
+  return posts.sort((a, b) => (a.date > b.date ? -1 : 1));
+}
+
+export async function getPostsByCategory(category: string): Promise<BlogPost[]> {
+  const allPosts = await getAllPosts();
+  return allPosts.filter(post => 
+    post.categories.some(cat => cat.toLowerCase() === category.toLowerCase())
+  );
+}
+
+export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
+  const allPosts = await getAllPosts();
+  return allPosts.filter(post => 
+    post.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+  );
+}
+
+export function generatePostPath(slug: string): string {
+  return `/blog/${slug}`;
+}
+
+================================================================================
+File: src/lib/courses.ts
+================================================================================
+
+import { Course } from "@/types";
+
+// src/lib/courses.ts
+type CourseFilter = {
+  language?: string;
+  level?: string;
+  schedule?: string;
+};
+
+export function filterCourses(courses: Course[], filters: CourseFilter) {
+  return courses.filter(course => {
+    if (filters.language && course.language !== filters.language) return false;
+    if (filters.level && course.level !== filters.level) return false;
+    if (filters.schedule && course.schedule !== filters.schedule) return false;
+    return true;
+  });
+}
+
+================================================================================
+File: src/lib/hooks/useDataFetching.ts
+================================================================================
+
+// src/lib/hooks/useDataFetching.ts
+import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/lib/logger';
+
+interface FetchState<T> {
+  data: T | null;
+  loading: boolean;
+  error: Error | null;
+}
+
+interface UseDataFetchingOptions {
+  retryCount?: number;
+  retryDelay?: number;
+}
+
+export function useDataFetching<T>(
+  fetchFn: () => Promise<T>,
+  options: UseDataFetchingOptions = {}
+) {
+  const { retryCount = 3, retryDelay = 1000 } = options;
+  const [state, setState] = useState<FetchState<T>>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
+  const fetchData = useCallback(async (attempt = 0) => {
+    setState(prev => ({ ...prev, loading: true, error: null }));
+    
+    try {
+      const data = await fetchFn();
+      setState({ data, loading: false, error: null });
+    } catch (error) {
+      logger.error('Data fetching error:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        attempt,
+      });
+
+      if (attempt < retryCount) {
+        setTimeout(() => {
+          fetchData(attempt + 1);
+        }, retryDelay * Math.pow(2, attempt)); // Exponential backoff
+      } else {
+        setState({
+          data: null,
+          loading: false,
+          error: error instanceof Error ? error : new Error('Failed to fetch data'),
+        });
+      }
+    }
+  }, [fetchFn, retryCount, retryDelay]);
+
+  const retry = useCallback(() => {
+    fetchData(0);
+  }, [fetchData]);
+
+  useEffect(() => {
+    fetchData(0);
+  }, [fetchData]);
+
+  return { ...state, retry };
+}
+
+================================================================================
+File: src/lib/logger.ts
+================================================================================
+
+// src/lib/logger.ts
+
+type LogLevel = 'info' | 'warn' | 'error';
+
+interface LogEntry {
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+  context?: Record<string, unknown>;
+}
+
+class Logger {
+  private static instance: Logger;
+  private isProd = process.env.NODE_ENV === 'production';
+
+  private constructor() {}
+
+  static getInstance(): Logger {
+    if (!Logger.instance) {
+      Logger.instance = new Logger();
+    }
+    return Logger.instance;
+  }
+
+  private formatMessage(level: LogLevel, message: string, context?: Record<string, unknown>): LogEntry {
+    return {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      context,
+    };
+  }
+
+  private log(level: LogLevel, message: string, context?: Record<string, unknown>) {
+    const logEntry = this.formatMessage(level, message, context);
+
+    if (this.isProd) {
+      // In production, you would typically send this to a logging service
+      // Example: await fetch('your-logging-service', { method: 'POST', body: JSON.stringify(logEntry) });
+      console[level](JSON.stringify(logEntry));
+    } else {
+      // In development, pretty print to console
+      const color = {
+        info: '\x1b[36m', // cyan
+        warn: '\x1b[33m', // yellow
+        error: '\x1b[31m', // red
+      }[level];
+      
+      console[level](
+        `${color}[${logEntry.timestamp}] ${level.toUpperCase()}\x1b[0m:`,
+        message,
+        context || ''
+      );
+    }
+  }
+
+  info(message: string, context?: Record<string, unknown>) {
+    this.log('info', message, context);
+  }
+
+  warn(message: string, context?: Record<string, unknown>) {
+    this.log('warn', message, context);
+  }
+
+  error(message: string, context?: Record<string, unknown>) {
+    this.log('error', message, context);
+  }
+}
+
+export const logger = Logger.getInstance();
+
+================================================================================
+File: src/lib/metadata.ts
+================================================================================
+
+// src/lib/metadata.ts
+import { Metadata } from 'next';
+
+interface GenerateMetadataProps {
+  title: string;
+  description: string;
+  keywords?: string[];
+  image?: string;
+  noIndex?: boolean;
+}
+
+export function generateMetadata({
+  title,
+  description,
+  keywords = [],
+  image = '/og-default.jpg',
+  noIndex = false,
+}: GenerateMetadataProps): Metadata {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://example.com';
+
+  return {
+    title: `${title} | Oslo Languages`,
+    description,
+    keywords: [
+      'language school oslo',
+      'norwegian courses',
+      'english courses',
+      'spanish courses',
+      ...keywords,
+    ],
+    authors: [{ name: 'Oslo Languages' }],
+    openGraph: {
+      title: `${title} | Oslo Languages`,
+      description,
+      url: baseUrl,
+      siteName: 'Oslo Languages',
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | Oslo Languages`,
+      description,
+      images: [image],
+    },
+    robots: {
+      index: !noIndex,
+      follow: !noIndex,
+      googleBot: {
+        index: !noIndex,
+        follow: !noIndex,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    verification: {
+      google: 'your-google-verification-code',
+    },
+    alternates: {
+      canonical: baseUrl,
+    },
+  };
+}
+
+export const jsonLdScriptProps = {
+  type: 'application/ld+json',
+  dangerouslySetInnerHTML: {
+    __html: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'LanguageSchool',
+      name: 'Oslo Languages',
+      description: 'Oslo\'s premier language school offering courses in Norwegian, English, Spanish and more.',
+      url: 'https://example.com',
+      telephone: '+47-XXX-XX-XXX',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: '123 Business Street',
+        addressLocality: 'Oslo',
+        postalCode: '0123',
+        addressCountry: 'NO',
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 59.9139,
+        longitude: 10.7522,
+      },
+      openingHours: ['Mo-Fr 09:00-18:00', 'Sa 10:00-16:00'],
+      sameAs: [
+        'https://www.facebook.com/oslolanguages',
+        'https://www.instagram.com/oslolanguages',
+        'https://www.linkedin.com/company/oslolanguages',
+      ],
+    }),
+  },
+};
+
+================================================================================
+File: src/lib/middleware/sanitize.ts
+================================================================================
+
+// src/lib/middleware/sanitize.ts
+import { NextRequest, NextResponse } from 'next/server';
+import DOMPurify from 'isomorphic-dompurify';
+
+function sanitizeObject(obj: unknown): unknown {
+  if (typeof obj !== 'object' || obj === null) {
+    return typeof obj === 'string' ? DOMPurify.sanitize(obj) : obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeObject(item));
+  }
+
+  const result: Record<string, unknown> = {};
+  for (const key in obj as Record<string, unknown>) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      result[key] = sanitizeObject((obj as Record<string, unknown>)[key]);
+    }
+  }
+  return result;
+}
+export async function sanitizeMiddleware(request: NextRequest) {
+  const response = NextResponse.next();
+
+  if (['POST', 'PUT', 'PATCH'].includes(request.method)) {
+    try {
+      const body = await request.json();
+      const sanitizedBody = sanitizeObject(body);
+      const modifiedRequest = new NextRequest(request.url, {
+        method: request.method,
+        headers: request.headers,
+        body: JSON.stringify(sanitizedBody),
+      });
+      return NextResponse.next({
+        request: modifiedRequest,
+      });
+    } catch (error) {
+      console.error('Error sanitizing request:', error);
+    }
+  }
+
+  return response;
+}
+
+================================================================================
+File: src/lib/rate-limit.ts
+================================================================================
+
+// src/lib/rate-limit.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+interface RateLimitConfig {
+  limit: number;
+  windowMs: number;
+  keyGenerator?: (request: NextRequest) => string;
+  handler?: (request: NextRequest) => NextResponse | Promise<NextResponse>;
+  skipFailedRequests?: boolean;
+  skipSuccessfulRequests?: boolean;
+}
+
+export const getRateLimitMiddleware = (config: RateLimitConfig) => {
+  const limiter = new RateLimit(config);
+  return (request: NextRequest) => limiter.middleware(request);
+};
+
+export class RateLimit {
+  private cache: Map<string, { count: number; resetTime: number }>;
+  private config: RateLimitConfig;
+
+  constructor(config: RateLimitConfig) {
+    this.cache = new Map();
+    this.config = {
+      keyGenerator: (request: NextRequest) => 
+        request.headers.get('x-forwarded-for') || 
+        request.headers.get('x-real-ip') || 
+        '127.0.0.1',
+      handler: () => 
+        NextResponse.json(
+          { error: 'Too many requests, please try again later.' },
+          { status: 429 }
+        ),
+      skipFailedRequests: false,
+      skipSuccessfulRequests: false,
+      ...config,
+    };
+  }
+
+  check(request: NextRequest): { success: boolean; remainingRequests: number; resetTime: number } {
+    const key = this.config.keyGenerator!(request);
+    const now = Date.now();
+    const record = this.cache.get(key);
+
+    if (!record) {
+      this.cache.set(key, {
+        count: 1,
+        resetTime: now + this.config.windowMs,
+      });
+      return { success: true, remainingRequests: this.config.limit - 1, resetTime: now + this.config.windowMs };
+    }
+
+    if (now > record.resetTime) {
+      record.count = 1;
+      record.resetTime = now + this.config.windowMs;
+      this.cache.set(key, record);
+      return { success: true, remainingRequests: this.config.limit - 1, resetTime: record.resetTime };
+    }
+
+    if (record.count >= this.config.limit) {
+      return { success: false, remainingRequests: 0, resetTime: record.resetTime };
+    }
+
+    record.count += 1;
+    this.cache.set(key, record);
+    return { 
+      success: true, 
+      remainingRequests: this.config.limit - record.count,
+      resetTime: record.resetTime 
+    };
+  }
+
+  async middleware(request: NextRequest) {
+    const check = this.check(request);
+
+    if (!check.success) {
+      const response = await this.config.handler!(request);
+      response.headers.set('Retry-After', Math.ceil((check.resetTime - Date.now()) / 1000).toString());
+      response.headers.set('X-RateLimit-Limit', this.config.limit.toString());
+      response.headers.set('X-RateLimit-Remaining', check.remainingRequests.toString());
+      response.headers.set('X-RateLimit-Reset', Math.ceil(check.resetTime / 1000).toString());
+      return response;
+    }
+
+    const response = NextResponse.next();
+    response.headers.set('X-RateLimit-Limit', this.config.limit.toString());
+    response.headers.set('X-RateLimit-Remaining', check.remainingRequests.toString());
+    response.headers.set('X-RateLimit-Reset', Math.ceil(check.resetTime / 1000).toString());
+    return response;
+  }
+}
+
+// Export a pre-configured instance for API routes
+export const apiRateLimit = new RateLimit({
+  limit: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+});
+
+================================================================================
+File: src/lib/schema.ts
+================================================================================
+
+// src/lib/schema.ts
+
+type Course = {
+  title: string;
+  description: string;
+  provider?: string;
+  price?: string;
+  language?: string;
+  level?: string;
+  startDate?: string;
+  endDate?: string;
+  duration?: string;
+  mode?: string; // online, in-person, hybrid
+};
+
+type BlogPost = {
+  title: string;
+  description: string;
+  date: string;
+  author?: {
+    name: string;
+    image?: string;
+  };
+  image?: string;
+};
+
+type FAQItem = {
+  question: string;
+  answer: string;
+};
+
+type Review = {
+  author: string;
+  reviewBody: string;
+  reviewRating: number;
+  datePublished: string;
+};
+
+type LocalBusiness = {
+  name: string;
+  image?: string;
+  telephone?: string;
+  address: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
+  geo?: {
+    latitude: number;
+    longitude: number;
+  };
+  openingHours?: string[];
+};
+
+export function generateCourseSchema(course: Course) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: course.title,
+    description: course.description,
+    provider: {
+      '@type': 'Organization',
+      name: course.provider || 'Oslo Languages',
+      sameAs: 'https://oslolanguages.com'
+    },
+    offers: {
+      '@type': 'Offer',
+      price: course.price?.replace(/[^0-9]/g, ''),
+      priceCurrency: 'NOK',
+      availability: 'https://schema.org/InStock',
+      validFrom: course.startDate,
+    },
+    courseMode: course.mode,
+    educationalLevel: course.level,
+    inLanguage: course.language,
+    startDate: course.startDate,
+    endDate: course.endDate,
+    timeRequired: course.duration,
+  };
+}
+
+export function generateFAQSchema(faqItems: FAQItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map(item => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+}
+
+export function generateReviewSchema(reviews: Review[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AggregateRating',
+    itemReviewed: {
+      '@type': 'LanguageSchool',
+      name: 'Oslo Languages',
+    },
+    ratingValue: reviews.reduce((acc, review) => acc + review.reviewRating, 0) / reviews.length,
+    reviewCount: reviews.length,
+    bestRating: 5,
+    worstRating: 1,
+    review: reviews.map(review => ({
+      '@type': 'Review',
+      author: {
+        '@type': 'Person',
+        name: review.author,
+      },
+      reviewBody: review.reviewBody,
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: review.reviewRating,
+      },
+      datePublished: review.datePublished,
+    })),
+  };
+}
+
+export function generateLocalBusinessSchema(business: LocalBusiness) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LanguageSchool',
+    name: business.name,
+    image: business.image,
+    telephone: business.telephone,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: business.address.street,
+      addressLocality: business.address.city,
+      postalCode: business.address.postalCode,
+      addressCountry: business.address.country,
+    },
+    ...(business.geo && {
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: business.geo.latitude,
+        longitude: business.geo.longitude,
+      },
+    }),
+    ...(business.openingHours && {
+      openingHoursSpecification: business.openingHours.map(hours => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: hours,
+      })),
+    }),
+    '@id': 'https://oslolanguages.com/#organization',
+    url: 'https://oslolanguages.com',
+    sameAs: [
+      'https://www.facebook.com/oslolanguages',
+      'https://www.instagram.com/oslolanguages',
+      'https://www.linkedin.com/company/oslolanguages',
+    ],
+  };
+}
+
+export function generateBlogPostSchema(post: BlogPost) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    image: post.image ? [post.image] : undefined,
+    author: post.author ? {
+      '@type': 'Person',
+      name: post.author.name,
+      image: post.author.image,
+    } : undefined,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Oslo Languages',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://oslolanguages.com/logo.png'
+      }
+    }
+  };
+}
+
+export function generateOrganizationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LanguageSchool',
+    name: 'Oslo Languages',
+    description: 'Premier language school in Oslo offering courses in Norwegian, English, and Spanish.',
+    url: 'https://oslolanguages.com',
+    logo: 'https://oslolanguages.com/logo.png',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '123 Street Name',
+      addressLocality: 'Oslo',
+      postalCode: '0123',
+      addressCountry: 'NO'
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: '59.9139',
+      longitude: '10.7522'
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+47-XXX-XXX',
+      contactType: 'customer service'
+    },
+    sameAs: [
+      'https://facebook.com/oslolanguages',
+      'https://instagram.com/oslolanguages',
+      'https://linkedin.com/company/oslolanguages'
+    ]
+  };
+}
+
+================================================================================
+File: src/lib/seo.ts
+================================================================================
+
+// src/lib/seo.ts
+
+import { BreadcrumbList } from 'schema-dts';
+
+interface BreadcrumbItem {
+  name: string;
+  path: string;
+}
+
+export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
+  const breadcrumbSchema: BreadcrumbList = {
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@id': `${process.env.NEXT_PUBLIC_SITE_URL}${item.path}`,
+        name: item.name,
+      },
+    })),
+  };
+
+  return breadcrumbSchema;
+}
+interface OpenGraphImageOptions {
+  title: string;
+  description?: string;
+  siteName?: string;
+  templateImage?: string;
+}
+
+export function generateOpenGraphImage(options: OpenGraphImageOptions) {
+  // Base URL for your OG image generation endpoint
+  const baseUrl = process.env.NEXT_PUBLIC_OG_IMAGE_URL;
+  
+  if (!baseUrl) return '/images/default-og.jpg';
+
+  const params = new URLSearchParams({
+    title: options.title,
+    description: options.description || '',
+    siteName: options.siteName || 'Oslo Languages',
+    template: options.templateImage || 'default',
+  });
+
+  return `${baseUrl}?${params.toString()}`;
+}
+
+export function generateDefaultMetadata(path: string) {
+  const segments = path.split('/').filter(Boolean);
+  const breadcrumbs = segments.map((segment, index) => {
+    const path = '/' + segments.slice(0, index + 1).join('/');
+    return {
+      name: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
+      path,
+    };
+  });
+
+  return {
+    breadcrumbs: generateBreadcrumbSchema([
+      { name: 'Home', path: '/' },
+      ...breadcrumbs,
+    ]),
+  };
+}
+
+================================================================================
+File: src/middleware.ts
+================================================================================
+
+// src/middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextFetchEvent, NextRequest } from 'next/server';
+import { apiRateLimit } from './lib/rate-limit';
+import { sanitizeMiddleware } from './lib/middleware/sanitize';
+import { withAuth } from 'next-auth/middleware';
+
+// CSRF token generation
+function generateCSRFToken() {
+  return crypto.randomUUID();
+}
+
+const authMiddleware = withAuth(
+  function middleware() {
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => token?.role === 'admin',
+    },
+    pages: {
+      signIn: '/admin/login',
+    },
+  }
+);
+
+async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
+  // For admin routes, use auth middleware
+  if (request.nextUrl.pathname.startsWith('/admin/') && 
+      !request.nextUrl.pathname.startsWith('/admin/login')) {
+    return (authMiddleware as (request: NextRequest, event: NextFetchEvent) => Promise<NextResponse>)(request, event);
+  }
+
+  // Apply rate limiting to API routes
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    const rateLimitResponse = await apiRateLimit.middleware(request);
+    if (rateLimitResponse.status === 429) {
+      return rateLimitResponse;
+    }
+  }
+
+  // Apply input sanitization
+  const sanitizedRequest = await sanitizeMiddleware(request);
+  
+  const response = NextResponse.next({
+    request: sanitizedRequest,
+  });
+
+  // Security Headers
+  response.headers.set('X-DNS-Prefetch-Control', 'on');
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
+  
+  // Content Security Policy
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "style-src 'self' 'unsafe-inline'; " +
+    "img-src 'self' data: https:; " +
+    "font-src 'self'; " +
+    "connect-src 'self'; " +
+    "media-src 'self'; " +
+    "object-src 'none';"
+  );
+
+  // Set CSRF token for GET requests
+  if (request.method === 'GET' && !request.nextUrl.pathname.startsWith('/api/')) {
+    const csrfToken = generateCSRFToken();
+    response.cookies.set('XSRF-TOKEN', csrfToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+  }
+
+  // Verify CSRF token for mutating requests
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
+    const csrfToken = request.headers.get('X-XSRF-TOKEN');
+    const cookieToken = request.cookies.get('XSRF-TOKEN');
+
+    if (!csrfToken || !cookieToken || csrfToken !== cookieToken.value) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Invalid CSRF token' }),
+        { status: 403 }
+      );
+    }
+  }
+
+  return response;
+}export default mainMiddleware;
+
+export const config = {
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
+};
+
+================================================================================
+File: src/types/auth.ts
+================================================================================
+
+// src/types/auth.ts
+import 'next-auth';
+
+declare module 'next-auth' {
+  interface User {
+    id: string;
+    email: string;
+    role: string;
+  }
+
+  interface Session {
+    user: User;
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    role?: string;
+  }
+}
+
+================================================================================
+File: src/types/md-editor.d.ts
+================================================================================
+
+// src/types/md-editor.d.ts
+declare module '@uiw/react-md-editor' {
+  import { ComponentType, HTMLAttributes } from 'react';
+
+  interface MDEditorProps extends HTMLAttributes<HTMLDivElement> {
+    value?: string;
+    onChange?: (value?: string) => void;
+    preview?: 'edit' | 'live' | 'preview';
+    height?: number;
+    highlightEnable?: boolean;
+    fullscreen?: boolean;
+    hideToolbar?: boolean;
+    enableScroll?: boolean;
+    visibleDragbar?: boolean;
+    textareaProps?: HTMLAttributes<HTMLTextAreaElement>;
+  }
+
+  const MDEditor: ComponentType<MDEditorProps>;
+  export default MDEditor;
+}
+
+================================================================================
+File: src/types/media.ts
+================================================================================
+
+// src/types/media.ts
+
+export interface MediaFile {
+  id: string;
+  filename: string;
+  path: string;
+  mimeType: string;
+  size: number;
+  width?: number;
+  height?: number;
+  alt?: string;
+  title?: string;
+  uploadedAt: Date;
+  updatedAt: Date;
+}
+
+export interface MediaUploadResponse {
+  success: boolean;
+  file?: MediaFile;
+  error?: string;
+}
+
+================================================================================
+File: src/types.ts
+================================================================================
+
+// src/types.ts
+
+export interface Teacher {
+  name: string;
+  role: string;
+  bio: string;
+  image: string;
+  languages: string[];
+}
+
+export interface Course {
+  schedule: string;
+  level: string;
+  language: string;
+  id: string;
+  title: string;
+  image: string;
+  // Add other course-related fields as needed
+}
+
+export interface Feature {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  // Add other testimonial-related fields as needed
+}
+
+export interface Post {
+  title: string;
+  coverImage: string;
+  date: string;     // Add this line
+  author: Author;
+}
+
+export interface CourseDetail {
+  title: string;
+  level: string;    // Add this line
+  duration: string;
+  schedule: string;
+  price: string;
+  description: string;
+  image: string;
+  syllabus: string[];
+  includes: string[];
+  upcomingDates: string[];
+}
+
+export interface Author {
+  name: string;
+  image: string;
+  role: string;
+}
+
+================================================================================
+File: tailwind.config.ts
+================================================================================
+
+import type { Config } from "tailwindcss";
+import typography from '@tailwindcss/typography';
+
+const config: Config = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        'bg-secondary': "var(--background-secondary)",
+        'bg-tertiary': "var(--background-tertiary)",
+        'text-primary': "var(--text-primary)",
+        'text-secondary': "var(--text-secondary)",
+        'accent-primary': "var(--accent-primary)",
+        'accent-secondary': "var(--accent-secondary)",
+      },
+    },
+  },
+  plugins: [typography],
+};
+
+export default config;
+
+
+================================================================================
+File: tsconfig.json
+================================================================================
+
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["jest", "@testing-library/jest-dom"]
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
