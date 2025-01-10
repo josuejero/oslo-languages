@@ -6,13 +6,13 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
+    setFormError(null);
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -30,12 +30,12 @@ export default function LoginPage() {
         const errorMessage = result.error === 'CredentialsSignin' 
           ? 'Invalid email or password'
           : result.error;
-        setError(errorMessage);
+        setFormError(errorMessage);
       } else {
         router.push('/admin/dashboard');
       }
-    } catch (error) {
-      setError('An unexpected error occurred');
+    } catch {
+      setFormError('An unexpected error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -50,9 +50,9 @@ export default function LoginPage() {
           </h1>
         </div>
 
-        {error && (
+        {formError && (
           <div className="bg-red-100 text-red-700 p-3 rounded">
-            {error}
+            {formError}
           </div>
         )}
 
