@@ -2,6 +2,7 @@
 
 import { generateMetadata } from '@/lib/schema';
 import Link from 'next/link';
+import PageContainer from '@/components/layout/PageContainer';
 
 export const metadata = generateMetadata({
   title: 'Privacy Policy - Oslo Languages',
@@ -10,7 +11,7 @@ export const metadata = generateMetadata({
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <PageContainer narrowWidth>
       <article className="prose prose-lg max-w-3xl mx-auto text-text-primary">
         <h1>Privacy Policy</h1>
         <p>Last updated: {new Date().toLocaleDateString()}</p>
@@ -78,6 +79,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
       </article>
-    </div>
+    </PageContainer>
   );
 }

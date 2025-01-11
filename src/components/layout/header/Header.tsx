@@ -56,7 +56,7 @@ const Header = () => {
 
   return (
     <header className="bg-bg-secondary shadow-md" role="banner">
-      <div className="container mx-auto px-4">
+      <div className="container-section">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0">
             <Link href="/" className="text-xl font-bold text-text-primary" aria-label="Oslo Languages, go to home page">

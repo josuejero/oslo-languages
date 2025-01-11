@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import OptimizedImage from '@/components/OptimizedImage';
-
+import PageContainer from '@/components/layout/PageContainer';
 import type { Metadata } from 'next';
 
 
@@ -99,7 +99,7 @@ export default function CoursesPage({
   const currentCourses = courses.slice(startIndex, endIndex);
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <PageContainer>
       {/* Page Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Our Language Courses</h1>
@@ -228,6 +228,6 @@ export default function CoursesPage({
           Contact Us
         </Link>
       </div>
-    </div>
+    </PageContainer>
   );
 }

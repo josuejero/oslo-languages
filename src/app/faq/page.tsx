@@ -3,6 +3,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import React from 'react';
+import PageContainer from '@/components/layout/PageContainer';
 
 
 export const metadata: Metadata = {
@@ -92,7 +93,7 @@ const faqData: FAQCategory[] = [
 
 export default function FAQPage() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <PageContainer>
       <h1 className="text-4xl font-bold text-center mb-8">
         Frequently Asked Questions
       </h1>
@@ -150,6 +151,6 @@ export default function FAQPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

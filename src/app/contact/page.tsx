@@ -3,6 +3,7 @@
 import { generateMetadata, generateOrganizationSchema } from '@/lib/schema';
 import ContactForm from '@/components/widgets/ContactForm';
 import Script from 'next/script';
+import PageContainer from '@/components/layout/PageContainer';
 
 export const metadata = generateMetadata({
   title: 'Contact Us',
@@ -43,7 +44,7 @@ export default function ContactPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <div className="container mx-auto px-4 py-12">
+      <PageContainer>
         <section className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 text-text-primary">Contact Us</h1>
           <p className="text-xl text-text-secondary max-w-2xl mx-auto">
@@ -143,7 +144,7 @@ export default function ContactPage() {
             <ContactForm />
           </div>
         </div>
-      </div>
+      </PageContainer>
     </>
   );
 }

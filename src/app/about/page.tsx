@@ -3,6 +3,7 @@
 import { generateMetadata } from '@/lib/schema';
 import OptimizedImage from '@/components/OptimizedImage';
 import { post, teachers } from '../../data';
+import PageContainer from '@/components/layout/PageContainer';
 
 export const metadata = generateMetadata({
   title: 'About Us',
@@ -20,7 +21,7 @@ export const metadata = generateMetadata({
 
 export default function AboutPage() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <PageContainer>
       {/* History Section */}
       <section className="mb-20">
         <h1 className="text-4xl font-bold mb-4 text-center">About Oslo Languages</h1>
@@ -145,6 +146,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-    </div>
+    </PageContainer>
   );
 }

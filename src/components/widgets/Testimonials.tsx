@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import OptimizedImage from '@/components/OptimizedImage';
+import Section from '../layout/Section';
 
 type Testimonial = {
   id: number;
@@ -61,8 +62,8 @@ export default function Testimonials() {
   };
 
   return (
-    <div className="bg-bg-tertiary py-16">
-      <div className="container mx-auto px-4">
+    <div className="bg-bg-tertiary">
+      <Section className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-12 text-text-primary">
           What Our Students Say
         </h2>
@@ -145,7 +146,7 @@ export default function Testimonials() {
             ))}
           </div>
         </div>
-      </div>
+      </Section>
     </div>
   );
 }

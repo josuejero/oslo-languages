@@ -2,6 +2,7 @@
 
 import { generateMetadata } from '@/lib/schema';
 import Link from 'next/link';
+import PageContainer from '@/components/layout/PageContainer';
 
 export const metadata = generateMetadata({
   title: 'Terms of Service - Oslo Languages',
@@ -10,7 +11,7 @@ export const metadata = generateMetadata({
 
 export default function TermsOfServicePage() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <PageContainer narrowWidth>
       <article className="prose prose-lg max-w-3xl mx-auto text-text-primary">
         <h1>Terms of Service</h1>
         <p>Last updated: {new Date().toLocaleDateString()}</p>
@@ -88,6 +89,6 @@ export default function TermsOfServicePage() {
           </p>
         </section>
       </article>
-    </div>
+    </PageContainer>
   );
 }
