@@ -1,4 +1,4 @@
-// src/components/ErrorBoundary.tsx - UPDATED
+// src/components/ErrorBoundary.tsx
 'use client';
 
 import { Component, ErrorInfo, ReactNode } from 'react';
@@ -15,6 +15,30 @@ interface State {
   error?: Error;
   errorInfo?: ErrorInfo;
 }
+
+// Unified error message component
+export const ErrorMessage = ({ 
+  title, 
+  children, 
+  variant = 'error'
+}: { 
+  title?: string; 
+  children: ReactNode; 
+  variant?: 'error' | 'warning' | 'info';
+}) => {
+  const styles = {
+    error: 'bg-red-100 text-red-700',
+    warning: 'bg-yellow-100 text-yellow-700',
+    info: 'bg-blue-100 text-blue-700'
+  };
+
+  return (
+    <div className={`p-4 rounded-md ${styles[variant]}`} role="alert">
+      {title && <h3 className="font-semibold mb-2">{title}</h3>}
+      <div className="text-sm">{children}</div>
+    </div>
+  );
+};
 
 export default class ErrorBoundary extends Component<Props, State> {
   public state: State = {
@@ -41,13 +65,13 @@ export default class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return this.props.fallback || (
-        <div className="min-h-[400px] flex items-center justify-center bg-bg-secondary">
+        <div className="min-h-screen flex items-center justify-center bg-bg-secondary">
           <div className="text-center p-8 bg-bg-tertiary rounded-lg shadow-xl max-w-lg">
             <h2 className="text-2xl font-bold text-text-primary mb-4">
               Something went wrong
             </h2>
             <p className="text-text-secondary mb-6">
-              {this.state.error?.message || 'An unexpected error occurred.'}
+              {this.state.error?.message || 'An unexpected error occurred'}
             </p>
             <div className="space-x-4">
               <button

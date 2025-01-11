@@ -1,10 +1,8 @@
-'use client';
-
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { logger } from '@/lib/logger';
+import { ErrorMessage } from '@/components/ErrorBoundary';
 
-// Form data type
 type FormData = {
   name: string;
   email: string;
@@ -13,12 +11,6 @@ type FormData = {
   attachments: FileList;
 };
 
-// Error summary type
-type ErrorSummary = {
-  field: string;
-  message: string;
-}[];
-
 const STORAGE_KEY = 'contact_form_draft';
 const AUTOSAVE_DELAY = 1000; // 1 second
 
@@ -26,7 +18,6 @@ const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [errorSummary, setErrorSummary] = useState<ErrorSummary>([]);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   const {
@@ -47,7 +38,7 @@ const ContactForm = () => {
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       Object.keys(parsedData).forEach((key) => {
-        if (key !== 'attachments') { // Skip file inputs
+        if (key !== 'attachments') {
           setValue(key as keyof FormData, parsedData[key]);
         }
       });
@@ -60,28 +51,11 @@ const ContactForm = () => {
 
     const timer = setTimeout(() => {
       const dataToSave = { ...formValues };
-      if ('attachments' in dataToSave) {
-        delete (dataToSave as Partial<FormData>).attachments; // Don't save file inputs
-      }
+      delete (dataToSave as Partial<FormData>).attachments;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
       logger.info('Form autosaved');
-    }, AUTOSAVE_DELAY);
-    return () => clearTimeout(timer);
+    }, AUTOSAVE_DELAY);    return () => clearTimeout(timer);
   }, [formValues, isDirty]);
-
-  // Update error summary when errors change
-  useEffect(() => {
-    const newErrorSummary: ErrorSummary = [];
-    Object.entries(errors).forEach(([field, error]) => {
-      if (error?.message) {
-        newErrorSummary.push({
-          field,
-          message: error.message,
-        });
-      }
-    });
-    setErrorSummary(newErrorSummary);
-  }, [errors]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -91,14 +65,12 @@ const ContactForm = () => {
     try {
       logger.info('Submitting contact form', { email: data.email });
 
-      // Create FormData for file upload
       const formData = new FormData();
       formData.append('name', data.name);
       formData.append('email', data.email);
       formData.append('subject', data.subject);
       formData.append('message', data.message);
       
-      // Append each file
       Array.from(data.attachments || []).forEach((file) => {
         formData.append('attachments', file);
       });
@@ -115,9 +87,8 @@ const ContactForm = () => {
 
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          logger.info('Contact form submitted successfully', { email: data.email });
           setSubmitSuccess(true);
-          localStorage.removeItem(STORAGE_KEY); // Clear saved form data
+          localStorage.removeItem(STORAGE_KEY);
           reset();
         } else {
           throw new Error(`HTTP error! status: ${xhr.status}`);
@@ -132,8 +103,7 @@ const ContactForm = () => {
 
     } catch (error) {
       logger.error('Contact form submission failed', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        data: { email: data.email },
+        error: error instanceof Error ? error.message : 'Unknown error'
       });
       setSubmitError('Failed to submit the form. Please try again later.');
     } finally {
@@ -141,44 +111,42 @@ const ContactForm = () => {
       setUploadProgress(0);
     }
   };
+
   const clearSavedData = () => {
     localStorage.removeItem(STORAGE_KEY);
     reset();
   };
 
+  // Convert form errors to format expected by ErrorSummary
+  const errorSummary = Object.entries(errors).map(([field, error]) => ({
+    field,
+    message: error.message || `Invalid ${field}`
+  }));
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Error Summary */}
       {errorSummary.length > 0 && (
-        <div className="p-4 bg-red-100 text-red-700 rounded-md mb-4">
-          <h3 className="font-semibold mb-2">Please fix the following errors:</h3>
-          <ul className="list-disc list-inside">
-            {errorSummary.map((error, index) => (
-              <li key={index}>
-                <a
-                  href={`#${error.field}`}
-                  className="underline hover:text-red-900"
-                >
-                  {error.message}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ErrorSummary 
+          errors={errorSummary}
+          onFieldClick={(field) => {
+            document.getElementsByName(field)[0]?.focus();
+          }}
+        />
       )}
 
       {/* Success Message */}
       {submitSuccess && (
-        <div className="p-4 bg-green-100 text-green-700 rounded-md mb-4">
+        <ErrorMessage variant="info" title="Success">
           Thank you for your message! We&apos;ll get back to you soon.
-        </div>
+        </ErrorMessage>
       )}
       
       {/* Error Message */}
       {submitError && (
-        <div className="p-4 bg-red-100 text-red-700 rounded-md mb-4">
+        <ErrorMessage title="Error">
           {submitError}
-        </div>
+        </ErrorMessage>
       )}
 
       {/* Form Fields */}
@@ -193,7 +161,7 @@ const ContactForm = () => {
           className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
         {errors.name && (
-          <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+          <ErrorMessage>{errors.name.message}</ErrorMessage>
         )}
       </div>
 
@@ -214,7 +182,7 @@ const ContactForm = () => {
           className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
         {errors.email && (
-          <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+          <ErrorMessage>{errors.email.message}</ErrorMessage>
         )}
       </div>
 
@@ -229,7 +197,7 @@ const ContactForm = () => {
           className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
         {errors.subject && (
-          <p className="mt-1 text-sm text-red-600">{errors.subject.message}</p>
+          <ErrorMessage>{errors.subject.message}</ErrorMessage>
         )}
       </div>
 
@@ -244,7 +212,7 @@ const ContactForm = () => {
           className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
         {errors.message && (
-          <p className="mt-1 text-sm text-red-600">{errors.message.message}</p>
+          <ErrorMessage>{errors.message.message}</ErrorMessage>
         )}
       </div>
 
@@ -272,7 +240,7 @@ const ContactForm = () => {
           <div
             className="bg-blue-600 h-2.5 rounded-full"
             style={{ width: `${uploadProgress}%` }}
-          ></div>
+          />
         </div>
       )}
 

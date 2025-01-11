@@ -1,18 +1,23 @@
 // src/lib/auth/config.ts
-import { AuthOptions } from 'next-auth';
+import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import { JWT } from 'next-auth/jwt';
+import { DefaultSession } from 'next-auth';
 
-// In a real application, this would be in a database
-const ADMIN_USER = {
-  id: '1',
-  email: process.env.ADMIN_EMAIL,
-  // This should be a hashed password in production
-  hashedPassword: process.env.ADMIN_PASSWORD ? 
-    bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10) : '',
-};
+interface User {
+  id: string;
+  email: string;
+  role: string;
+}
 
-export const authOptions: AuthOptions = {
+interface ExtendedSession extends DefaultSession {
+  user: {
+    role?: string;
+  } & DefaultSession['user'];
+}
+
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -20,55 +25,46 @@ export const authOptions: AuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Please enter both email and password');
+          throw new Error('Missing credentials');
         }
 
-        // Check if it's the admin user
-        if (credentials.email !== ADMIN_USER.email) {
-          throw new Error('Invalid email or password');
+        // In production, validate against your database
+        const isValid = credentials.email === process.env.ADMIN_EMAIL &&
+          await bcrypt.compare(credentials.password, process.env.ADMIN_PASSWORD || '');
+
+        if (isValid) {
+          return {
+            id: '1',
+            email: credentials.email,
+            role: 'admin'
+          };
         }
 
-        // Verify password
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          ADMIN_USER.hashedPassword
-        );
-
-        if (!isValid) {
-          throw new Error('Invalid email or password');
-        }
-
-        return {
-          id: ADMIN_USER.id,
-          email: ADMIN_USER.email,
-          role: 'admin'
-        };
+        return null;
       }
-    })
+    }),
   ],
-  pages: {
-    signIn: '/admin/login',
-    error: '/admin/login',
+  session: {
+    strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT, user: User | null }) {
       if (user) {
         token.role = user.role;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: ExtendedSession, token: JWT }) {
       if (session.user) {
-        session.user.role = token.role as string;
+        session.user.role = token.role;
       }
       return session;
     }
   },
-  session: {
-    strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // 24 hours
+  pages: {
+    signIn: '/admin/login',
+    error: '/admin/login',
   },
-  secret: process.env.NEXTAUTH_SECRET,
 };
