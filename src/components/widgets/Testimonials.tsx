@@ -3,7 +3,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import OptimizedImage from '@/components/OptimizedImage';
 
 type Testimonial = {
   id: number;
@@ -73,6 +73,7 @@ export default function Testimonials() {
             <button 
               onClick={prevTestimonial}
               className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 bg-bg-secondary p-2 rounded-full shadow-lg hover:bg-bg-secondary"
+              aria-label="Previous testimonial"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -81,6 +82,7 @@ export default function Testimonials() {
             <button 
               onClick={nextTestimonial}
               className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 bg-bg-secondary p-2 rounded-full shadow-lg hover:bg-bg-secondary"
+              aria-label="Next testimonial"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -91,11 +93,17 @@ export default function Testimonials() {
             <div className="bg-bg-secondary rounded-2xl shadow-xl p-8">
               <div className="flex flex-col items-center text-center">
                 <div className="relative w-20 h-20 mb-4">
-                  <Image
+                  {/* CHANGED: Replaced Image with OptimizedImage */}
+                  <OptimizedImage
                     src={testimonials[activeIndex].image}
                     alt={testimonials[activeIndex].name}
                     fill
                     className="rounded-full object-cover"
+                    aspectRatio={1}
+                    sizes="80px"
+                    background="bg-bg-tertiary"
+                    lazyBoundary="200px"
+                    lowQualityPlaceholder={`${testimonials[activeIndex].image}?w=10`}
                   />
                 </div>
                 
@@ -109,7 +117,7 @@ export default function Testimonials() {
                 </div>
 
                 <blockquote className="text-lg mb-4 text-text-primary">
-                  “{testimonials[activeIndex].text}”
+                  &quot;{testimonials[activeIndex].text}&quot;
                 </blockquote>
                 
                 <div className="text-text-secondary">
@@ -130,6 +138,7 @@ export default function Testimonials() {
                 className={`w-2 h-2 rounded-full transition-colors ${
                   index === activeIndex ? 'bg-accent-primary' : 'bg-text-secondary'
                 }`}
+                aria-label={`Go to testimonial ${index + 1}`}
               >
                 <span className="sr-only">Testimonial {index + 1}</span>
               </button>

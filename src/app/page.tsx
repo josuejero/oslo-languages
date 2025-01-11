@@ -1,7 +1,7 @@
 // src/app/page.tsx
 
-import Image from "next/image";
 import Link from "next/link";
+import OptimizedImage from '@/components/OptimizedImage';
 import Testimonials from '@/components/widgets/Testimonials';
 import { features } from '@/data';
 
@@ -42,12 +42,17 @@ export default function Home() {
                 key={index}
                 className="bg-bg-secondary p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
               >
-                <div className="w-12 h-12 mb-4">
-                  <Image
+                <div className="w-12 h-12 mb-4 relative">
+                  {/* CHANGED: Replaced Image with OptimizedImage */}
+                  <OptimizedImage
                     src={feature.icon}
                     alt={feature.title}
                     width={48}
                     height={48}
+                    className="object-contain"
+                    aspectRatio={1}
+                    sizes="48px"
+                    background="bg-transparent"
                   />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-text-primary">{feature.title}</h3>

@@ -1,7 +1,7 @@
 // src/app/courses/page.tsx
 
-import Image from 'next/image';
 import Link from 'next/link';
+import OptimizedImage from '@/components/OptimizedImage';
 
 import type { Metadata } from 'next';
 
@@ -92,11 +92,8 @@ export default function CoursesPage({
 }: {
   searchParams: { page?: string };
 }) {
-  // Get current page from URL params or default to 1
   const currentPage = Number(searchParams?.page) || 1;
   const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
-
-  // Calculate pagination bounds
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentCourses = courses.slice(startIndex, endIndex);
@@ -136,11 +133,17 @@ export default function CoursesPage({
             className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
           >
             <div className="relative h-48">
-              <Image
+              {/* CHANGED: Replaced Image with OptimizedImage */}
+              <OptimizedImage
                 src={course.image}
                 alt={course.title}
                 fill
                 className="object-cover"
+                aspectRatio={16/9}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                lazyBoundary="200px"
+                lowQualityPlaceholder={`${course.image}?w=20`}
+                background="bg-gray-100"
               />
             </div>
             <div className="p-6">

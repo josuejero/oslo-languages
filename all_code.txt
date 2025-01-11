@@ -124,7 +124,6 @@ Please analyze the project structure, errors, and code carefully:
 │   │   ├── hooks
 │   │   │   └── useDataFetching.ts
 │   │   ├── logger.ts
-│   │   ├── metadata.ts
 │   │   ├── middleware
 │   │   │   └── sanitize.ts
 │   │   ├── rate-limit.ts
@@ -141,8 +140,51 @@ Please analyze the project structure, errors, and code carefully:
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-52 directories, 86 files
+52 directories, 85 files
 
+
+================================================================================
+File: .env
+================================================================================
+
+# Environment variables declared in this file are automatically made available to Prisma.
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"
+
+================================================================================
+File: .env.local
+================================================================================
+
+# Database
+DATABASE_URL="postgresql://postgres@localhost:5432/oslo_languages_db"
+
+# Base URL
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Authentication (NextAuth.js)
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-at-least-32-chars
+
+# Admin credentials
+ADMIN_EMAIL=admin@oslolanguages.com
+ADMIN_PASSWORD=your-secure-password
+
+# Email service (SendGrid)
+SENDGRID_API_KEY=your-sendgrid-api-key
+EMAIL_FROM=noreply@oslolanguages.com
+EMAIL_TO=admin@oslolanguages.com
+
+# Upload limits
+MAX_FILE_SIZE=5242880 # 5MB in bytes
+ALLOWED_FILE_TYPES=image/jpeg,image/png,application/pdf,application/msword
+
+# Rate limiting
+RATE_LIMIT_MAX=100
+RATE_LIMIT_WINDOW_MS=900000 # 15 minutes in milliseconds
 
 ================================================================================
 File: README.md
@@ -533,6 +575,7 @@ File: package.json
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
+    "react-intersection-observer": "^9.14.1",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
     "schema-dts": "^1.1.2",
@@ -571,7 +614,7 @@ File: package.json
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8",
-    "prisma": "^6.1.0",
+    "prisma": "^6.2.1",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5",
@@ -618,17 +661,113 @@ export default config;
 
 
 ================================================================================
+File: prisma/schema.prisma
+================================================================================
+
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Blog System
+model Post {
+  id         String     @id @default(cuid())
+  title      String
+  slug       String     @unique
+  content    String     @db.Text
+  excerpt    String?
+  author     String     // Just store the author name
+  published  Boolean    @default(false)
+  coverImage String?    // URL to the image
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  categories Category[]
+  tags       Tag[]
+  comments   Comment[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  author    String   // Name of commenter
+  email     String   // Email of commenter
+  approved  Boolean  @default(false)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  posts Post[]
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  posts Post[]
+}
+
+// Form Submissions
+model FormSubmission {
+  id        String           @id @default(cuid())
+  type      SubmissionType
+  status    SubmissionStatus @default(PENDING)
+  data      Json            // Store all form fields as JSON
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+enum SubmissionType {
+  CONTACT
+  REGISTRATION
+  INQUIRY
+}
+
+enum SubmissionStatus {
+  PENDING
+  PROCESSED
+  ARCHIVED
+}
+
+// Media Library
+model Media {
+  id          String   @id @default(cuid())
+  filename    String
+  path        String   @unique
+  mimeType    String
+  size        Int      // in bytes
+  width       Int?     // for images
+  height      Int?     // for images
+  alt         String?  // alt text for images
+  title       String?  // display title
+  isPublic    Boolean  @default(true)
+  uploadedAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+================================================================================
 File: src/app/about/page.tsx
 ================================================================================
 
 // src/app/about/page.tsx
 
-import Image from 'next/image';
+import { generateMetadata } from '@/lib/seo';
+import OptimizedImage from '@/components/OptimizedImage';
 import { post, teachers } from '../../data';
-import { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'About Us - Oslo Languages',
+export const metadata = generateMetadata({
+  title: 'About Us',
   description: 'Learn about Oslo Languages, our expert teachers, and our proven teaching methodology. Established in 2015, we are one of Oslo\'s leading language schools.',
   keywords: [
     'language school oslo',
@@ -638,12 +777,8 @@ export const metadata: Metadata = {
     'about oslo languages',
     'language teaching methodology'
   ],
-  openGraph: {
-    title: 'About Oslo Languages - Language School in Oslo',
-    description: 'Meet our expert language teachers and learn about our teaching methodology.',
-    images: ['/og/about.jpg'],
-  },
-};
+  image: '/og/about.jpg'
+});
 
 export default function AboutPage() {
   return (
@@ -669,13 +804,16 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="relative h-[400px] rounded-lg overflow-hidden">
-            <Image
+            <OptimizedImage
               src={post.coverImage}
               alt={post.title}
               fill
               className="object-cover"
               priority
-              sizes="(max-width: 768px) 100vw, 1200px"
+              aspectRatio={16/9}
+              sizes="(max-width: 768px) 100vw, 600px"
+              background="bg-gray-100"
+              lowQualityPlaceholder={`${post.coverImage}?w=20`}
             />
           </div>
         </div>
@@ -684,7 +822,7 @@ export default function AboutPage() {
       {/* Methodology Section */}
       <section className="mb-20">
         <h2 className="text-3xl font-bold mb-8 text-center">Our Teaching Methodology</h2>
-        <div className="grid md:grid-cols-3 gap-8  text-gray-800">
+        <div className="grid md:grid-cols-3 gap-8 text-gray-800">
           <div className="p-6 bg-white rounded-lg shadow-lg">
             <h3 className="text-xl font-semibold mb-4">Communicative Approach</h3>
             <p>
@@ -716,11 +854,16 @@ export default function AboutPage() {
           {teachers.map((teacher, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
               <div className="relative h-64">
-                <Image
+                <OptimizedImage
                   src={teacher.image}
                   alt={teacher.name}
                   fill
                   className="object-cover"
+                  aspectRatio={1}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                  background="bg-gray-100"
+                  lazyBoundary="300px"
+                  lowQualityPlaceholder={`${teacher.image}?w=20`}
                 />
               </div>
               <div className="p-6">
@@ -1268,7 +1411,7 @@ File: src/app/admin/media/page.tsx
 'use client';
 
 import { useState, useRef } from 'react';
-import Image from 'next/image';
+import OptimizedImage from '@/components/OptimizedImage';
 import { MediaFile } from '@/types/media';
 
 export default function MediaLibrary() {
@@ -1378,11 +1521,17 @@ export default function MediaLibrary() {
               onClick={() => setSelectedFile(file)}
             >
               <div className="relative aspect-square">
-                <Image
+                {/* CHANGED: Replaced Image with OptimizedImage */}
+                <OptimizedImage
                   src={file.path}
                   alt={file.filename}
                   fill
                   className="object-cover"
+                  aspectRatio={1}
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16.666vw"
+                  background="bg-bg-tertiary"
+                  lazyBoundary="300px"
+                  lowQualityPlaceholder={`${file.path}?w=20`}
                 />
               </div>
               
@@ -1393,6 +1542,7 @@ export default function MediaLibrary() {
                     handleDelete(file.id);
                   }}
                   className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700"
+                  aria-label="Delete image"
                 >
                   <svg
                     className="w-5 h-5"
@@ -1414,7 +1564,7 @@ export default function MediaLibrary() {
         </div>
 
         {selectedFile && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-bg-tertiary p-6 rounded-lg max-w-2xl w-full">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-2xl font-bold text-text-primary">
@@ -1423,6 +1573,7 @@ export default function MediaLibrary() {
                 <button
                   onClick={() => setSelectedFile(null)}
                   className="text-text-secondary hover:text-text-primary"
+                  aria-label="Close details"
                 >
                   <svg
                     className="w-6 h-6"
@@ -1442,11 +1593,16 @@ export default function MediaLibrary() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="relative aspect-square rounded-lg overflow-hidden">
-                  <Image
+                  {/* CHANGED: Replaced Image with OptimizedImage */}
+                  <OptimizedImage
                     src={selectedFile.path}
                     alt={selectedFile.filename}
                     fill
                     className="object-cover"
+                    aspectRatio={1}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    background="bg-bg-tertiary"
+                    priority
                   />
                 </div>
 
@@ -2261,11 +2417,14 @@ File: src/app/blog/[slug]/page.tsx
 ================================================================================
 
 // src/app/blog/[slug]/page.tsx
-import Image from 'next/image';
+
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getAllPosts } from '@/lib/blog';
-import type { Metadata } from 'next';
+import { generateBlogPostSchema } from '@/lib/seo';
+import OptimizedImage from '@/components/OptimizedImage';
+import Script from 'next/script';
+import { Metadata } from 'next';
 
 interface Props {
   params: { slug: string };
@@ -2276,17 +2435,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = await getPostBySlug(params.slug);
     
     return {
-      title: `${post.title} - Oslo Languages Blog`,
+      title: post.title,
       description: post.excerpt,
       openGraph: {
-        title: post.title,
-        description: post.excerpt,
-        images: post.coverImage ? [post.coverImage] : [],
+        images: [post.coverImage],
       },
+      keywords: [...post.categories, ...post.tags].join(',')
     };
   } catch {
     return {
-      title: 'Post Not Found - Oslo Languages Blog',
+      title: 'Post Not Found',
+      description: 'The requested blog post could not be found.',
+      robots: 'noindex'
     };
   }
 }
@@ -2306,71 +2466,94 @@ export default async function BlogPost({ params }: Props) {
     notFound();
   }
 
+  // Generate structured data for the blog post
+  const structuredData = generateBlogPostSchema({
+    title: post.title,
+    description: post.excerpt,
+    datePublished: post.date,
+    author: {
+      name: post.author,
+    },
+    image: post.coverImage
+  });
+
   return (
-    <article className="container mx-auto px-4 py-12">
-      {/* Header */}
-      <header className="max-w-4xl mx-auto mb-12">
-        {post.coverImage && (
-          <div className="relative h-[400px] mb-8 rounded-lg overflow-hidden">
-            <Image
-              src={post.coverImage}
-              alt={post.title}
-              fill
-              className="object-cover"
-              priority
-            />
+    <>
+      <Script
+        id="blog-post-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      
+      <article className="container mx-auto px-4 py-12">
+        {/* Header */}
+        <header className="max-w-4xl mx-auto mb-12">
+          {post.coverImage && (
+            <div className="relative h-[400px] mb-8 rounded-lg overflow-hidden">
+              <OptimizedImage
+                src={post.coverImage}
+                alt={post.title}
+                fill
+                className="object-cover"
+                priority
+                aspectRatio={16/9}
+                sizes="(max-width: 768px) 100vw, 800px"
+                background="bg-gray-100"
+                lowQualityPlaceholder={`${post.coverImage}?w=20`}
+              />
+            </div>
+          )}
+
+          <h1 className="text-4xl font-bold mb-4 text-text-primary">{post.title}</h1>
+
+          <div className="flex flex-wrap items-center gap-4 text-text-secondary mb-6">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{post.author}</span>
+            </div>
+            <time dateTime={post.date}>
+              {new Date(post.date).toLocaleDateString()}
+            </time>
           </div>
-        )}
 
-        <h1 className="text-4xl font-bold mb-4 text-text-primary">{post.title}</h1>
-
-        <div className="flex flex-wrap items-center gap-4 text-text-secondary mb-6">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">{post.author}</span>
-          </div>
-          <time dateTime={post.date}>
-            {new Date(post.date).toLocaleDateString()}
-          </time>
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-8">
-          {post.categories.map((category) => (
-            <Link
-              key={category}
-              href={`/blog/category/${category.toLowerCase()}`}
-              className="bg-accent-primary text-white px-3 py-1 rounded-full hover:bg-accent-secondary transition-colors"
-            >
-              {category}
-            </Link>
-          ))}
-        </div>
-
-        <p className="text-xl text-text-secondary">{post.excerpt}</p>
-      </header>
-
-      {/* Content */}
-      <div className="max-w-4xl mx-auto">
-        <div 
-          className="prose prose-lg dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-
-        {/* Tags */}
-        <div className="mt-12 pt-6 border-t border-text-secondary">
-          <div className="flex flex-wrap gap-2">
-            {post.tags.map((tag) => (
+          <div className="flex flex-wrap gap-2 mb-8">
+            {post.categories.map((category) => (
               <Link
-                key={tag}
-                href={`/blog/tag/${tag.toLowerCase()}`}
-                className="text-text-secondary hover:text-accent-primary"
+                key={category}
+                href={`/blog/category/${category.toLowerCase()}`}
+                className="bg-accent-primary text-white px-3 py-1 rounded-full hover:bg-accent-secondary transition-colors"
               >
-                #{tag}
+                {category}
               </Link>
             ))}
           </div>
+
+          <p className="text-xl text-text-secondary">{post.excerpt}</p>
+        </header>
+
+        {/* Content */}
+        <div className="max-w-4xl mx-auto">
+          <div 
+            className="prose prose-lg dark:prose-invert max-w-none"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+
+          {/* Tags */}
+          <div className="mt-12 pt-6 border-t border-text-secondary">
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/blog/tag/${tag.toLowerCase()}`}
+                  className="text-text-secondary hover:text-accent-primary"
+                >
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+    </>
   );
 }
 
@@ -2464,66 +2647,153 @@ export default async function BlogPage() {
 File: src/app/contact/page.tsx
 ================================================================================
 
+// src/app/contact/page.tsx
+
+import { generateMetadata, generateOrganizationSchema } from '@/lib/seo';
 import ContactForm from '@/components/widgets/ContactForm';
+import Script from 'next/script';
+
+export const metadata = generateMetadata({
+  title: 'Contact Us',
+  description: 'Get in touch with Oslo Languages. We\'d love to hear from you and will respond as soon as possible. Reach out for course information, registration, or any questions.',
+  keywords: [
+    'contact oslo languages',
+    'language school contact',
+    'oslo language courses',
+    'contact language school oslo',
+    'language learning contact'
+  ]
+});
 
 export default function ContactPage() {
+  const organizationData = {
+    name: 'Oslo Languages',
+    address: {
+      street: '123 Business Street',
+      city: 'Oslo',
+      postalCode: '0123',
+      country: 'NO'
+    },
+    telephone: '(+47) XXX-XX-XXX',
+    openingHours: [
+      'Monday-Friday 09:00-18:00',
+      'Saturday 10:00-16:00',
+      'Sunday Closed'
+    ]
+  };
+
+  const structuredData = generateOrganizationSchema(organizationData);
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      <section className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4 text-text-primary">Contact Us</h1>
-        <p className="text-xl text-text-secondary max-w-2xl mx-auto">
-          Get in touch with us. We&apos;d love to hear from you and will respond as soon as possible.
-        </p>
-      </section>
+    <>
+      <Script
+        id="organization-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
-      <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-        {/* Contact Information */}
-        <div className="space-y-8">
-          <div>
-            <h2 className="text-2xl font-semibold mb-4 text-text-primary">Contact Information</h2>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold text-text-primary">Address</h3>
+      <div className="container mx-auto px-4 py-12">
+        <section className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4 text-text-primary">Contact Us</h1>
+          <p className="text-xl text-text-secondary max-w-2xl mx-auto">
+            Get in touch with us. We&apos;d love to hear from you and will respond as soon as possible.
+          </p>
+        </section>
+
+        <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          {/* Contact Information */}
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-semibold mb-4 text-text-primary">Contact Information</h2>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-text-primary">Address</h3>
+                  <address className="text-text-secondary not-italic">
+                    {organizationData.address.street}<br />
+                    {organizationData.address.city}, {organizationData.address.postalCode}<br />
+                    {organizationData.address.country}
+                  </address>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-text-primary">Phone</h3>
+                  <p className="text-text-secondary">
+                    <a 
+                      href={`tel:${organizationData.telephone.replace(/[^0-9+]/g, '')}`}
+                      className="hover:text-accent-primary transition-colors"
+                    >
+                      {organizationData.telephone}
+                    </a>
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-text-primary">Email</h3>
+                  <p className="text-text-secondary">
+                    <a 
+                      href="mailto:info@oslolanguages.com"
+                      className="hover:text-accent-primary transition-colors"
+                    >
+                      info@oslolanguages.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-semibold mb-4 text-text-primary">Business Hours</h2>
+              <div className="space-y-2">
+                {organizationData.openingHours.map((hours, index) => (
+                  <p key={index} className="text-text-secondary">
+                    {hours}
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-semibold mb-4 text-text-primary">Other Ways to Connect</h2>
+              <div className="space-y-2">
                 <p className="text-text-secondary">
-                  123 Business Street<br />
-                  Suite 100<br />
-                  City, State 12345
+                  Follow us on social media for updates, language learning tips, and cultural insights.
                 </p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-text-primary">Phone</h3>
-                <p className="text-text-secondary">(123) 456-7890</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-text-primary">Email</h3>
-                <p className="text-text-secondary">info@yourcompany.com</p>
+                <div className="flex gap-4">
+                  <a
+                    href="https://facebook.com/oslolanguages"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent-primary hover:text-accent-secondary transition-colors"
+                  >
+                    Facebook
+                  </a>
+                  <a
+                    href="https://instagram.com/oslolanguages"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent-primary hover:text-accent-secondary transition-colors"
+                  >
+                    Instagram
+                  </a>
+                  <a
+                    href="https://linkedin.com/company/oslolanguages"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent-primary hover:text-accent-secondary transition-colors"
+                  >
+                    LinkedIn
+                  </a>
+                </div>
               </div>
             </div>
           </div>
 
-          <div>
-            <h2 className="text-2xl font-semibold mb-4 text-text-primary">Business Hours</h2>
-            <div className="space-y-2">
-              <p className="text-text-secondary">
-                <span className="font-semibold text-text-primary">Monday - Friday:</span> 9:00 AM - 6:00 PM
-              </p>
-              <p className="text-text-secondary">
-                <span className="font-semibold text-text-primary">Saturday:</span> 10:00 AM - 4:00 PM
-              </p>
-              <p className="text-text-secondary">
-                <span className="font-semibold text-text-primary">Sunday:</span> Closed
-              </p>
-            </div>
+          {/* Contact Form */}
+          <div className="bg-bg-secondary p-6 rounded-lg shadow-lg border border-text-secondary">
+            <h2 className="text-2xl font-semibold mb-6 text-text-primary">Send us a Message</h2>
+            <ContactForm />
           </div>
-        </div>
-
-        {/* Contact Form */}
-        <div className="bg-bg-secondary p-6 rounded-lg shadow-lg border border-text-secondary">
-          <h2 className="text-2xl font-semibold mb-6 text-text-primary">Send us a Message</h2>
-          <ContactForm />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -2531,12 +2801,12 @@ export default function ContactPage() {
 File: src/app/courses/[courseId]/page.tsx
 ================================================================================
 
-import Image from 'next/image';
+// src/app/courses/[courseId]/page.tsx
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { PageProps } from '@/types/next';
-
+import OptimizedImage from '@/components/OptimizedImage';
 
 const courseDetails = {
   'norwegian-beginner': {
@@ -2587,12 +2857,17 @@ export default function CoursePage({ params }: PageProps) {
       {/* Course Header */}
       <div className="grid md:grid-cols-2 gap-8 mb-12">
         <div className="relative h-[400px] rounded-lg overflow-hidden">
-          <Image
+          {/* CHANGED: Replaced Image with OptimizedImage */}
+          <OptimizedImage
             src={course.image}
             alt={course.title}
             fill
             className="object-cover"
             priority
+            aspectRatio={16/9}
+            sizes="(max-width: 768px) 100vw, 600px"
+            background="bg-gray-100"
+            lowQualityPlaceholder={`${course.image}?w=20`}
           />
         </div>
         <div className="space-y-4">
@@ -2674,7 +2949,6 @@ export default function CoursePage({ params }: PageProps) {
             <h3 className="font-bold mb-2 text-gray-900">How many students are in each class?</h3>
             <p className="text-gray-600">We maintain small class sizes with a maximum of 12 students to ensure quality interaction and personal attention.</p>
           </div>
-          {/* Add more FAQs as needed */}
         </div>
       </div>
     </div>
@@ -2714,8 +2988,8 @@ File: src/app/courses/page.tsx
 
 // src/app/courses/page.tsx
 
-import Image from 'next/image';
 import Link from 'next/link';
+import OptimizedImage from '@/components/OptimizedImage';
 
 import type { Metadata } from 'next';
 
@@ -2806,11 +3080,8 @@ export default function CoursesPage({
 }: {
   searchParams: { page?: string };
 }) {
-  // Get current page from URL params or default to 1
   const currentPage = Number(searchParams?.page) || 1;
   const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
-
-  // Calculate pagination bounds
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentCourses = courses.slice(startIndex, endIndex);
@@ -2850,11 +3121,17 @@ export default function CoursesPage({
             className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
           >
             <div className="relative h-48">
-              <Image
+              {/* CHANGED: Replaced Image with OptimizedImage */}
+              <OptimizedImage
                 src={course.image}
                 alt={course.title}
                 fill
                 className="object-cover"
+                aspectRatio={16/9}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                lazyBoundary="200px"
+                lowQualityPlaceholder={`${course.image}?w=20`}
+                background="bg-gray-100"
               />
             </div>
             <div className="p-6">
@@ -3406,8 +3683,8 @@ File: src/app/page.tsx
 
 // src/app/page.tsx
 
-import Image from "next/image";
 import Link from "next/link";
+import OptimizedImage from '@/components/OptimizedImage';
 import Testimonials from '@/components/widgets/Testimonials';
 import { features } from '@/data';
 
@@ -3448,12 +3725,17 @@ export default function Home() {
                 key={index}
                 className="bg-bg-secondary p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
               >
-                <div className="w-12 h-12 mb-4">
-                  <Image
+                <div className="w-12 h-12 mb-4 relative">
+                  {/* CHANGED: Replaced Image with OptimizedImage */}
+                  <OptimizedImage
                     src={feature.icon}
                     alt={feature.title}
                     width={48}
                     height={48}
+                    className="object-contain"
+                    aspectRatio={1}
+                    sizes="48px"
+                    background="bg-transparent"
                   />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-text-primary">{feature.title}</h3>
@@ -4104,56 +4386,79 @@ export default function LoadingSpinner() {
 File: src/components/OptimizedImage.tsx
 ================================================================================
 
-// src/components/OptimizedImage.tsx
-'use client';
-
-import Image, { ImageProps } from 'next/image';
 import { useState, useEffect } from 'react';
+import Image, { ImageProps } from 'next/image';
+import { useInView } from 'react-intersection-observer';
 
-type OptimizedImageProps = ImageProps & {
+interface OptimizedImageProps extends Omit<ImageProps, 'placeholder' | 'blurDataURL'> {
   fallbackSrc?: string;
-  lowQualitySrc?: string;
-};
+  lowQualityPlaceholder?: string;
+  aspectRatio?: number;
+  lazyBoundary?: string;
+  background?: string;
+}
 
 export default function OptimizedImage({
   src,
   alt,
   fallbackSrc = '/images/placeholder.jpg',
-  lowQualitySrc,
+  lowQualityPlaceholder,
+  aspectRatio,
+  lazyBoundary = '100px',
+  background = 'bg-gray-100',
+  className = '',
   ...props
 }: OptimizedImageProps) {
-  const [imgSrc, setImgSrc] = useState(lowQualitySrc || src);
+  const [imgSrc, setImgSrc] = useState(src);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  
+  // Use intersection observer for better lazy loading
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    rootMargin: lazyBoundary
+  });
 
   useEffect(() => {
-    if (lowQualitySrc && !error) {
-      const img = new window.Image();
-      img.src = typeof src === 'string' ? src : '';
-      img.onload = () => {
-        setImgSrc(src);
-        setLoading(false);
-      };
-    }
-  }, [src, lowQualitySrc, error]);
+    setImgSrc(src);
+    setError(false);
+    setLoading(true);
+  }, [src]);
+
+  // Calculate padding based on aspect ratio
+  const paddingStyle = aspectRatio 
+    ? { paddingTop: `${(1 / aspectRatio) * 100}%` }
+    : undefined;
 
   return (
-    <div className={`relative ${loading ? 'blur-sm' : 'blur-0'} transition-all duration-300`}>
-      <Image
-        {...props}
-        src={error ? fallbackSrc : imgSrc}
-        alt={alt}
-        onError={() => {
-          setError(true);
-          setLoading(false);
-        }}
-        onLoad={() => setLoading(false)}
-        quality={90}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        loading="lazy"
-        placeholder={lowQualitySrc ? 'blur' : 'empty'}
-        blurDataURL={lowQualitySrc}
-      />
+    <div
+      ref={ref}
+      className={`relative overflow-hidden ${background} ${className}`}
+      style={paddingStyle}
+    >
+      {inView && (
+        <Image
+          {...props}
+          src={error ? fallbackSrc : imgSrc}
+          alt={alt}
+          className={`transition-opacity duration-300 ${
+            loading ? 'opacity-0' : 'opacity-100'
+          }`}
+          onLoad={() => setLoading(false)}
+          onError={() => {
+            setError(true);
+            setLoading(false);
+          }}
+          placeholder={lowQualityPlaceholder ? 'blur' : 'empty'}
+          blurDataURL={lowQualityPlaceholder}
+          sizes={props.sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
+        />
+      )}
+      
+      {/* Loading Skeleton */}
+      {loading && (
+        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+      )}
     </div>
   );
 }
@@ -4507,8 +4812,8 @@ File: src/components/widgets/BlogList.tsx
 // src/components/widgets/BlogList.tsx
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import OptimizedImage from '@/components/OptimizedImage';
 import { BlogPost } from '@/lib/blog';
 
 interface BlogListProps {
@@ -4523,11 +4828,16 @@ const BlogList = ({ posts, className = '' }: BlogListProps) => {
         <article key={post.slug} className="bg-bg-secondary rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
           {post.coverImage && (
             <div className="relative h-48">
-              <Image
+              {/* CHANGED: Replaced Image with OptimizedImage */}
+              <OptimizedImage
                 src={post.coverImage}
                 alt={post.title}
                 fill
                 className="object-cover"
+                aspectRatio={16/9}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                lazyBoundary="200px"
+                lowQualityPlaceholder={`${post.coverImage}?w=20`} // Optional: add low-quality placeholder
               />
             </div>
           )}
@@ -5208,7 +5518,7 @@ File: src/components/widgets/Testimonials.tsx
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import OptimizedImage from '@/components/OptimizedImage';
 
 type Testimonial = {
   id: number;
@@ -5278,6 +5588,7 @@ export default function Testimonials() {
             <button 
               onClick={prevTestimonial}
               className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 bg-bg-secondary p-2 rounded-full shadow-lg hover:bg-bg-secondary"
+              aria-label="Previous testimonial"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -5286,6 +5597,7 @@ export default function Testimonials() {
             <button 
               onClick={nextTestimonial}
               className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 bg-bg-secondary p-2 rounded-full shadow-lg hover:bg-bg-secondary"
+              aria-label="Next testimonial"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -5296,11 +5608,17 @@ export default function Testimonials() {
             <div className="bg-bg-secondary rounded-2xl shadow-xl p-8">
               <div className="flex flex-col items-center text-center">
                 <div className="relative w-20 h-20 mb-4">
-                  <Image
+                  {/* CHANGED: Replaced Image with OptimizedImage */}
+                  <OptimizedImage
                     src={testimonials[activeIndex].image}
                     alt={testimonials[activeIndex].name}
                     fill
                     className="rounded-full object-cover"
+                    aspectRatio={1}
+                    sizes="80px"
+                    background="bg-bg-tertiary"
+                    lazyBoundary="200px"
+                    lowQualityPlaceholder={`${testimonials[activeIndex].image}?w=10`}
                   />
                 </div>
                 
@@ -5314,7 +5632,7 @@ export default function Testimonials() {
                 </div>
 
                 <blockquote className="text-lg mb-4 text-text-primary">
-                  “{testimonials[activeIndex].text}”
+                  &quot;{testimonials[activeIndex].text}&quot;
                 </blockquote>
                 
                 <div className="text-text-secondary">
@@ -5335,6 +5653,7 @@ export default function Testimonials() {
                 className={`w-2 h-2 rounded-full transition-colors ${
                   index === activeIndex ? 'bg-accent-primary' : 'bg-text-secondary'
                 }`}
+                aria-label={`Go to testimonial ${index + 1}`}
               >
                 <span className="sr-only">Testimonial {index + 1}</span>
               </button>
@@ -5345,7 +5664,6 @@ export default function Testimonials() {
     </div>
   );
 }
-
 
 ================================================================================
 File: src/components/widgets/__tests__/ContactForm.test.tsx
@@ -5948,115 +6266,6 @@ class Logger {
 export const logger = Logger.getInstance();
 
 ================================================================================
-File: src/lib/metadata.ts
-================================================================================
-
-// src/lib/metadata.ts
-import { Metadata } from 'next';
-
-interface GenerateMetadataProps {
-  title: string;
-  description: string;
-  keywords?: string[];
-  image?: string;
-  noIndex?: boolean;
-}
-
-export function generateMetadata({
-  title,
-  description,
-  keywords = [],
-  image = '/og-default.jpg',
-  noIndex = false,
-}: GenerateMetadataProps): Metadata {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://example.com';
-
-  return {
-    title: `${title} | Oslo Languages`,
-    description,
-    keywords: [
-      'language school oslo',
-      'norwegian courses',
-      'english courses',
-      'spanish courses',
-      ...keywords,
-    ],
-    authors: [{ name: 'Oslo Languages' }],
-    openGraph: {
-      title: `${title} | Oslo Languages`,
-      description,
-      url: baseUrl,
-      siteName: 'Oslo Languages',
-      images: [
-        {
-          url: image,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-      locale: 'en_US',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${title} | Oslo Languages`,
-      description,
-      images: [image],
-    },
-    robots: {
-      index: !noIndex,
-      follow: !noIndex,
-      googleBot: {
-        index: !noIndex,
-        follow: !noIndex,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-    verification: {
-      google: 'your-google-verification-code',
-    },
-    alternates: {
-      canonical: baseUrl,
-    },
-  };
-}
-
-export const jsonLdScriptProps = {
-  type: 'application/ld+json',
-  dangerouslySetInnerHTML: {
-    __html: JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'LanguageSchool',
-      name: 'Oslo Languages',
-      description: 'Oslo\'s premier language school offering courses in Norwegian, English, Spanish and more.',
-      url: 'https://example.com',
-      telephone: '+47-XXX-XX-XXX',
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: '123 Business Street',
-        addressLocality: 'Oslo',
-        postalCode: '0123',
-        addressCountry: 'NO',
-      },
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: 59.9139,
-        longitude: 10.7522,
-      },
-      openingHours: ['Mo-Fr 09:00-18:00', 'Sa 10:00-16:00'],
-      sameAs: [
-        'https://www.facebook.com/oslolanguages',
-        'https://www.instagram.com/oslolanguages',
-        'https://www.linkedin.com/company/oslolanguages',
-      ],
-    }),
-  },
-};
-
-================================================================================
 File: src/lib/middleware/sanitize.ts
 ================================================================================
 
@@ -6436,28 +6645,20 @@ File: src/lib/seo.ts
 
 // src/lib/seo.ts
 
+import { Metadata } from 'next';
 import { BreadcrumbList } from 'schema-dts';
 
-interface BreadcrumbItem {
-  name: string;
-  path: string;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://oslolanguages.com';
+
+// Types
+interface MetadataOptions {
+  title: string;
+  description: string;
+  keywords?: string[];
+  image?: string;
+  noIndex?: boolean;
 }
 
-export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
-  const breadcrumbSchema: BreadcrumbList = {
-    '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@id': `${process.env.NEXT_PUBLIC_SITE_URL}${item.path}`,
-        name: item.name,
-      },
-    })),
-  };
-
-  return breadcrumbSchema;
-}
 interface OpenGraphImageOptions {
   title: string;
   description?: string;
@@ -6465,10 +6666,121 @@ interface OpenGraphImageOptions {
   templateImage?: string;
 }
 
-export function generateOpenGraphImage(options: OpenGraphImageOptions) {
-  // Base URL for your OG image generation endpoint
+interface BreadcrumbItem {
+  name: string;
+  path: string;
+}
+
+interface CourseStructuredData {
+  title: string;
+  description: string;
+  provider?: string;
+  price?: string;
+  startDate?: string;
+  endDate?: string;
+  level?: string;
+  language?: string;
+}
+
+interface BlogPostStructuredData {
+  title: string;
+  description: string;
+  datePublished: string;
+  author: {
+    name: string;
+    image?: string;
+  };
+  image?: string;
+}
+
+interface FAQStructuredData {
+  questions: Array<{
+    question: string;
+    answer: string;
+  }>;
+}
+
+interface LocalBusinessStructuredData {
+  name: string;
+  image?: string;
+  telephone?: string;
+  address: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
+  geo?: {
+    latitude: number;
+    longitude: number;
+  };
+  openingHours?: string[];
+}
+
+// Main metadata generator
+export function generateMetadata({
+  title,
+  description,
+  keywords = [],
+  image = '/og-default.jpg',
+  noIndex = false,
+}: MetadataOptions): Metadata {
+  return {
+    title: `${title} | Oslo Languages`,
+    description,
+    keywords: [
+      'language school oslo',
+      'norwegian courses',
+      'english courses',
+      'spanish courses',
+      ...keywords,
+    ],
+    authors: [{ name: 'Oslo Languages' }],
+    openGraph: {
+      title: `${title} | Oslo Languages`,
+      description,
+      url: SITE_URL,
+      siteName: 'Oslo Languages',
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+      locale: 'en_NO',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | Oslo Languages`,
+      description,
+      images: [image],
+    },
+    robots: {
+      index: !noIndex,
+      follow: !noIndex,
+      googleBot: {
+        index: !noIndex,
+        follow: !noIndex,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    alternates: {
+      canonical: SITE_URL,
+    },
+    verification: {
+      google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
+    },
+  };
+}
+
+// OpenGraph image generator
+export function generateOpenGraphImage(options: OpenGraphImageOptions): string {
   const baseUrl = process.env.NEXT_PUBLIC_OG_IMAGE_URL;
-  
   if (!baseUrl) return '/images/default-og.jpg';
 
   const params = new URLSearchParams({
@@ -6481,6 +6793,135 @@ export function generateOpenGraphImage(options: OpenGraphImageOptions) {
   return `${baseUrl}?${params.toString()}`;
 }
 
+// Breadcrumb generator
+export function generateBreadcrumbSchema(items: BreadcrumbItem[]): BreadcrumbList {
+  return {
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@id': `${SITE_URL}${item.path}`,
+        name: item.name,
+      },
+    })),
+  };
+}
+
+// Course schema generator
+export function generateCourseSchema(course: CourseStructuredData) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: course.title,
+    description: course.description,
+    provider: {
+      '@type': 'Organization',
+      name: course.provider || 'Oslo Languages',
+      sameAs: SITE_URL
+    },
+    ...(course.price && {
+      offers: {
+        '@type': 'Offer',
+        price: course.price.replace(/[^0-9]/g, ''),
+        priceCurrency: 'NOK',
+        availability: 'https://schema.org/InStock',
+      }
+    }),
+    ...(course.startDate && { startDate: course.startDate }),
+    ...(course.endDate && { endDate: course.endDate }),
+    ...(course.level && { educationalLevel: course.level }),
+    ...(course.language && { inLanguage: course.language }),
+  };
+}
+
+// Blog post schema generator
+export function generateBlogPostSchema(post: BlogPostStructuredData) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    datePublished: post.datePublished,
+    image: post.image ? [post.image] : undefined,
+    author: {
+      '@type': 'Person',
+      name: post.author.name,
+      ...(post.author.image && { image: post.author.image }),
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Oslo Languages',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/logo.png`
+      }
+    }
+  };
+}
+
+// FAQ schema generator
+export function generateFAQSchema(data: FAQStructuredData) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: data.questions.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: answer
+      }
+    }))
+  };
+}
+
+// Organization schema generator
+export function generateOrganizationSchema(data: LocalBusinessStructuredData) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LanguageSchool',
+    name: data.name,
+    description: 'Premier language school in Oslo offering courses in Norwegian, English, and Spanish.',
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: data.address.street,
+      addressLocality: data.address.city,
+      postalCode: data.address.postalCode,
+      addressCountry: data.address.country
+    },
+    ...(data.geo && {
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: data.geo.latitude,
+        longitude: data.geo.longitude
+      }
+    }),
+    ...(data.telephone && {
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: data.telephone,
+        contactType: 'customer service',
+        availableLanguage: ['Norwegian', 'English', 'Spanish']
+      }
+    }),
+    ...(data.openingHours && {
+      openingHoursSpecification: data.openingHours.map(hours => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: hours
+      }))
+    }),
+    sameAs: [
+      'https://facebook.com/oslolanguages',
+      'https://instagram.com/oslolanguages',
+      'https://linkedin.com/company/oslolanguages'
+    ]
+  };
+}
+
+// Helper function for pages to generate default metadata with breadcrumbs
 export function generateDefaultMetadata(path: string) {
   const segments = path.split('/').filter(Boolean);
   const breadcrumbs = segments.map((segment, index) => {

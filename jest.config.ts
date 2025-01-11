@@ -8,7 +8,9 @@ const createJestConfig = nextJest({
 
 const config: Config = {
   testEnvironment: 'jest-environment-jsdom',
+  // Point Jest to the setup file below
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
@@ -16,7 +18,6 @@ const config: Config = {
     '**/__tests__/**/*.ts?(x)',
     '**/?(*.)+(spec|test).ts?(x)'
   ],
-  // Add coverage configuration
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
@@ -32,9 +33,7 @@ const config: Config = {
       statements: 70,
     },
   },
-  // Add test timeout
   testTimeout: 10000,
-  // Add verbose output
   verbose: true,
 };
 

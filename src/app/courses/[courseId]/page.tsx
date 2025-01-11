@@ -1,9 +1,9 @@
-import Image from 'next/image';
+// src/app/courses/[courseId]/page.tsx
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { PageProps } from '@/types/next';
-
+import OptimizedImage from '@/components/OptimizedImage';
 
 const courseDetails = {
   'norwegian-beginner': {
@@ -54,12 +54,17 @@ export default function CoursePage({ params }: PageProps) {
       {/* Course Header */}
       <div className="grid md:grid-cols-2 gap-8 mb-12">
         <div className="relative h-[400px] rounded-lg overflow-hidden">
-          <Image
+          {/* CHANGED: Replaced Image with OptimizedImage */}
+          <OptimizedImage
             src={course.image}
             alt={course.title}
             fill
             className="object-cover"
             priority
+            aspectRatio={16/9}
+            sizes="(max-width: 768px) 100vw, 600px"
+            background="bg-gray-100"
+            lowQualityPlaceholder={`${course.image}?w=20`}
           />
         </div>
         <div className="space-y-4">
@@ -141,7 +146,6 @@ export default function CoursePage({ params }: PageProps) {
             <h3 className="font-bold mb-2 text-gray-900">How many students are in each class?</h3>
             <p className="text-gray-600">We maintain small class sizes with a maximum of 12 students to ensure quality interaction and personal attention.</p>
           </div>
-          {/* Add more FAQs as needed */}
         </div>
       </div>
     </div>

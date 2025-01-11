@@ -1,3 +1,4 @@
+// playwright.config.ts
 import { PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
@@ -10,7 +11,7 @@ const config: PlaywrightTestConfig = {
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
-    timeout: 120000,
+    timeout: 120_000,
     reuseExistingServer: !process.env.CI,
   },
 };
