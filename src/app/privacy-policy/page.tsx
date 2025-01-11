@@ -1,12 +1,12 @@
 // src/app/privacy-policy/page.tsx
 
-import type { Metadata } from 'next';
+import { generateMetadata } from '@/lib/schema';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = generateMetadata({
   title: 'Privacy Policy - Oslo Languages',
   description: 'Read our privacy policy to understand how Oslo Languages collects, uses, and protects your personal information.',
-};
+});
 
 export default function PrivacyPolicyPage() {
   return (

@@ -1,59 +1,153 @@
 // src/lib/schema.ts
 
-type Course = {
+import { Metadata } from 'next';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://oslolanguages.com';
+
+// Common Types
+interface MetadataOptions {
+  title: string;
+  description: string;
+  keywords?: string[];
+  image?: string;
+  noIndex?: boolean;
+}
+
+interface BreadcrumbItem {
+  name: string;
+  path: string;
+}
+
+interface SchemaAuthor {
+  name: string;
+  image?: string;
+}
+
+interface SchemaAddress {
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+interface SchemaGeo {
+  latitude: number;
+  longitude: number;
+}
+
+// Specific Schema Types
+interface CourseSchema {
   title: string;
   description: string;
   provider?: string;
   price?: string;
-  language?: string;
-  level?: string;
   startDate?: string;
   endDate?: string;
-  duration?: string;
-  mode?: string; // online, in-person, hybrid
-};
+  level?: string;
+  language?: string;
+  mode?: 'online' | 'in-person' | 'hybrid';
+}
 
-type BlogPost = {
+interface BlogPostSchema {
   title: string;
   description: string;
-  date: string;
-  author?: {
-    name: string;
-    image?: string;
-  };
-  image?: string;
-};
-
-type FAQItem = {
-  question: string;
-  answer: string;
-};
-
-type Review = {
-  author: string;
-  reviewBody: string;
-  reviewRating: number;
   datePublished: string;
-};
+  author: SchemaAuthor;
+  image?: string;
+}
 
-type LocalBusiness = {
+interface FAQSchema {
+  questions: Array<{
+    question: string;
+    answer: string;
+  }>;
+}
+
+interface OrganizationSchema {
   name: string;
+  description?: string;
   image?: string;
   telephone?: string;
-  address: {
-    street: string;
-    city: string;
-    postalCode: string;
-    country: string;
-  };
-  geo?: {
-    latitude: number;
-    longitude: number;
-  };
+  address: SchemaAddress;
+  geo?: SchemaGeo;
   openingHours?: string[];
-};
+}
 
-export function generateCourseSchema(course: Course) {
+// Schema Generators
+export function generateMetadata({
+  title,
+  description,
+  keywords = [],
+  image = '/og-default.jpg',
+  noIndex = false,
+}: MetadataOptions): Metadata {
+  return {
+    title: `${title} | Oslo Languages`,
+    description,
+    keywords: [
+      'language school oslo',
+      'norwegian courses',
+      'english courses',
+      'spanish courses',
+      ...keywords,
+    ],
+    authors: [{ name: 'Oslo Languages' }],
+    openGraph: {
+      title: `${title} | Oslo Languages`,
+      description,
+      url: SITE_URL,
+      siteName: 'Oslo Languages',
+      images: [{
+        url: image,
+        width: 1200,
+        height: 630,
+        alt: title,
+      }],
+      locale: 'en_NO',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | Oslo Languages`,
+      description,
+      images: [image],
+    },
+    robots: {
+      index: !noIndex,
+      follow: !noIndex,
+      googleBot: {
+        index: !noIndex,
+        follow: !noIndex,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    alternates: {
+      canonical: SITE_URL,
+    },
+    verification: {
+      google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
+    },
+  };
+}
+
+export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@id': `${SITE_URL}${item.path}`,
+        name: item.name,
+      },
+    })),
+  };
+}
+
+export function generateCourseSchema(course: CourseSchema) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Course',
@@ -62,157 +156,122 @@ export function generateCourseSchema(course: Course) {
     provider: {
       '@type': 'Organization',
       name: course.provider || 'Oslo Languages',
-      sameAs: 'https://oslolanguages.com'
+      sameAs: SITE_URL
     },
-    offers: {
-      '@type': 'Offer',
-      price: course.price?.replace(/[^0-9]/g, ''),
-      priceCurrency: 'NOK',
-      availability: 'https://schema.org/InStock',
-      validFrom: course.startDate,
-    },
-    courseMode: course.mode,
-    educationalLevel: course.level,
-    inLanguage: course.language,
-    startDate: course.startDate,
-    endDate: course.endDate,
-    timeRequired: course.duration,
-  };
-}
-
-export function generateFAQSchema(faqItems: FAQItem[]) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqItems.map(item => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.answer,
-      },
-    })),
-  };
-}
-
-export function generateReviewSchema(reviews: Review[]) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'AggregateRating',
-    itemReviewed: {
-      '@type': 'LanguageSchool',
-      name: 'Oslo Languages',
-    },
-    ratingValue: reviews.reduce((acc, review) => acc + review.reviewRating, 0) / reviews.length,
-    reviewCount: reviews.length,
-    bestRating: 5,
-    worstRating: 1,
-    review: reviews.map(review => ({
-      '@type': 'Review',
-      author: {
-        '@type': 'Person',
-        name: review.author,
-      },
-      reviewBody: review.reviewBody,
-      reviewRating: {
-        '@type': 'Rating',
-        ratingValue: review.reviewRating,
-      },
-      datePublished: review.datePublished,
-    })),
-  };
-}
-
-export function generateLocalBusinessSchema(business: LocalBusiness) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'LanguageSchool',
-    name: business.name,
-    image: business.image,
-    telephone: business.telephone,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: business.address.street,
-      addressLocality: business.address.city,
-      postalCode: business.address.postalCode,
-      addressCountry: business.address.country,
-    },
-    ...(business.geo && {
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: business.geo.latitude,
-        longitude: business.geo.longitude,
-      },
+    ...(course.price && {
+      offers: {
+        '@type': 'Offer',
+        price: course.price.replace(/[^0-9]/g, ''),
+        priceCurrency: 'NOK',
+        availability: 'https://schema.org/InStock',
+      }
     }),
-    ...(business.openingHours && {
-      openingHoursSpecification: business.openingHours.map(hours => ({
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: hours,
-      })),
-    }),
-    '@id': 'https://oslolanguages.com/#organization',
-    url: 'https://oslolanguages.com',
-    sameAs: [
-      'https://www.facebook.com/oslolanguages',
-      'https://www.instagram.com/oslolanguages',
-      'https://www.linkedin.com/company/oslolanguages',
-    ],
+    ...(course.startDate && { startDate: course.startDate }),
+    ...(course.endDate && { endDate: course.endDate }),
+    ...(course.level && { educationalLevel: course.level }),
+    ...(course.language && { inLanguage: course.language }),
+    ...(course.mode && { courseMode: course.mode }),
   };
 }
 
-export function generateBlogPostSchema(post: BlogPost) {
+export function generateBlogPostSchema(post: BlogPostSchema) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.description,
-    datePublished: post.date,
+    datePublished: post.datePublished,
     image: post.image ? [post.image] : undefined,
-    author: post.author ? {
+    author: {
       '@type': 'Person',
       name: post.author.name,
-      image: post.author.image,
-    } : undefined,
+      ...(post.author.image && { image: post.author.image }),
+    },
     publisher: {
       '@type': 'Organization',
       name: 'Oslo Languages',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://oslolanguages.com/logo.png'
+        url: `${SITE_URL}/logo.png`
       }
     }
   };
 }
 
-export function generateOrganizationSchema() {
+export function generateFAQSchema(data: FAQSchema) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: data.questions.map(({ question, answer }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: answer
+      }
+    }))
+  };
+}
+
+export function generateOrganizationSchema(data: OrganizationSchema) {
   return {
     '@context': 'https://schema.org',
     '@type': 'LanguageSchool',
-    name: 'Oslo Languages',
-    description: 'Premier language school in Oslo offering courses in Norwegian, English, and Spanish.',
-    url: 'https://oslolanguages.com',
-    logo: 'https://oslolanguages.com/logo.png',
+    name: data.name,
+    description: data.description || 'Premier language school in Oslo offering courses in Norwegian, English, and Spanish.',
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '123 Street Name',
-      addressLocality: 'Oslo',
-      postalCode: '0123',
-      addressCountry: 'NO'
+      streetAddress: data.address.street,
+      addressLocality: data.address.city,
+      postalCode: data.address.postalCode,
+      addressCountry: data.address.country
     },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: '59.9139',
-      longitude: '10.7522'
-    },
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+47-XXX-XXX',
-      contactType: 'customer service'
-    },
+    ...(data.geo && {
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: data.geo.latitude,
+        longitude: data.geo.longitude
+      }
+    }),
+    ...(data.telephone && {
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: data.telephone,
+        contactType: 'customer service',
+        availableLanguage: ['Norwegian', 'English', 'Spanish']
+      }
+    }),
+    ...(data.openingHours && {
+      openingHoursSpecification: data.openingHours.map(hours => ({
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: hours
+      }))
+    }),
     sameAs: [
       'https://facebook.com/oslolanguages',
       'https://instagram.com/oslolanguages',
       'https://linkedin.com/company/oslolanguages'
     ]
+  };
+}
+
+// Helper function for generating default metadata with breadcrumbs
+export function generateDefaultMetadata(path: string) {
+  const segments = path.split('/').filter(Boolean);
+  const breadcrumbs = segments.map((segment, index) => {
+    const path = '/' + segments.slice(0, index + 1).join('/');
+    return {
+      name: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
+      path,
+    };
+  });
+
+  return {
+    breadcrumbs: generateBreadcrumbSchema([
+      { name: 'Home', path: '/' },
+      ...breadcrumbs,
+    ]),
   };
 }

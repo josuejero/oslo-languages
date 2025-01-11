@@ -102,8 +102,8 @@ async function main() {
     // Define exclusions and allowed files
     const excludeDirs = new Set(["node_modules",".next", "coverage"]);
     const excludeFiles = new Set(["package-lock.json", "problem.js", outputFilePath]);
-    const allowedExtensions = new Set([".md", ".mjs", ".ts", ".json", ".js", ".css", ".tsx"]);
-    const allowedFilenames = new Set(["Dockerfile"]);
+    const allowedExtensions = new Set([".md", ".mjs", ".ts", ".json", ".js", ".css", ".tsx", ".prisma"]);
+    const allowedFilenames = new Set(["Dockerfile", ".env", ".env.local"]);
 
     // Traverse the directory and append file contents to the output file
     try {

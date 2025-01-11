@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import Image from 'next/image';
+import OptimizedImage from '@/components/OptimizedImage';
 import { MediaFile } from '@/types/media';
 
 export default function MediaLibrary() {
@@ -113,11 +113,17 @@ export default function MediaLibrary() {
               onClick={() => setSelectedFile(file)}
             >
               <div className="relative aspect-square">
-                <Image
+                {/* CHANGED: Replaced Image with OptimizedImage */}
+                <OptimizedImage
                   src={file.path}
                   alt={file.filename}
                   fill
                   className="object-cover"
+                  aspectRatio={1}
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16.666vw"
+                  background="bg-bg-tertiary"
+                  lazyBoundary="300px"
+                  lowQualityPlaceholder={`${file.path}?w=20`}
                 />
               </div>
               
@@ -128,6 +134,7 @@ export default function MediaLibrary() {
                     handleDelete(file.id);
                   }}
                   className="text-white bg-red-600 p-2 rounded-full hover:bg-red-700"
+                  aria-label="Delete image"
                 >
                   <svg
                     className="w-5 h-5"
@@ -149,7 +156,7 @@ export default function MediaLibrary() {
         </div>
 
         {selectedFile && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-bg-tertiary p-6 rounded-lg max-w-2xl w-full">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-2xl font-bold text-text-primary">
@@ -158,6 +165,7 @@ export default function MediaLibrary() {
                 <button
                   onClick={() => setSelectedFile(null)}
                   className="text-text-secondary hover:text-text-primary"
+                  aria-label="Close details"
                 >
                   <svg
                     className="w-6 h-6"
@@ -177,11 +185,16 @@ export default function MediaLibrary() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="relative aspect-square rounded-lg overflow-hidden">
-                  <Image
+                  {/* CHANGED: Replaced Image with OptimizedImage */}
+                  <OptimizedImage
                     src={selectedFile.path}
                     alt={selectedFile.filename}
                     fill
                     className="object-cover"
+                    aspectRatio={1}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    background="bg-bg-tertiary"
+                    priority
                   />
                 </div>
 

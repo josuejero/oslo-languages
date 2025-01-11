@@ -1,90 +1,91 @@
-generator client {
-  provider = "prisma-client-js"
-}
+// prisma/schema.prisma
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
+generator client {
+  provider = "prisma-client-js"
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// Blog System
+model Post {
+  id         String     @id @default(cuid())
+  title      String
+  slug       String     @unique
+  content    String     @db.Text
+  excerpt    String?
+  author     String     // Just store the author name
+  published  Boolean    @default(false)
+  coverImage String?    // URL to the image
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  categories Category[]
+  tags       Tag[]
+  comments   Comment[]
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          UserRole  @default(STUDENT)
-  accounts      Account[]
-  sessions      Session[]
-  courses       CourseEnrollment[]
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  author    String   // Name of commenter
+  email     String   // Email of commenter
+  approved  Boolean  @default(false)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  posts Post[]
 }
 
-model CourseEnrollment {
-  id       String   @id @default(cuid())
-  userId   String
-  courseId String
-  status   EnrollmentStatus @default(PENDING)
-  enrolledAt DateTime @default(now())
-  user     User     @relation(fields: [userId], references: [id])
-  course   Course   @relation(fields: [courseId], references: [id])
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  posts Post[]
 }
 
-model Course {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  level       String
-  price       Decimal
-  duration    Int       // in weeks
-  startDate   DateTime?
-  enrollments CourseEnrollment[]
+// Form Submissions
+model FormSubmission {
+  id        String           @id @default(cuid())
+  type      SubmissionType
+  status    SubmissionStatus @default(PENDING)
+  data      Json            // Store all form fields as JSON
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 }
 
-enum UserRole {
-  ADMIN
-  TEACHER
-  STUDENT
+enum SubmissionType {
+  CONTACT
+  REGISTRATION
+  INQUIRY
 }
 
-enum EnrollmentStatus {
+enum SubmissionStatus {
   PENDING
-  ACTIVE
-  COMPLETED
-  CANCELLED
+  PROCESSED
+  ARCHIVED
+}
+
+// Media Library
+model Media {
+  id          String   @id @default(cuid())
+  filename    String
+  path        String   @unique
+  mimeType    String
+  size        Int      // in bytes
+  width       Int?     // for images
+  height      Int?     // for images
+  alt         String?  // alt text for images
+  title       String?  // display title
+  isPublic    Boolean  @default(true)
+  uploadedAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

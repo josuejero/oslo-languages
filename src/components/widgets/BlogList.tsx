@@ -1,8 +1,8 @@
 // src/components/widgets/BlogList.tsx
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import OptimizedImage from '@/components/OptimizedImage';
 import { BlogPost } from '@/lib/blog';
 
 interface BlogListProps {
@@ -17,11 +17,16 @@ const BlogList = ({ posts, className = '' }: BlogListProps) => {
         <article key={post.slug} className="bg-bg-secondary rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
           {post.coverImage && (
             <div className="relative h-48">
-              <Image
+              {/* CHANGED: Replaced Image with OptimizedImage */}
+              <OptimizedImage
                 src={post.coverImage}
                 alt={post.title}
                 fill
                 className="object-cover"
+                aspectRatio={16/9}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                lazyBoundary="200px"
+                lowQualityPlaceholder={`${post.coverImage}?w=20`} // Optional: add low-quality placeholder
               />
             </div>
           )}

@@ -1,11 +1,11 @@
 // src/app/about/page.tsx
 
-import Image from 'next/image';
+import { generateMetadata } from '@/lib/schema';
+import OptimizedImage from '@/components/OptimizedImage';
 import { post, teachers } from '../../data';
-import { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: 'About Us - Oslo Languages',
+export const metadata = generateMetadata({
+  title: 'About Us',
   description: 'Learn about Oslo Languages, our expert teachers, and our proven teaching methodology. Established in 2015, we are one of Oslo\'s leading language schools.',
   keywords: [
     'language school oslo',
@@ -15,12 +15,8 @@ export const metadata: Metadata = {
     'about oslo languages',
     'language teaching methodology'
   ],
-  openGraph: {
-    title: 'About Oslo Languages - Language School in Oslo',
-    description: 'Meet our expert language teachers and learn about our teaching methodology.',
-    images: ['/og/about.jpg'],
-  },
-};
+  image: '/og/about.jpg'
+});
 
 export default function AboutPage() {
   return (
@@ -46,13 +42,16 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="relative h-[400px] rounded-lg overflow-hidden">
-            <Image
+            <OptimizedImage
               src={post.coverImage}
               alt={post.title}
               fill
               className="object-cover"
               priority
-              sizes="(max-width: 768px) 100vw, 1200px"
+              aspectRatio={16/9}
+              sizes="(max-width: 768px) 100vw, 600px"
+              background="bg-gray-100"
+              lowQualityPlaceholder={`${post.coverImage}?w=20`}
             />
           </div>
         </div>
@@ -61,7 +60,7 @@ export default function AboutPage() {
       {/* Methodology Section */}
       <section className="mb-20">
         <h2 className="text-3xl font-bold mb-8 text-center">Our Teaching Methodology</h2>
-        <div className="grid md:grid-cols-3 gap-8  text-gray-800">
+        <div className="grid md:grid-cols-3 gap-8 text-gray-800">
           <div className="p-6 bg-white rounded-lg shadow-lg">
             <h3 className="text-xl font-semibold mb-4">Communicative Approach</h3>
             <p>
@@ -93,11 +92,16 @@ export default function AboutPage() {
           {teachers.map((teacher, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
               <div className="relative h-64">
-                <Image
+                <OptimizedImage
                   src={teacher.image}
                   alt={teacher.name}
                   fill
                   className="object-cover"
+                  aspectRatio={1}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                  background="bg-gray-100"
+                  lazyBoundary="300px"
+                  lowQualityPlaceholder={`${teacher.image}?w=20`}
                 />
               </div>
               <div className="p-6">

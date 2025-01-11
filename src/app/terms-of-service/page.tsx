@@ -1,12 +1,12 @@
 // src/app/terms-of-service/page.tsx
 
-import type { Metadata } from 'next';
+import { generateMetadata } from '@/lib/schema';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
+export const metadata = generateMetadata({
   title: 'Terms of Service - Oslo Languages',
   description: 'Read our terms of service to understand the rules and regulations governing the use of Oslo Languages services.',
-};
+});
 
 export default function TermsOfServicePage() {
   return (
