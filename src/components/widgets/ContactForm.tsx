@@ -1,15 +1,10 @@
+// src/components/widgets/ContactForm.tsx
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { logger } from '@/lib/logger';
-import { ErrorMessage } from '@/components/ErrorBoundary';
+import { FormField, Input, Textarea } from '@/components/ui/form';
 
-interface ErrorSummaryProps {
-  errors: Array<{
-    field: string;
-    message: string;
-  }>;
-  onFieldClick: (field: string) => void;
-}
+
 
 
 type FormData = {
@@ -21,26 +16,9 @@ type FormData = {
 };
 
 const STORAGE_KEY = 'contact_form_draft';
-const AUTOSAVE_DELAY = 1000; // 1 second
+const AUTOSAVE_DELAY = 1000;
 
-const ErrorSummary = ({ errors, onFieldClick }: ErrorSummaryProps) => (
-  <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
-    <h3 className="text-red-800 font-semibold mb-2">Please correct the following errors:</h3>
-    <ul className="list-disc pl-5">
-      {errors.map(({ field, message }) => (
-        <li key={field}>
-          <button
-            type="button"
-            onClick={() => onFieldClick(field)}
-            className="text-red-700 hover:text-red-900 underline"
-          >
-            {message}
-          </button>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,10 +35,8 @@ const ContactForm = () => {
     setValue,
   } = useForm<FormData>();
 
-  // Watch form values for autosave
   const formValues = watch();
 
-  // Load saved form data on component mount
   useEffect(() => {
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
@@ -73,7 +49,6 @@ const ContactForm = () => {
     }
   }, [setValue]);
 
-  // Autosave functionality
   useEffect(() => {
     if (!isDirty) return;
 
@@ -82,7 +57,9 @@ const ContactForm = () => {
       delete (dataToSave as Partial<FormData>).attachments;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
       logger.info('Form autosaved');
-    }, AUTOSAVE_DELAY);    return () => clearTimeout(timer);
+    }, AUTOSAVE_DELAY);
+    
+    return () => clearTimeout(timer);
   }, [formValues, isDirty]);
 
   const onSubmit = async (data: FormData) => {
@@ -145,59 +122,52 @@ const ContactForm = () => {
     reset();
   };
 
-  // Convert form errors to format expected by ErrorSummary
-  const errorSummary = Object.entries(errors).map(([field, error]) => ({
-    field,
-    message: error.message || `Invalid ${field}`
-  }));
+
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Error Summary */}
-      {errorSummary.length > 0 && (
-        <ErrorSummary 
-          errors={errorSummary}
-          onFieldClick={(field) => {
-            document.getElementsByName(field)[0]?.focus();
-          }}
-        />
-      )}
-
-      {/* Success Message */}
+    <form 
+      onSubmit={handleSubmit(onSubmit)} 
+      className="space-y-6"
+      noValidate
+      aria-label="Contact form"
+    >
       {submitSuccess && (
-        <ErrorMessage variant="info" title="Success">
+        <div 
+          role="alert"
+          aria-live="polite"
+          className="p-4 bg-green-100 text-green-700 rounded-md"
+        >
           Thank you for your message! We&apos;ll get back to you soon.
-        </ErrorMessage>
+        </div>
       )}
       
-      {/* Error Message */}
       {submitError && (
-        <ErrorMessage title="Error">
+        <div 
+          role="alert"
+          className="p-4 bg-red-100 text-red-700 rounded-md"
+        >
           {submitError}
-        </ErrorMessage>
+        </div>
       )}
 
-      {/* Form Fields */}
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-          Name
-        </label>
-        <input
+      <FormField
+        label="Name"
+        required
+        error={errors.name?.message}
+      >
+        <Input
           {...register('name', { required: 'Name is required' })}
           type="text"
-          id="name"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.name && (
-          <ErrorMessage>{errors.name.message}</ErrorMessage>
-        )}
-      </div>
+      </FormField>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-          Email
-        </label>
-        <input
+      <FormField
+        label="Email"
+        required
+        error={errors.email?.message}
+        hint="We'll never share your email with anyone else."
+      >
+        <Input
           {...register('email', { 
             required: 'Email is required',
             pattern: {
@@ -206,65 +176,51 @@ const ContactForm = () => {
             }
           })}
           type="email"
-          id="email"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.email && (
-          <ErrorMessage>{errors.email.message}</ErrorMessage>
-        )}
-      </div>
+      </FormField>
 
-      <div>
-        <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-          Subject
-        </label>
-        <input
+      <FormField
+        label="Subject"
+        required
+        error={errors.subject?.message}
+      >
+        <Input
           {...register('subject', { required: 'Subject is required' })}
           type="text"
-          id="subject"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.subject && (
-          <ErrorMessage>{errors.subject.message}</ErrorMessage>
-        )}
-      </div>
+      </FormField>
 
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-          Message
-        </label>
-        <textarea
+      <FormField
+        label="Message"
+        required
+        error={errors.message?.message}
+      >
+        <Textarea
           {...register('message', { required: 'Message is required' })}
-          id="message"
           rows={5}
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.message && (
-          <ErrorMessage>{errors.message.message}</ErrorMessage>
-        )}
-      </div>
+      </FormField>
 
-      {/* File Upload */}
-      <div>
-        <label htmlFor="attachments" className="block text-sm font-medium text-gray-700 mb-1">
-          Attachments
-        </label>
-        <input
+      <FormField
+        label="Attachments"
+        hint="Max file size: 5MB. Allowed types: PDF, DOC, DOCX, TXT, JPG, PNG"
+      >
+        <Input
           {...register('attachments')}
           type="file"
-          id="attachments"
           multiple
           accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        <p className="mt-1 text-sm text-gray-500">
-          Max file size: 5MB. Allowed types: PDF, DOC, DOCX, TXT, JPG, PNG
-        </p>
-      </div>
+      </FormField>
 
-      {/* Upload Progress */}
       {uploadProgress > 0 && uploadProgress < 100 && (
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
+        <div 
+          role="progressbar" 
+          aria-valuenow={uploadProgress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          className="w-full bg-gray-200 rounded-full h-2.5"
+        >
           <div
             className="bg-blue-600 h-2.5 rounded-full"
             style={{ width: `${uploadProgress}%` }}
@@ -272,12 +228,11 @@ const ContactForm = () => {
         </div>
       )}
 
-      {/* Form Actions */}
       <div className="flex justify-between">
         <button
           type="button"
           onClick={clearSavedData}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 px-4 py-2 rounded"
         >
           Clear Form
         </button>
@@ -285,13 +240,14 @@ const ContactForm = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-blue-300"
+          aria-busy={isSubmitting}
+          className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           {isSubmitting ? 'Sending...' : 'Send Message'}
         </button>
       </div>
     </form>
   );
-};
+}
 
 export default ContactForm;

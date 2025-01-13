@@ -1,122 +1,149 @@
+/* src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #121212;
-  --foreground: #e0e0e0;
-  --background-secondary: #1e1e1e;
-  --background-tertiary: #252525;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0a0;
-  --accent-primary: #3b82f6;
-  --accent-secondary: #60a5fa;
+@layer base {
+  :root {
+    /* Default light mode colors are set in ThemeProvider */
+    color-scheme: light;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  /* Base focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-offset-background-primary ring-focus-ring;
+  }
+
+  /* Improved focus visibility for high contrast mode */
+  [data-theme='high-contrast'] *:focus-visible {
+    @apply ring-4 ring-focus-ring ring-offset-4;
+  }
+
+  /* Base text colors */
+  body {
+    @apply bg-background-primary text-text-primary;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-text-primary font-bold;
+  }
+
+  /* Links */
+  a {
+    @apply text-action-primary hover:text-action-primaryHover;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Focus styles for interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply ring-2 ring-focus-ring ring-offset-2 ring-offset-background-primary outline-none;
+  }
+
+  /* Form elements */
+  input, select, textarea {
+    @apply bg-background-primary text-text-primary border-border-default;
+  }
+
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    @apply bg-background-secondary text-text-disabled cursor-not-allowed;
+  }
+
+  /* Custom scrollbar for better visibility */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border-default rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border-hover;
+  }
+
+  /* Skip links */
+  .skip-link {
+    @apply sr-only focus:not-sr-only;
+    @apply fixed left-4 top-4 px-4 py-2;
+    @apply bg-background-primary text-text-primary;
+    @apply ring-2 ring-focus-ring;
+    @apply z-50;
+  }
+
+  /* Status colors */
+  .text-success {
+    @apply text-status-successText;
+  }
+
+  .text-error {
+    @apply text-status-errorText;
+  }
+
+  .text-warning {
+    @apply text-status-warningText;
+  }
+
+  .bg-success {
+    @apply bg-status-success text-text-inverse;
+  }
+
+  .bg-error {
+    @apply bg-status-error text-text-inverse;
+  }
+
+  .bg-warning {
+    @apply bg-status-warning text-text-inverse;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* High contrast mode specific styles */
+[data-theme='high-contrast'] {
+  /* Enhanced focus indicators */
+  *:focus-visible {
+    @apply ring-4 ring-focus-ring;
+    outline: 2px solid black !important;
+    outline-offset: 4px !important;
+  }
+
+  /* Enhanced text contrast */
+  p, span, div {
+    @apply text-text-primary;
+  }
+
+  /* Enhanced border contrast */
+  input, select, textarea {
+    @apply border-2 border-border-default;
+  }
+
+  /* Enhanced button contrast */
+  button {
+    @apply border-2 border-border-default;
+  }
 }
 
-/* Markdown Editor Styles */
-.w-md-editor {
-  background-color: var(--background-secondary) !important;
-}
-
-.w-md-editor-text-pre,
-.w-md-editor-text-input,
-.w-md-editor-text {
-  color: var(--text-primary) !important;
-}
-
-.wmde-markdown {
-  background-color: var(--background-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-.w-md-editor-toolbar {
-  background-color: var(--background-tertiary) !important;
-  border-color: var(--text-secondary) !important;
-}
-
-.w-md-editor-toolbar button {
-  color: var(--text-primary) !important;
-}
-
-.w-md-editor-toolbar button:hover {
-  color: var(--accent-primary) !important;
-}
-
-.w-md-editor-preview {
-  box-shadow: inset 1px 0 0 0 var(--text-secondary) !important;
-}
-
-/* Preview Markdown Styles */
-.wmde-markdown h1,
-.wmde-markdown h2,
-.wmde-markdown h3,
-.wmde-markdown h4,
-.wmde-markdown h5,
-.wmde-markdown h6 {
-  color: var(--text-primary) !important;
-}
-
-.wmde-markdown p,
-.wmde-markdown li {
-  color: var(--text-secondary) !important;
-}
-
-.wmde-markdown code {
-  background-color: var(--background-tertiary) !important;
-  color: var(--accent-primary) !important;
-}
-
-.wmde-markdown pre {
-  background-color: var(--background-tertiary) !important;
-}
-
-.wmde-markdown blockquote {
-  border-left-color: var(--accent-primary) !important;
-  background-color: var(--background-tertiary) !important;
-}
-
-.wmde-markdown hr {
-  border-color: var(--text-secondary) !important;
-}
-
-.wmde-markdown a {
-  color: var(--accent-primary) !important;
-}
-
-.wmde-markdown table {
-  border-color: var(--text-secondary) !important;
-}
-
-.wmde-markdown th,
-.wmde-markdown td {
-  border-color: var(--text-secondary) !important;
-}
-
-/* Custom scrollbar for editor */
-.w-md-editor-text-pre::-webkit-scrollbar,
-.w-md-editor-preview::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.w-md-editor-text-pre::-webkit-scrollbar-track,
-.w-md-editor-preview::-webkit-scrollbar-track {
-  background: var(--background-secondary);
-}
-
-.w-md-editor-text-pre::-webkit-scrollbar-thumb,
-.w-md-editor-preview::-webkit-scrollbar-thumb {
-  background: var(--text-secondary);
-  border-radius: 4px;
-}
-
-.w-md-editor-text-pre::-webkit-scrollbar-thumb:hover,
-.w-md-editor-preview::-webkit-scrollbar-thumb:hover {
-  background: var(--text-primary);
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

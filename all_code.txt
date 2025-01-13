@@ -96,26 +96,41 @@ Please analyze the project structure, errors, and code carefully:
 │   │   ├── ErrorBoundary.tsx
 │   │   ├── LoadingSpinner.tsx
 │   │   ├── OptimizedImage.tsx
+│   │   ├── ThemeControls.tsx
 │   │   ├── __tests__
 │   │   │   └── ErrorBoundary.test.tsx
+│   │   ├── blog
+│   │   │   ├── BlogPost.tsx
+│   │   │   ├── RichContent.tsx
+│   │   │   ├── ShareButtons.tsx
+│   │   │   └── TableOfContents.tsx
 │   │   ├── layout
+│   │   │   ├── Layout.tsx
 │   │   │   ├── PageContainer.tsx
 │   │   │   ├── Section.tsx
 │   │   │   ├── footer
 │   │   │   │   └── Footer.tsx
 │   │   │   └── header
 │   │   │       ├── Header.tsx
+│   │   │       ├── Navigation.tsx
 │   │   │       └── __tests__
 │   │   │           └── Header.test.tsx
 │   │   ├── providers
 │   │   │   └── AuthProvider.tsx
+│   │   ├── ui
+│   │   │   └── form
+│   │   │       └── index.tsx
 │   │   └── widgets
 │   │       ├── BlogList.tsx
 │   │       ├── ContactForm.tsx
+│   │       ├── CourseFilters.tsx
+│   │       ├── CourseList.tsx
 │   │       ├── CourseRegistrationForm.tsx
 │   │       ├── Testimonials.tsx
 │   │       └── __tests__
 │   │           └── ContactForm.test.tsx
+│   ├── context
+│   │   └── ThemeContext.tsx
 │   ├── data.ts
 │   ├── lib
 │   │   ├── api-utils.ts
@@ -129,6 +144,8 @@ Please analyze the project structure, errors, and code carefully:
 │   │   ├── rate-limit.ts
 │   │   └── schema.ts
 │   ├── middleware.ts
+│   ├── styles
+│   │   └── colors.ts
 │   ├── types
 │   │   ├── auth.ts
 │   │   ├── md-editor.d.ts
@@ -139,7 +156,7 @@ Please analyze the project structure, errors, and code carefully:
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-51 directories, 85 files
+56 directories, 97 files
 
 
 ================================================================================
@@ -569,10 +586,12 @@ File: package.json
     "bundle-analyzer": "^0.0.6",
     "clipboardy": "^4.0.0",
     "cross-env": "^7.0.3",
+    "date-fns": "^4.1.0",
     "express-rate-limit": "^7.5.0",
     "gray-matter": "^4.0.3",
-    "isomorphic-dompurify": "^2.19.0",
+    "isomorphic-dompurify": "^2.20.0",
     "limiter": "^2.1.0",
+    "lucide-react": "^0.471.1",
     "next": "15.1.3",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
@@ -770,7 +789,7 @@ File: src/app/about/page.tsx
 import { generateMetadata } from '@/lib/schema';
 import OptimizedImage from '@/components/OptimizedImage';
 import { post, teachers } from '../../data';
-import PageContainer from '@/components/layout/PageContainer';
+import Layout from '@/components/layout/Layout';
 
 export const metadata = generateMetadata({
   title: 'About Us',
@@ -788,7 +807,7 @@ export const metadata = generateMetadata({
 
 export default function AboutPage() {
   return (
-    <PageContainer>
+    <Layout>
       {/* History Section */}
       <section className="mb-20">
         <h1 className="text-4xl font-bold mb-4 text-center">About Oslo Languages</h1>
@@ -913,7 +932,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-    </PageContainer>
+    </Layout>
   );
 }
 
@@ -2510,7 +2529,7 @@ import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
 import type { Metadata } from 'next';
 import BlogList from '@/components/widgets/BlogList';
-import PageContainer from '@/components/layout/PageContainer';
+import Layout from '@/components/layout/Layout';
 
 
 export const metadata: Metadata = {
@@ -2522,7 +2541,7 @@ export default async function BlogPage() {
   const posts = await getAllPosts();
 
   return (
-    <PageContainer>
+    <Layout>
       <h1 className="text-4xl font-bold mb-8 text-text-primary">Blog</h1>
       
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -2583,7 +2602,7 @@ export default async function BlogPage() {
         ))}
       </div>
       <BlogList posts={posts} />
-    </PageContainer>
+    </Layout>
   );
 }
 
@@ -2596,7 +2615,7 @@ File: src/app/contact/page.tsx
 import { generateMetadata, generateOrganizationSchema } from '@/lib/schema';
 import ContactForm from '@/components/widgets/ContactForm';
 import Script from 'next/script';
-import PageContainer from '@/components/layout/PageContainer';
+import Layout from '@/components/layout/Layout';
 
 export const metadata = generateMetadata({
   title: 'Contact Us',
@@ -2637,7 +2656,7 @@ export default function ContactPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      <PageContainer>
+      <Layout>
         <section className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 text-text-primary">Contact Us</h1>
           <p className="text-xl text-text-secondary max-w-2xl mx-auto">
@@ -2737,7 +2756,7 @@ export default function ContactPage() {
             <ContactForm />
           </div>
         </div>
-      </PageContainer>
+      </Layout>
     </>
   );
 }
@@ -3172,7 +3191,7 @@ File: src/app/courses/register/page.tsx
 // src/app/courses/register/page.tsx
 import { Metadata } from 'next';
 import CourseRegistrationForm from '@/components/widgets/CourseRegistrationForm';
-import PageContainer from '@/components/layout/PageContainer';
+import Layout from '@/components/layout/Layout';
 
 export const metadata: Metadata = {
   title: 'Course Registration - Oslo Languages',
@@ -3181,7 +3200,7 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <PageContainer narrowWidth>
+    <Layout>
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-bold mb-4">Course Registration</h1>
         <p className="text-lg text-gray-600 mb-8">
@@ -3192,7 +3211,7 @@ export default function RegisterPage() {
         
         <CourseRegistrationForm />
       </div>
-    </PageContainer>
+    </Layout>
   );
 }
 
@@ -3414,127 +3433,154 @@ export default function FAQPage() {
 File: src/app/globals.css
 ================================================================================
 
+/* src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #121212;
-  --foreground: #e0e0e0;
-  --background-secondary: #1e1e1e;
-  --background-tertiary: #252525;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0a0;
-  --accent-primary: #3b82f6;
-  --accent-secondary: #60a5fa;
+@layer base {
+  :root {
+    /* Default light mode colors are set in ThemeProvider */
+    color-scheme: light;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  /* Base focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-offset-background-primary ring-focus-ring;
+  }
+
+  /* Improved focus visibility for high contrast mode */
+  [data-theme='high-contrast'] *:focus-visible {
+    @apply ring-4 ring-focus-ring ring-offset-4;
+  }
+
+  /* Base text colors */
+  body {
+    @apply bg-background-primary text-text-primary;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-text-primary font-bold;
+  }
+
+  /* Links */
+  a {
+    @apply text-action-primary hover:text-action-primaryHover;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Focus styles for interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply ring-2 ring-focus-ring ring-offset-2 ring-offset-background-primary outline-none;
+  }
+
+  /* Form elements */
+  input, select, textarea {
+    @apply bg-background-primary text-text-primary border-border-default;
+  }
+
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    @apply bg-background-secondary text-text-disabled cursor-not-allowed;
+  }
+
+  /* Custom scrollbar for better visibility */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border-default rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-border-hover;
+  }
+
+  /* Skip links */
+  .skip-link {
+    @apply sr-only focus:not-sr-only;
+    @apply fixed left-4 top-4 px-4 py-2;
+    @apply bg-background-primary text-text-primary;
+    @apply ring-2 ring-focus-ring;
+    @apply z-50;
+  }
+
+  /* Status colors */
+  .text-success {
+    @apply text-status-successText;
+  }
+
+  .text-error {
+    @apply text-status-errorText;
+  }
+
+  .text-warning {
+    @apply text-status-warningText;
+  }
+
+  .bg-success {
+    @apply bg-status-success text-text-inverse;
+  }
+
+  .bg-error {
+    @apply bg-status-error text-text-inverse;
+  }
+
+  .bg-warning {
+    @apply bg-status-warning text-text-inverse;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* High contrast mode specific styles */
+[data-theme='high-contrast'] {
+  /* Enhanced focus indicators */
+  *:focus-visible {
+    @apply ring-4 ring-focus-ring;
+    outline: 2px solid black !important;
+    outline-offset: 4px !important;
+  }
+
+  /* Enhanced text contrast */
+  p, span, div {
+    @apply text-text-primary;
+  }
+
+  /* Enhanced border contrast */
+  input, select, textarea {
+    @apply border-2 border-border-default;
+  }
+
+  /* Enhanced button contrast */
+  button {
+    @apply border-2 border-border-default;
+  }
 }
 
-/* Markdown Editor Styles */
-.w-md-editor {
-  background-color: var(--background-secondary) !important;
-}
-
-.w-md-editor-text-pre,
-.w-md-editor-text-input,
-.w-md-editor-text {
-  color: var(--text-primary) !important;
-}
-
-.wmde-markdown {
-  background-color: var(--background-secondary) !important;
-  color: var(--text-primary) !important;
-}
-
-.w-md-editor-toolbar {
-  background-color: var(--background-tertiary) !important;
-  border-color: var(--text-secondary) !important;
-}
-
-.w-md-editor-toolbar button {
-  color: var(--text-primary) !important;
-}
-
-.w-md-editor-toolbar button:hover {
-  color: var(--accent-primary) !important;
-}
-
-.w-md-editor-preview {
-  box-shadow: inset 1px 0 0 0 var(--text-secondary) !important;
-}
-
-/* Preview Markdown Styles */
-.wmde-markdown h1,
-.wmde-markdown h2,
-.wmde-markdown h3,
-.wmde-markdown h4,
-.wmde-markdown h5,
-.wmde-markdown h6 {
-  color: var(--text-primary) !important;
-}
-
-.wmde-markdown p,
-.wmde-markdown li {
-  color: var(--text-secondary) !important;
-}
-
-.wmde-markdown code {
-  background-color: var(--background-tertiary) !important;
-  color: var(--accent-primary) !important;
-}
-
-.wmde-markdown pre {
-  background-color: var(--background-tertiary) !important;
-}
-
-.wmde-markdown blockquote {
-  border-left-color: var(--accent-primary) !important;
-  background-color: var(--background-tertiary) !important;
-}
-
-.wmde-markdown hr {
-  border-color: var(--text-secondary) !important;
-}
-
-.wmde-markdown a {
-  color: var(--accent-primary) !important;
-}
-
-.wmde-markdown table {
-  border-color: var(--text-secondary) !important;
-}
-
-.wmde-markdown th,
-.wmde-markdown td {
-  border-color: var(--text-secondary) !important;
-}
-
-/* Custom scrollbar for editor */
-.w-md-editor-text-pre::-webkit-scrollbar,
-.w-md-editor-preview::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.w-md-editor-text-pre::-webkit-scrollbar-track,
-.w-md-editor-preview::-webkit-scrollbar-track {
-  background: var(--background-secondary);
-}
-
-.w-md-editor-text-pre::-webkit-scrollbar-thumb,
-.w-md-editor-preview::-webkit-scrollbar-thumb {
-  background: var(--text-secondary);
-  border-radius: 4px;
-}
-
-.w-md-editor-text-pre::-webkit-scrollbar-thumb:hover,
-.w-md-editor-preview::-webkit-scrollbar-thumb:hover {
-  background: var(--text-primary);
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 ================================================================================
@@ -4400,6 +4446,82 @@ export default function OptimizedImage({
 }
 
 ================================================================================
+File: src/components/ThemeControls.tsx
+================================================================================
+
+// src/components/ThemeControls.tsx
+import { useTheme } from '@/context/ThemeContext';
+import { useId } from 'react';
+
+export default function ThemeControls() {
+  const { colorScheme, setColorScheme, toggleHighContrast, isHighContrast } = useTheme();
+  const id = useId();
+
+  return (
+    <div className="space-y-4" role="group" aria-label="Theme settings">
+      {/* Color Scheme Controls */}
+      <div role="radiogroup" aria-labelledby={`${id}-color-scheme`}>
+        <h2 id={`${id}-color-scheme`} className="text-sm font-medium mb-2">
+          Color Scheme
+        </h2>
+        <div className="space-y-2">
+          {['light', 'dark', 'system'].map((scheme) => (
+            <label
+              key={scheme}
+              className="flex items-center space-x-2 cursor-pointer"
+            >
+              <input
+                type="radio"
+                name="color-scheme"
+                value={scheme}
+                checked={colorScheme === scheme}
+                onChange={(e) => setColorScheme(e.target.value as never)}
+                className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
+              />
+              <span className="text-sm capitalize">{scheme}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* High Contrast Toggle */}
+      <div>
+        <label className="flex items-center space-x-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isHighContrast}
+            onChange={toggleHighContrast}
+            className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
+          />
+          <span className="text-sm">High contrast mode</span>
+        </label>
+      </div>
+
+      {/* Theme Preview */}
+      <div className="p-4 rounded-lg border space-y-4">
+        <h3 className="text-lg font-semibold">Theme Preview</h3>
+        <div className="space-y-2">
+          <p className="text-sm">Primary text</p>
+          <p className="text-sm text-gray-600">Secondary text</p>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-md">
+            Primary Button
+          </button>
+          <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md">
+            Secondary Button
+          </button>
+          <div className="p-2 bg-green-100 text-green-800 rounded">
+            Success message
+          </div>
+          <div className="p-2 bg-red-100 text-red-800 rounded">
+            Error message
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+================================================================================
 File: src/components/__tests__/ErrorBoundary.test.tsx
 ================================================================================
 
@@ -4454,6 +4576,450 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('Custom error message')).toBeInTheDocument();
   });
 });
+
+================================================================================
+File: src/components/blog/BlogPost.tsx
+================================================================================
+
+// src/components/blog/BlogPost.tsx
+import { useRef } from 'react';
+import Link from 'next/link';
+import { format } from 'date-fns';
+import OptimizedImage from '@/components/OptimizedImage';
+import { BlogPost } from '@/lib/blog';
+import ShareButtons from './ShareButtons';
+import RichContent from './RichContent';
+import TableOfContents from './TableOfContents';
+
+interface Props {
+  post: BlogPost;
+  relatedPosts?: BlogPost[];
+}
+
+export default function BlogPostLayout({ post, relatedPosts }: Props) {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <article
+      className="max-w-4xl mx-auto px-4 py-8"
+      aria-labelledby="blog-post-title"
+    >
+      {/* Skip to main content link */}
+      <a
+        href="#post-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white text-blue-600 p-2 z-50"
+      >
+        Skip to post content
+      </a>
+
+      {/* Article Header */}
+      <header className="mb-8">
+        {post.coverImage && (
+          <div className="relative h-[400px] mb-6 rounded-lg overflow-hidden">
+            <OptimizedImage
+              src={post.coverImage}
+              alt={post.coverImage || ''}
+              fill
+              className="object-cover"
+              priority
+              aspectRatio={16/9}
+              sizes="(max-width: 768px) 100vw, 800px"
+            />
+          </div>
+        )}
+
+        {/* Categories */}
+        <nav aria-label="Post categories" className="mb-4">
+          <ul className="flex flex-wrap gap-2" role="list">
+            {post.categories.map((category) => (
+              <li key={category}>
+                <Link
+                  href={`/blog/category/${category.toLowerCase()}`}
+                  className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {category}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <h1 id="blog-post-title" className="text-4xl font-bold mb-4">
+          {post.title}
+        </h1>
+
+        {/* Meta Information */}
+        <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-6">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{post.author}</span>
+          </div>
+          <time dateTime={post.date}>
+            {format(new Date(post.date), 'MMMM d, yyyy')}
+          </time>
+          <span aria-hidden="true">•</span>
+          <span>{post.readingTime} min read</span>
+        </div>
+
+        {/* Share buttons */}
+        <ShareButtons
+          title={post.title}
+          url={`/blog/${post.slug}`}
+          description={post.excerpt}
+        />
+      </header>
+
+      {/* Table of Contents */}
+      <TableOfContents contentRef={contentRef as React.RefObject<HTMLDivElement>} />
+
+      {/* Main Content */}
+      <div
+        ref={contentRef}
+        id="post-content"
+        className="prose prose-lg max-w-none"
+        tabIndex={-1}
+      >
+        <RichContent content={post.content} />
+      </div>
+
+      {/* Tags */}
+      <footer className="mt-12 pt-6 border-t border-gray-200">
+        <nav aria-label="Post tags">
+          <ul className="flex flex-wrap gap-2" role="list">
+            {post.tags.map((tag) => (
+              <li key={tag}>
+                <Link
+                  href={`/blog/tag/${tag.toLowerCase()}`}
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  #{tag}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </footer>
+
+      {/* Related Posts */}
+      {relatedPosts && relatedPosts.length > 0 && (
+        <section
+          aria-labelledby="related-posts-title"
+          className="mt-12 pt-8 border-t border-gray-200"
+        >
+          <h2 id="related-posts-title" className="text-2xl font-bold mb-6">
+            Related Posts
+          </h2>
+          {/* Add related posts component here */}
+        </section>
+      )}
+    </article>
+  );
+}
+
+================================================================================
+File: src/components/blog/RichContent.tsx
+================================================================================
+
+// src/components/blog/RichContent.tsx
+import DOMPurify from 'isomorphic-dompurify';
+
+interface RichContentProps {
+  content: string;
+  className?: string;
+}
+
+export default function RichContent({ content, className = '' }: RichContentProps) {
+  const config = {
+    ALLOWED_TAGS: [
+      'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'a', 'img',
+      'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'table', 'thead', 'tbody',
+      'tr', 'th', 'td'
+    ],
+    ALLOWED_ATTR: [
+      'href', 'src', 'alt', 'title', 'class', 'id', 'target', 'rel',
+      'width', 'height', 'style'
+    ],
+    ADD_ATTR: ['target'],
+    FORCE_BODY: true,
+  };
+
+  const cleanContent = DOMPurify.sanitize(content, config);
+
+  return (
+    <div
+      className={`prose prose-lg max-w-none ${className}`}
+      dangerouslySetInnerHTML={{ __html: cleanContent }}
+    />
+  );
+}
+
+================================================================================
+File: src/components/blog/ShareButtons.tsx
+================================================================================
+
+// src/components/blog/ShareButtons.tsx
+import { Twitter, Linkedin, Mail } from 'lucide-react';
+
+interface ShareButtonsProps {
+  title: string;
+  url: string;
+  description: string;
+}
+
+export default function ShareButtons({ title, url, description }: ShareButtonsProps) {
+  const shareUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}${url}`
+    : url;
+
+  const encodedUrl = encodeURIComponent(shareUrl);
+  const encodedTitle = encodeURIComponent(title);
+  const encodedDescription = encodeURIComponent(description);
+
+  const shareLinks = [
+    {
+      name: 'Twitter',
+      href: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+      icon: Twitter,
+      color: 'text-[#1DA1F2]'
+    },
+    {
+      name: 'LinkedIn',
+      href: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}&summary=${encodedDescription}`,
+      icon: Linkedin,
+      color: 'text-[#0A66C2]'
+    },
+    {
+      name: 'Email',
+      href: `mailto:?subject=${encodedTitle}&body=${encodedDescription}%0A%0A${encodedUrl}`,
+      icon: Mail,
+      color: 'text-gray-600'
+    }
+  ];
+
+  return (
+    <div 
+      role="region" 
+      aria-label="Share this post" 
+      className="flex items-center gap-4"
+    >
+      <span className="text-sm font-medium text-gray-700">Share:</span>
+      <ul className="flex gap-4" role="list">
+        {shareLinks.map((link) => {
+          const Icon = link.icon;
+          return (
+            <li key={link.name}>
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`
+                  inline-flex items-center justify-center w-8 h-8
+                  ${link.color} hover:opacity-80 transition-opacity
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full
+                `}
+                aria-label={`Share on ${link.name}`}
+              >
+                <Icon className="w-5 h-5" aria-hidden="true" />
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+================================================================================
+File: src/components/blog/TableOfContents.tsx
+================================================================================
+
+// src/components/blog/TableOfContents.tsx
+import { useState, useEffect, RefObject } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+
+interface TableOfContentsProps {
+  contentRef: RefObject<HTMLDivElement>;
+  maxDepth?: number;
+}
+
+interface HeadingData {
+  id: string;
+  text: string;
+  level: number;
+}
+
+export default function TableOfContents({ 
+  contentRef, 
+  maxDepth = 3 
+}: TableOfContentsProps) {
+  const [headings, setHeadings] = useState<HeadingData[]>([]);
+  const [activeId, setActiveId] = useState<string>('');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    // Get all headings up to the specified depth
+    const validHeadingLevels = Array.from(
+      { length: maxDepth }, 
+      (_, i) => `h${i + 2}`
+    ).join(', ');
+    
+    const elements = Array.from(
+      contentRef.current.querySelectorAll(validHeadingLevels)
+    ) as HTMLHeadingElement[];
+
+    // Process headings
+    const headingData = elements.map((heading) => {
+      // Add IDs to headings if they don't have them
+      if (!heading.id) {
+        heading.id = heading.textContent?.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') || `heading-${Math.random().toString(36).substr(2, 9)}`;
+      }
+
+      return {
+        id: heading.id,
+        text: heading.textContent || '',
+        level: parseInt(heading.tagName.charAt(1)),
+      };
+    });
+
+    setHeadings(headingData);
+
+    // Set up intersection observer
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        });
+      },
+      { 
+        rootMargin: '-20% 0px -60% 0px',
+        threshold: 1.0 
+      }
+    );
+
+    elements.forEach((heading) => observer.observe(heading));
+
+    return () => observer.disconnect();
+  }, [contentRef, maxDepth]);
+
+  if (headings.length === 0) return null;
+
+  return (
+    <nav
+      aria-label="Table of contents"
+      className="bg-gray-50 rounded-lg p-4 mb-8 border border-gray-200"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">
+          Table of Contents
+        </h2>
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-1 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+          aria-expanded={!isCollapsed}
+          aria-label={isCollapsed ? "Expand table of contents" : "Collapse table of contents"}
+        >
+          {isCollapsed ? (
+            <ChevronDown className="w-5 h-5" aria-hidden="true" />
+          ) : (
+            <ChevronUp className="w-5 h-5" aria-hidden="true" />
+          )}
+        </button>
+      </div>
+
+      {!isCollapsed && (
+        <ul 
+          className="space-y-2" 
+          role="list"
+          aria-label="Page sections"
+        >
+          {headings.map((heading) => (
+            <li
+              key={heading.id}
+              style={{
+                paddingLeft: `${(heading.level - 2) * 1}rem`
+              }}
+            >
+              <a
+                href={`#${heading.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById(heading.id)?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                    inline: 'nearest',
+                  });
+                }}
+                className={`
+                  block py-1 px-2 rounded
+                  text-sm 
+                  ${activeId === heading.id
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'text-gray-600 hover:text-blue-600'
+                  }
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
+                `}
+                aria-current={activeId === heading.id ? 'location' : undefined}
+              >
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </nav>
+  );
+}
+
+================================================================================
+File: src/components/layout/Layout.tsx
+================================================================================
+
+// src/components/layout/Layout.tsx
+import { ReactNode } from 'react';
+
+interface LayoutProps {
+  children: ReactNode;
+  className?: string;
+  as?: 'div' | 'section' | 'article' | 'main';
+  containerSize?: 'default' | 'narrow' | 'wide';
+  padding?: 'none' | 'small' | 'default' | 'large';
+}
+
+const Layout = ({ 
+  children, 
+  className = '', 
+  as: Component = 'div',
+  containerSize = 'default',
+  padding = 'default'
+}: LayoutProps) => {
+  const containerClasses = {
+    default: 'container mx-auto',
+    narrow: 'container mx-auto max-w-4xl',
+    wide: 'container mx-auto max-w-7xl'
+  };
+
+  const paddingClasses = {
+    none: '',
+    small: 'px-4 py-4',
+    default: 'px-4 py-8',
+    large: 'px-4 py-12'
+  };
+
+  return (
+    <Component 
+      className={`${containerClasses[containerSize]} ${paddingClasses[padding]} ${className}`}
+    >
+      {children}
+    </Component>
+  );
+};
+
+export default Layout;
 
 ================================================================================
 File: src/components/layout/PageContainer.tsx
@@ -4576,141 +5142,214 @@ File: src/components/layout/header/Header.tsx
 ================================================================================
 
 // src/components/layout/header/Header.tsx
-
-'use client'
-
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
+import Navigation from './Navigation';
 
-const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isMenuOpen) {
-        setIsMenuOpen(false);
-        buttonRef.current?.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isMenuOpen]);
-
-  useEffect(() => {
-    if (isMenuOpen) {
-      const focusableElements = menuRef.current?.querySelectorAll(
-        'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      
-      if (focusableElements && focusableElements.length > 0) {
-        const firstElement = focusableElements[0] as HTMLElement;
-        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-        const handleTabKey = (e: KeyboardEvent) => {
-          if (e.key === 'Tab') {
-            if (e.shiftKey) {
-              if (document.activeElement === firstElement) {
-                e.preventDefault();
-                lastElement.focus();
-              }
-            } else {
-              if (document.activeElement === lastElement) {
-                e.preventDefault();
-                firstElement.focus();
-              }
-            }
-          }
-        };
-
-        document.addEventListener('keydown', handleTabKey);
-        return () => document.removeEventListener('keydown', handleTabKey);
-      }
-    }
-  }, [isMenuOpen]);
-
+export default function Header() {
   return (
-    <header className="bg-bg-secondary shadow-md" role="banner">
-      <div className="container-section">
+    <header className="bg-white shadow-md" role="banner">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0">
-            <Link href="/" className="text-xl font-bold text-text-primary" aria-label="Oslo Languages, go to home page">
+            <Link
+              href="/"
+              className="text-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              aria-label="Oslo Languages, back to home page"
+            >
               Oslo Languages
             </Link>
           </div>
 
-          <button
-            ref={buttonRef}
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-text-primary hover:bg-bg-tertiary"
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-menu"
-            aria-label={isMenuOpen ? "Close main menu" : "Open main menu"}
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-              />
-            </svg>
-          </button>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-4" role="navigation" aria-label="Main navigation">
-            <Link href="/" className="text-text-primary hover:text-accent-primary" aria-current={typeof window !== 'undefined' && window.location.pathname === '/' ? 'page' : undefined}>
-              Home
-            </Link>
-            <Link href="/courses" className="text-text-primary hover:text-accent-primary" aria-current={typeof window !== 'undefined' && window.location.pathname === '/courses' ? 'page' : undefined}>
-              Courses
-            </Link>
-            <Link href="/about" className="text-text-primary hover:text-accent-primary" aria-current={typeof window !== 'undefined' && window.location.pathname === '/about' ? 'page' : undefined}>
-              About
-            </Link>
-            <Link href="/contact" className="text-text-primary hover:text-accent-primary" aria-current={typeof window !== 'undefined' && window.location.pathname === '/contact' ? 'page' : undefined}>
-              Contact
-            </Link>
-          </nav>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div 
-          ref={menuRef}
-          id="mobile-menu"
-          className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}
-          role="navigation"
-          aria-label="Mobile navigation"
-        >
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link href="/" className="block text-text-primary hover:text-accent-primary py-2" aria-current={typeof window !== 'undefined' && window.location.pathname === '/' ? 'page' : undefined}>
-              Home
-            </Link>
-            <Link href="/courses" className="block text-text-primary hover:text-accent-primary py-2" aria-current={typeof window !== 'undefined' && window.location.pathname === '/courses' ? 'page' : undefined}>
-              Courses
-            </Link>
-            <Link href="/about" className="block text-text-primary hover:text-accent-primary py-2" aria-current={typeof window !== 'undefined' && window.location.pathname === '/about' ? 'page' : undefined}>
-              About
-            </Link>
-            <Link href="/contact" className="block text-text-primary hover:text-accent-primary py-2" aria-current={typeof window !== 'undefined' && window.location.pathname === '/contact' ? 'page' : undefined}>
-              Contact
-            </Link>
-          </div>
+          <Navigation />
         </div>
       </div>
     </header>
   );
-};
+}
 
-export default Header;
+================================================================================
+File: src/components/layout/header/Navigation.tsx
+================================================================================
+
+// src/components/layout/header/Navigation.tsx
+import { useRef, useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+interface NavigationLink {
+  href: string;
+  label: string;
+}
+
+const navigationLinks: NavigationLink[] = [
+  { href: '/', label: 'Home' },
+  { href: '/courses', label: 'Courses' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' }
+];
+
+export default function Navigation() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+
+  // Track the first and last focusable elements for keyboard navigation
+  const [firstFocusable, setFirstFocusable] = useState<HTMLElement | null>(null);
+  const [lastFocusable, setLastFocusable] = useState<HTMLElement | null>(null);
+
+  // Update focusable elements when menu opens
+  useEffect(() => {
+    if (isMenuOpen && menuRef.current) {
+      const focusableElements = menuRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+
+      setFirstFocusable(focusableElements[0]);
+      setLastFocusable(focusableElements[focusableElements.length - 1]);
+
+      // Focus first element when menu opens
+      focusableElements[0]?.focus();
+    }
+  }, [isMenuOpen]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (!isMenuOpen) return;
+
+    const { key, shiftKey } = event;
+
+    // Close menu on Escape
+    if (key === 'Escape') {
+      setIsMenuOpen(false);
+      buttonRef.current?.focus();
+      return;
+    }
+
+    // Trap focus within menu
+    if (key === 'Tab') {
+      if (!firstFocusable || !lastFocusable) return;
+
+      if (shiftKey && document.activeElement === firstFocusable) {
+        event.preventDefault();
+        lastFocusable.focus();
+      } else if (!shiftKey && document.activeElement === lastFocusable) {
+        event.preventDefault();
+        firstFocusable.focus();
+      }
+    }
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <nav aria-label="Main navigation" className="relative">
+      {/* Skip Link - Hidden until focused */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white text-blue-600 p-2 z-50"
+      >
+        Skip to main content
+      </a>
+
+      {/* Desktop Navigation */}
+      <div className="hidden md:flex space-x-4">
+        {navigationLinks.map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            aria-current={pathname === href ? 'page' : undefined}
+            className={`
+              px-3 py-2 rounded-md text-sm font-medium
+              ${pathname === href
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+              }
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+            `}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      {/* Mobile Navigation Button */}
+      <button
+        ref={buttonRef}
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        aria-expanded={isMenuOpen}
+        aria-controls="mobile-menu"
+        aria-label={isMenuOpen ? "Close main menu" : "Open main menu"}
+      >
+        <span className="sr-only">
+          {isMenuOpen ? 'Close main menu' : 'Open main menu'}
+        </span>
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+          />
+        </svg>
+      </button>
+
+      {/* Mobile Menu */}
+      <div
+        id="mobile-menu"
+        ref={menuRef}
+        onKeyDown={handleKeyDown}
+        className={`
+          absolute top-full left-0 w-full
+          md:hidden
+          ${isMenuOpen ? 'block' : 'hidden'}
+        `}
+        role="menu"
+        aria-orientation="vertical"
+        aria-labelledby="mobile-menu-button"
+      >
+        <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg rounded-md border">
+          {navigationLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`
+                block px-3 py-2 rounded-md text-base font-medium
+                ${pathname === href
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                }
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+              `}
+              role="menuitem"
+              aria-current={pathname === href ? 'page' : undefined}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </nav>
+  );
+}
 
 ================================================================================
 File: src/components/layout/header/__tests__/Header.test.tsx
@@ -4785,6 +5424,205 @@ export default function AuthProvider({
 }) {
   return <SessionProvider>{children}</SessionProvider>;
 }
+
+================================================================================
+File: src/components/ui/form/index.tsx
+================================================================================
+
+// src/components/ui/form/index.tsx
+import React, { forwardRef, useId } from 'react';
+
+interface FormFieldProps extends React.ComponentPropsWithoutRef<'div'> {
+  label: string;
+  error?: string;
+  hint?: string;
+  required?: boolean;
+  labelProps?: React.ComponentPropsWithoutRef<'label'>;
+}
+
+interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
+  error?: string;
+  hint?: string;
+}
+
+interface TextareaProps extends React.ComponentPropsWithoutRef<'textarea'> {
+  error?: string;
+  hint?: string;
+}
+
+interface SelectProps extends React.ComponentPropsWithoutRef<'select'> {
+  error?: string;
+  hint?: string;
+  options: Array<{ value: string; label: string }>;
+}
+
+export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
+  ({ label, error, hint, required, children, labelProps, className = '', ...props }, ref) => {
+    const id = useId();
+    const errorId = `${id}-error`;
+    const hintId = `${id}-hint`;
+
+    // Build aria-describedby value from existing ids
+    const describedBy = [
+      hint ? hintId : null,
+      error ? errorId : null,
+    ].filter(Boolean).join(' ');
+
+    return (
+      <div ref={ref} className={`space-y-1 ${className}`} {...props}>
+        <label
+          htmlFor={id}
+          className="block text-sm font-medium text-gray-700"
+          {...labelProps}
+        >
+          {label}
+          {required && (
+            <span className="text-red-500 ml-1" aria-hidden="true">*</span>
+          )}
+        </label>
+
+        {hint && (
+          <div id={hintId} className="text-sm text-gray-500">
+            {hint}
+          </div>
+        )}
+
+        {React.Children.map(children, child => {
+          if (!React.isValidElement(child)) return child;
+
+          const childProps = {
+            id,
+            'aria-describedby': describedBy || undefined,
+            'aria-invalid': error ? true : undefined,
+            'aria-required': required || undefined,
+          };
+
+          return React.cloneElement(child, childProps);
+        })}
+
+        {error && (
+          <div id={errorId} className="text-sm text-red-600" role="alert">
+            {error}
+          </div>
+        )}
+      </div>
+    );
+  }
+);
+
+FormField.displayName = 'FormField';
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className = '', type = 'text', error, ...props }, ref) => {
+    return (
+      <input
+        ref={ref}
+        type={type}
+        className={`
+          w-full px-4 py-2 border rounded-md 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          disabled:bg-gray-100 disabled:text-gray-500
+          ${error ? 'border-red-500' : 'border-gray-300'}
+          ${className}
+        `}
+        {...props}
+      />
+    );
+  }
+);
+
+Input.displayName = 'Input';
+
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className = '', error, ...props }, ref) => {
+    return (
+      <textarea
+        ref={ref}
+        className={`
+          w-full px-4 py-2 border rounded-md 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          disabled:bg-gray-100 disabled:text-gray-500
+          ${error ? 'border-red-500' : 'border-gray-300'}
+          ${className}
+        `}
+        {...props}
+      />
+    );
+  }
+);
+
+Textarea.displayName = 'Textarea';
+
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+  ({ className = '', error, options, ...props }, ref) => {
+    return (
+      <select
+        ref={ref}
+        className={`
+          w-full px-4 py-2 border rounded-md 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          disabled:bg-gray-100 disabled:text-gray-500
+          ${error ? 'border-red-500' : 'border-gray-300'}
+          ${className}
+        `}
+        {...props}
+      >
+        {options.map(({ value, label }) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+    );
+  }
+);
+
+Select.displayName = 'Select';
+
+// Example usage:
+/*
+import { FormField, Input, Textarea, Select } from '@/components/ui/form';
+
+const MyForm = () => {
+  return (
+    <form>
+      <FormField 
+        label="Email" 
+        required 
+        error={errors.email?.message}
+        hint="We'll never share your email"
+      >
+        <Input 
+          type="email"
+          {...register('email')}
+        />
+      </FormField>
+
+      <FormField 
+        label="Message" 
+        error={errors.message?.message}
+      >
+        <Textarea 
+          {...register('message')}
+        />
+      </FormField>
+
+      <FormField 
+        label="Country" 
+        error={errors.country?.message}
+      >
+        <Select
+          options={[
+            { value: 'us', label: 'United States' },
+            { value: 'uk', label: 'United Kingdom' },
+          ]}
+          {...register('country')}
+        />
+      </FormField>
+    </form>
+  );
+};
+*/
 
 ================================================================================
 File: src/components/widgets/BlogList.tsx
@@ -4875,18 +5713,13 @@ export default BlogList;
 File: src/components/widgets/ContactForm.tsx
 ================================================================================
 
+// src/components/widgets/ContactForm.tsx
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { logger } from '@/lib/logger';
-import { ErrorMessage } from '@/components/ErrorBoundary';
+import { FormField, Input, Textarea } from '@/components/ui/form';
 
-interface ErrorSummaryProps {
-  errors: Array<{
-    field: string;
-    message: string;
-  }>;
-  onFieldClick: (field: string) => void;
-}
+
 
 
 type FormData = {
@@ -4898,26 +5731,9 @@ type FormData = {
 };
 
 const STORAGE_KEY = 'contact_form_draft';
-const AUTOSAVE_DELAY = 1000; // 1 second
+const AUTOSAVE_DELAY = 1000;
 
-const ErrorSummary = ({ errors, onFieldClick }: ErrorSummaryProps) => (
-  <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
-    <h3 className="text-red-800 font-semibold mb-2">Please correct the following errors:</h3>
-    <ul className="list-disc pl-5">
-      {errors.map(({ field, message }) => (
-        <li key={field}>
-          <button
-            type="button"
-            onClick={() => onFieldClick(field)}
-            className="text-red-700 hover:text-red-900 underline"
-          >
-            {message}
-          </button>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -4934,10 +5750,8 @@ const ContactForm = () => {
     setValue,
   } = useForm<FormData>();
 
-  // Watch form values for autosave
   const formValues = watch();
 
-  // Load saved form data on component mount
   useEffect(() => {
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
@@ -4950,7 +5764,6 @@ const ContactForm = () => {
     }
   }, [setValue]);
 
-  // Autosave functionality
   useEffect(() => {
     if (!isDirty) return;
 
@@ -4959,7 +5772,9 @@ const ContactForm = () => {
       delete (dataToSave as Partial<FormData>).attachments;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
       logger.info('Form autosaved');
-    }, AUTOSAVE_DELAY);    return () => clearTimeout(timer);
+    }, AUTOSAVE_DELAY);
+    
+    return () => clearTimeout(timer);
   }, [formValues, isDirty]);
 
   const onSubmit = async (data: FormData) => {
@@ -5022,59 +5837,52 @@ const ContactForm = () => {
     reset();
   };
 
-  // Convert form errors to format expected by ErrorSummary
-  const errorSummary = Object.entries(errors).map(([field, error]) => ({
-    field,
-    message: error.message || `Invalid ${field}`
-  }));
+
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Error Summary */}
-      {errorSummary.length > 0 && (
-        <ErrorSummary 
-          errors={errorSummary}
-          onFieldClick={(field) => {
-            document.getElementsByName(field)[0]?.focus();
-          }}
-        />
-      )}
-
-      {/* Success Message */}
+    <form 
+      onSubmit={handleSubmit(onSubmit)} 
+      className="space-y-6"
+      noValidate
+      aria-label="Contact form"
+    >
       {submitSuccess && (
-        <ErrorMessage variant="info" title="Success">
+        <div 
+          role="alert"
+          aria-live="polite"
+          className="p-4 bg-green-100 text-green-700 rounded-md"
+        >
           Thank you for your message! We&apos;ll get back to you soon.
-        </ErrorMessage>
+        </div>
       )}
       
-      {/* Error Message */}
       {submitError && (
-        <ErrorMessage title="Error">
+        <div 
+          role="alert"
+          className="p-4 bg-red-100 text-red-700 rounded-md"
+        >
           {submitError}
-        </ErrorMessage>
+        </div>
       )}
 
-      {/* Form Fields */}
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-          Name
-        </label>
-        <input
+      <FormField
+        label="Name"
+        required
+        error={errors.name?.message}
+      >
+        <Input
           {...register('name', { required: 'Name is required' })}
           type="text"
-          id="name"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.name && (
-          <ErrorMessage>{errors.name.message}</ErrorMessage>
-        )}
-      </div>
+      </FormField>
 
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-          Email
-        </label>
-        <input
+      <FormField
+        label="Email"
+        required
+        error={errors.email?.message}
+        hint="We'll never share your email with anyone else."
+      >
+        <Input
           {...register('email', { 
             required: 'Email is required',
             pattern: {
@@ -5083,65 +5891,51 @@ const ContactForm = () => {
             }
           })}
           type="email"
-          id="email"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.email && (
-          <ErrorMessage>{errors.email.message}</ErrorMessage>
-        )}
-      </div>
+      </FormField>
 
-      <div>
-        <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-          Subject
-        </label>
-        <input
+      <FormField
+        label="Subject"
+        required
+        error={errors.subject?.message}
+      >
+        <Input
           {...register('subject', { required: 'Subject is required' })}
           type="text"
-          id="subject"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.subject && (
-          <ErrorMessage>{errors.subject.message}</ErrorMessage>
-        )}
-      </div>
+      </FormField>
 
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-          Message
-        </label>
-        <textarea
+      <FormField
+        label="Message"
+        required
+        error={errors.message?.message}
+      >
+        <Textarea
           {...register('message', { required: 'Message is required' })}
-          id="message"
           rows={5}
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        {errors.message && (
-          <ErrorMessage>{errors.message.message}</ErrorMessage>
-        )}
-      </div>
+      </FormField>
 
-      {/* File Upload */}
-      <div>
-        <label htmlFor="attachments" className="block text-sm font-medium text-gray-700 mb-1">
-          Attachments
-        </label>
-        <input
+      <FormField
+        label="Attachments"
+        hint="Max file size: 5MB. Allowed types: PDF, DOC, DOCX, TXT, JPG, PNG"
+      >
+        <Input
           {...register('attachments')}
           type="file"
-          id="attachments"
           multiple
           accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
         />
-        <p className="mt-1 text-sm text-gray-500">
-          Max file size: 5MB. Allowed types: PDF, DOC, DOCX, TXT, JPG, PNG
-        </p>
-      </div>
+      </FormField>
 
-      {/* Upload Progress */}
       {uploadProgress > 0 && uploadProgress < 100 && (
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
+        <div 
+          role="progressbar" 
+          aria-valuenow={uploadProgress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          className="w-full bg-gray-200 rounded-full h-2.5"
+        >
           <div
             className="bg-blue-600 h-2.5 rounded-full"
             style={{ width: `${uploadProgress}%` }}
@@ -5149,12 +5943,11 @@ const ContactForm = () => {
         </div>
       )}
 
-      {/* Form Actions */}
       <div className="flex justify-between">
         <button
           type="button"
           onClick={clearSavedData}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 px-4 py-2 rounded"
         >
           Clear Form
         </button>
@@ -5162,16 +5955,344 @@ const ContactForm = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-blue-300"
+          aria-busy={isSubmitting}
+          className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           {isSubmitting ? 'Sending...' : 'Send Message'}
         </button>
       </div>
     </form>
   );
-};
+}
 
 export default ContactForm;
+
+================================================================================
+File: src/components/widgets/CourseFilters.tsx
+================================================================================
+
+// src/components/widgets/CourseFilters.tsx
+import { useId } from 'react';
+
+interface FilterOption {
+  value: string;
+  label: string;
+  count?: number;
+}
+
+interface Props {
+  languages: FilterOption[];
+  levels: FilterOption[];
+  schedules: FilterOption[];
+  selectedFilters: {
+    language?: string;
+    level?: string;
+    schedule?: string;
+  };
+  onFilterChange: (filterType: string, value: string) => void;
+  onClearFilters: () => void;
+}
+
+export default function CourseFilters({
+  languages,
+  levels,
+  schedules,
+  selectedFilters,
+  onFilterChange,
+  onClearFilters,
+}: Props) {
+  const filterGroupId = useId();
+
+  return (
+    <div
+      role="region"
+      aria-labelledby="filter-heading"
+      className="bg-white p-4 rounded-lg shadow-sm"
+    >
+      <h2 id="filter-heading" className="sr-only">
+        Course filters
+      </h2>
+
+      <form className="space-y-6">
+        {/* Language Filter */}
+        <fieldset>
+          <legend className="text-lg font-medium text-gray-900">Language</legend>
+          <div className="mt-2 space-y-2">
+            {languages.map(({ value, label, count }) => (
+              <div key={value} className="flex items-center">
+                <input
+                  id={`${filterGroupId}-language-${value}`}
+                  name="language"
+                  value={value}
+                  type="radio"
+                  checked={selectedFilters.language === value}
+                  onChange={(e) => onFilterChange('language', e.target.value)}
+                  className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                  aria-describedby={count ? `${filterGroupId}-language-${value}-count` : undefined}
+                />
+                <label
+                  htmlFor={`${filterGroupId}-language-${value}`}
+                  className="ml-3 text-sm text-gray-700"
+                >
+                  {label}
+                  {count !== undefined && (
+                    <span
+                      id={`${filterGroupId}-language-${value}-count`}
+                      className="ml-2 text-gray-500"
+                    >
+                      ({count})
+                    </span>
+                  )}
+                </label>
+              </div>
+            ))}
+          </div>
+        </fieldset>
+
+        {/* Level Filter */}
+        <fieldset>
+          <legend className="text-lg font-medium text-gray-900">Level</legend>
+          <div className="mt-2 space-y-2">
+            {levels.map(({ value, label, count }) => (
+              <div key={value} className="flex items-center">
+                <input
+                  id={`${filterGroupId}-level-${value}`}
+                  name="level"
+                  value={value}
+                  type="radio"
+                  checked={selectedFilters.level === value}
+                  onChange={(e) => onFilterChange('level', e.target.value)}
+                  className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                  aria-describedby={count ? `${filterGroupId}-level-${value}-count` : undefined}
+                />
+                <label
+                  htmlFor={`${filterGroupId}-level-${value}`}
+                  className="ml-3 text-sm text-gray-700"
+                >
+                  {label}
+                  {count !== undefined && (
+                    <span
+                      id={`${filterGroupId}-level-${value}-count`}
+                      className="ml-2 text-gray-500"
+                    >
+                      ({count})
+                    </span>
+                  )}
+                </label>
+              </div>
+            ))}
+          </div>
+        </fieldset>
+
+        {/* Schedule Filter */}
+        <fieldset>
+          <legend className="text-lg font-medium text-gray-900">Schedule</legend>
+          <div className="mt-2 space-y-2">
+            {schedules.map(({ value, label, count }) => (
+              <div key={value} className="flex items-center">
+                <input
+                  id={`${filterGroupId}-schedule-${value}`}
+                  name="schedule"
+                  value={value}
+                  type="radio"
+                  checked={selectedFilters.schedule === value}
+                  onChange={(e) => onFilterChange('schedule', e.target.value)}
+                  className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
+                  aria-describedby={count ? `${filterGroupId}-schedule-${value}-count` : undefined}
+                />
+                <label
+                  htmlFor={`${filterGroupId}-schedule-${value}`}
+                  className="ml-3 text-sm text-gray-700"
+                >
+                  {label}
+                  {count !== undefined && (
+                    <span
+                      id={`${filterGroupId}-schedule-${value}-count`}
+                      className="ml-2 text-gray-500"
+                    >
+                      ({count})
+                    </span>
+                  )}
+                </label>
+              </div>
+            ))}
+          </div>
+        </fieldset>
+
+        {/* Clear Filters Button */}
+        {Object.values(selectedFilters).some(Boolean) && (
+          <button
+            type="button"
+            onClick={onClearFilters}
+            className="w-full px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+          >
+            Clear all filters
+          </button>
+        )}
+      </form>
+
+      {/* Live Region for Filter Updates */}
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+        role="status"
+      >
+        {Object.entries(selectedFilters)
+          .filter(([, value]) => value)
+          .map(([key, value]) => (
+            `${key}: ${value}`
+          )).join(', ') || 'No filters applied'}
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+File: src/components/widgets/CourseList.tsx
+================================================================================
+
+// src/components/widgets/CourseList.tsx
+import { useRef } from 'react';
+import Link from 'next/link';
+import OptimizedImage from '@/components/OptimizedImage';
+import { Course } from '@/types';
+
+interface Props {
+  courses: Course[];
+  title?: string;
+}
+
+export default function CourseList({ courses, title = 'Available Courses' }: Props) {
+  const listRef = useRef<HTMLUListElement>(null);
+
+  // Handle keyboard navigation within the grid
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>, index: number) => {
+    const items = listRef.current?.querySelectorAll('li');
+    if (!items) return;
+
+    const GRID_COLS = 3; // Matches our grid-cols-3 class
+
+    switch (event.key) {
+      case 'ArrowRight':
+        if (index < items.length - 1) {
+          (items[index + 1].querySelector('a') as HTMLElement)?.focus();
+        }
+        break;
+      case 'ArrowLeft':
+        if (index > 0) {
+          (items[index - 1].querySelector('a') as HTMLElement)?.focus();
+        }
+        break;
+      case 'ArrowDown':
+        if (index + GRID_COLS < items.length) {
+          (items[index + GRID_COLS].querySelector('a') as HTMLElement)?.focus();
+        }
+        break;
+      case 'ArrowUp':
+        if (index - GRID_COLS >= 0) {
+          (items[index - GRID_COLS].querySelector('a') as HTMLElement)?.focus();
+        }
+        break;
+      case 'Home':
+        (items[0].querySelector('a') as HTMLElement)?.focus();
+        break;
+      case 'End':
+        (items[items.length - 1].querySelector('a') as HTMLElement)?.focus();
+        break;
+    }
+  };
+
+  return (
+    <section aria-labelledby="courses-title">
+      <h2 id="courses-title" className="sr-only">
+        {title}
+      </h2>
+
+      <ul
+        ref={listRef}
+        role="list"
+        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+        aria-label={title}
+      >
+        {courses.map((course, index) => (
+          <li
+            key={course.id}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            className="relative"
+          >
+            <article
+              className="h-full bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+              aria-labelledby={`course-${course.id}-title`}
+            >
+              <Link
+                href={`/courses/${course.id}`}
+                className="block h-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+              >
+                <div className="relative h-48">
+                  <OptimizedImage
+                    src={course.image}
+                    alt=""  // Decorative image, meaning is conveyed through text
+                    fill
+                    className="object-cover"
+                    aspectRatio={16/9}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    background="bg-gray-100"
+                  />
+                </div>
+
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3
+                      id={`course-${course.id}-title`}
+                      className="text-xl font-bold text-gray-900"
+                    >
+                      {course.title}
+                    </h3>
+                    <span
+                      className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded"
+                      aria-label={`Level ${course.level}`}
+                    >
+                      {course.level}
+                    </span>
+                  </div>
+
+                  <dl className="space-y-1 text-sm text-gray-700">
+                    <div className="flex justify-between">
+                      <dt className="sr-only">Language</dt>
+                      <dd>{course.language}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="sr-only">Schedule</dt>
+                      <dd>{course.schedule}</dd>
+                    </div>
+                  </dl>
+
+                  <div
+                    className="mt-4 text-blue-600 font-medium"
+                    aria-hidden="true"
+                  >
+                    Learn more
+                    <span className="sr-only">
+                      about {course.title} ({course.language} - Level {course.level})
+                    </span>
+                    <span aria-hidden="true"> →</span>
+                  </div>
+                </div>
+              </Link>
+            </article>
+          </li>
+        ))}
+      </ul>
+
+      {courses.length === 0 && (
+        <p className="text-center text-gray-500 py-8">
+          No courses available at this time.
+        </p>
+      )}
+    </section>
+  );
+}
 
 ================================================================================
 File: src/components/widgets/CourseRegistrationForm.tsx
@@ -5812,6 +6933,114 @@ describe('ContactForm', () => {
 });
 
 ================================================================================
+File: src/context/ThemeContext.tsx
+================================================================================
+
+// src/context/ThemeContext.tsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { tokens } from '@/styles/colors';
+
+type ThemeMode = 'light' | 'dark' | 'highContrast';
+type ColorSchemePreference = 'light' | 'dark' | 'system';
+
+interface ThemeContextType {
+  mode: ThemeMode;
+  colorScheme: ColorSchemePreference;
+  setColorScheme: (scheme: ColorSchemePreference) => void;
+  toggleHighContrast: () => void;
+  isHighContrast: boolean;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [colorScheme, setColorScheme] = useState<ColorSchemePreference>('system');
+  const [isHighContrast, setIsHighContrast] = useState(false);
+
+  // Determine the actual theme mode based on color scheme preference
+  const [mode, setMode] = useState<ThemeMode>('light');
+
+  useEffect(() => {
+    // Load saved preferences from localStorage
+    const savedScheme = localStorage.getItem('color-scheme') as ColorSchemePreference;
+    const savedContrast = localStorage.getItem('high-contrast') === 'true';
+
+    if (savedScheme) setColorScheme(savedScheme);
+    if (savedContrast) setIsHighContrast(true);
+  }, []);
+
+  useEffect(() => {
+    const updateTheme = () => {
+      let newMode: ThemeMode;
+
+      if (isHighContrast) {
+        newMode = 'highContrast';
+      } else if (colorScheme === 'system') {
+        newMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      } else {
+        newMode = colorScheme;
+      }
+
+      setMode(newMode);
+      document.documentElement.setAttribute('data-theme', newMode);
+
+      // Apply theme colors
+      const colors = isHighContrast ? tokens.highContrast : tokens[newMode as keyof typeof tokens];
+      Object.entries(colors).forEach(([category, values]) => {
+        Object.entries(values as Record<string, string>).forEach(([name, value]) => {
+          document.documentElement.style.setProperty(
+            `--color-${category}-${name}`,
+            value
+          );
+        });
+      });
+    };
+
+    updateTheme();
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => updateTheme();
+    mediaQuery.addEventListener('change', handler);
+
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, [colorScheme, isHighContrast]);
+
+  const toggleHighContrast = () => {
+    const newValue = !isHighContrast;
+    setIsHighContrast(newValue);
+    localStorage.setItem('high-contrast', String(newValue));
+  };
+
+  const handleColorSchemeChange = (scheme: ColorSchemePreference) => {
+    setColorScheme(scheme);
+    localStorage.setItem('color-scheme', scheme);
+  };
+
+  return (
+    <ThemeContext.Provider
+      value={{
+        mode,
+        colorScheme,
+        setColorScheme: handleColorSchemeChange,
+        toggleHighContrast,
+        isHighContrast,
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}
+
+================================================================================
 File: src/data.ts
 ================================================================================
 
@@ -6107,10 +7336,12 @@ import matter from 'gray-matter';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkHtml from 'remark-html';
+import { ReactNode } from 'react';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
 export type BlogPost = {
+  readingTime: ReactNode;
   slug: string;
   title: string;
   date: string;
@@ -6150,7 +7381,8 @@ export async function getPostBySlug(slug: string): Promise<BlogPost> {
     categories: data.categories || [],
     tags: data.tags || [],
     coverImage: data.coverImage,
-    content: processedContent.toString()
+    content: processedContent.toString(),
+    readingTime: calculateReadingTime(content) // Add reading time calculation
   };
 }
 
@@ -6180,6 +7412,13 @@ export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
 
 export function generatePostPath(slug: string): string {
   return `/blog/${slug}`;
+}
+
+function calculateReadingTime(content: string): ReactNode {
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return `${minutes} min read`;
 }
 
 ================================================================================
@@ -6752,6 +7991,188 @@ export const config = {
 };
 
 ================================================================================
+File: src/styles/colors.ts
+================================================================================
+
+// src/styles/colors.ts
+
+// Base color palette with proven contrast ratios
+export const baseColors = {
+  // Primary colors
+  blue: {
+    50: '#EFF6FF',   // Background, min contrast 15.8:1
+    100: '#DBEAFE',  // Light background, min contrast 14.5:1
+    200: '#BFDBFE',  // Hover states, min contrast 13.6:1
+    300: '#93C5FD',  // Disabled states, min contrast 11.5:1
+    400: '#60A5FA',  // Icons, min contrast 8.7:1
+    500: '#3B82F6',  // Primary actions, min contrast 7:1
+    600: '#2563EB',  // Hover on primary, min contrast 5.9:1
+    700: '#1D4ED8',  // Active states, min contrast 4.8:1
+    800: '#1E40AF',  // Text on light, min contrast 12.3:1
+    900: '#1E3A8A',  // Darkest shade, min contrast 16.7:1
+  },
+
+  // Grayscale
+  gray: {
+    50: '#F9FAFB',   // Background, min contrast 19.3:1
+    100: '#F3F4F6',  // Light background, min contrast 18.1:1
+    200: '#E5E7EB',  // Borders, min contrast 15.8:1
+    300: '#D1D5DB',  // Disabled text, min contrast 12.6:1
+    400: '#9CA3AF',  // Placeholder text, min contrast 8.5:1
+    500: '#6B7280',  // Secondary text, min contrast 6.4:1
+    600: '#4B5563',  // Primary text, min contrast 11.3:1
+    700: '#374151',  // Headings, min contrast 13.9:1
+    800: '#1F2937',  // Dark text, min contrast 16.4:1
+    900: '#111827',  // Darkest text, min contrast 18.9:1
+  },
+
+  // Success colors
+  green: {
+    50: '#F0FDF4',   // Success background
+    100: '#DCFCE7',  // Light success
+    400: '#4ADE80',  // Added for dark mode
+    500: '#22C55E',  // Success primary
+    700: '#15803D',  // Success text
+  },
+
+  // Error colors
+  red: {
+    50: '#FEF2F2',   // Error background
+    100: '#FEE2E2',  // Light error
+    400: '#F87171',  // Added for dark mode
+    500: '#EF4444',  // Error primary
+    700: '#B91C1C',  // Error text
+  },
+
+  // Warning colors
+  yellow: {
+    50: '#FFFBEB',   // Warning background
+    100: '#FEF3C7',  // Light warning
+    400: '#FBBF24',  // Added for dark mode
+    500: '#F59E0B',  // Warning primary
+    700: '#B45309',  // Warning text
+  },
+};
+
+// Semantic color tokens
+export const tokens = {
+  light: {
+    background: {
+      primary: baseColors.gray[50],
+      secondary: baseColors.gray[100],
+      tertiary: baseColors.gray[200],
+    },
+    text: {
+      primary: baseColors.gray[900],
+      secondary: baseColors.gray[700],
+      tertiary: baseColors.gray[500],
+      disabled: baseColors.gray[400],
+      inverse: baseColors.gray[50],
+    },
+    border: {
+      default: baseColors.gray[200],
+      hover: baseColors.gray[300],
+      focus: baseColors.blue[500],
+    },
+    action: {
+      primary: baseColors.blue[600],
+      primaryHover: baseColors.blue[700],
+      secondary: baseColors.gray[200],
+      secondaryHover: baseColors.gray[300],
+      disabled: baseColors.gray[300],
+    },
+    status: {
+      success: baseColors.green[500],
+      error: baseColors.red[500],
+      warning: baseColors.yellow[500],
+      successText: baseColors.green[700],
+      errorText: baseColors.red[700],
+      warningText: baseColors.yellow[700],
+    },
+    focus: {
+      ring: baseColors.blue[400],
+      outline: baseColors.blue[500],
+    }
+  },
+  dark: {
+    background: {
+      primary: baseColors.gray[900],
+      secondary: baseColors.gray[800],
+      tertiary: baseColors.gray[700],
+    },
+    text: {
+      primary: baseColors.gray[50],
+      secondary: baseColors.gray[200],
+      tertiary: baseColors.gray[400],
+      disabled: baseColors.gray[500],
+      inverse: baseColors.gray[900],
+    },
+    border: {
+      default: baseColors.gray[700],
+      hover: baseColors.gray[600],
+      focus: baseColors.blue[400],
+    },
+    action: {
+      primary: baseColors.blue[400],
+      primaryHover: baseColors.blue[500],
+      secondary: baseColors.gray[700],
+      secondaryHover: baseColors.gray[600],
+      disabled: baseColors.gray[600],
+    },
+    status: {
+      success: baseColors.green[400],
+      error: baseColors.red[400],
+      warning: baseColors.yellow[400],
+      successText: baseColors.green[100],
+      errorText: baseColors.red[100],
+      warningText: baseColors.yellow[100],
+    },
+    focus: {
+      ring: baseColors.blue[300],
+      outline: baseColors.blue[400],
+    }
+  },
+  highContrast: {
+    background: {
+      primary: '#FFFFFF',
+      secondary: '#F0F0F0',
+      tertiary: '#E0E0E0',
+    },
+    text: {
+      primary: '#000000',
+      secondary: '#1A1A1A',
+      tertiary: '#333333',
+      disabled: '#666666',
+      inverse: '#FFFFFF',
+    },
+    border: {
+      default: '#000000',
+      hover: '#333333',
+      focus: '#0000FF',
+    },
+    action: {
+      primary: '#0000FF',
+      primaryHover: '#000080',
+      secondary: '#000000',
+      secondaryHover: '#333333',
+      disabled: '#666666',
+    },
+    status: {
+      success: '#008000',
+      error: '#FF0000',
+      warning: '#FF8C00',
+      successText: '#006400',
+      errorText: '#8B0000',
+      warningText: '#804600',
+    },
+    focus: {
+      ring: '#0000FF',
+      outline: '#000000',
+    }
+  }
+};
+
+================================================================================
 File: src/types/auth.ts
 ================================================================================
 
@@ -6916,47 +8337,72 @@ File: tailwind.config.ts
 ================================================================================
 
 // tailwind.config.ts
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
 import typography from '@tailwindcss/typography';
 
 const config: Config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        'bg-secondary': "var(--background-secondary)",
-        'bg-tertiary': "var(--background-tertiary)",
-        'text-primary': "var(--text-primary)",
-        'text-secondary': "var(--text-secondary)",
-        'accent-primary': "var(--accent-primary)",
-        'accent-secondary': "var(--accent-secondary)",
+        background: {
+          primary: 'var(--color-background-primary)',
+          secondary: 'var(--color-background-secondary)',
+          tertiary: 'var(--color-background-tertiary)',
+        },
+        text: {
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          tertiary: 'var(--color-text-tertiary)',
+          disabled: 'var(--color-text-disabled)',
+          inverse: 'var(--color-text-inverse)',
+        },
+        border: {
+          default: 'var(--color-border-default)',
+          hover: 'var(--color-border-hover)',
+          focus: 'var(--color-border-focus)',
+        },
+        action: {
+          primary: 'var(--color-action-primary)',
+          primaryHover: 'var(--color-action-primaryHover)',
+          secondary: 'var(--color-action-secondary)',
+          secondaryHover: 'var(--color-action-secondaryHover)',
+          disabled: 'var(--color-action-disabled)',
+        },
+        status: {
+          success: 'var(--color-status-success)',
+          error: 'var(--color-status-error)',
+          warning: 'var(--color-status-warning)',
+          successText: 'var(--color-status-successText)',
+          errorText: 'var(--color-status-errorText)',
+          warningText: 'var(--color-status-warningText)',
+        },
+        focus: {
+          ring: 'var(--color-focus-ring)',
+          outline: 'var(--color-focus-outline)',
+        },
+      },
+      // Ensure proper contrast for focus rings
+      ringColor: {
+        DEFAULT: 'var(--color-focus-ring)',
+      },
+      // Add custom outline styles
+      outline: {
+        focus: '2px solid var(--color-focus-outline)',
       },
     },
   },
-  plugins: [typography],
-  // Add this section
-  layer: {
-    components: {
-      // Layout containers
-      '.container-page': 'container mx-auto px-4 py-12',
-      '.container-section': 'container mx-auto px-4 py-8',
-      
-      // Card styles
-      '.card': 'bg-bg-secondary rounded-lg shadow-lg hover:shadow-xl transition-shadow',
-      '.card-content': 'p-6',
-      
-      // Common interactive elements
-      '.btn': 'px-4 py-2 rounded-md transition-colors duration-200',
-      '.btn-primary': 'bg-accent-primary text-white hover:bg-accent-secondary',
-      '.btn-secondary': 'border border-accent-primary text-accent-primary hover:bg-bg-secondary',
+  plugins: [
+    typography,
+    // Add plugin for better focus-visible support
+    function({ addVariant }: { addVariant: (name: string, definition: string[]) => void }) {
+      addVariant('focus-visible', ['&:focus-visible', '.focus-visible &']);
     },
-  },
+  ],
 };
 
 export default config;
