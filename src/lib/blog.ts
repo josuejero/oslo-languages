@@ -5,10 +5,12 @@ import matter from 'gray-matter';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkHtml from 'remark-html';
+import { ReactNode } from 'react';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
 
 export type BlogPost = {
+  readingTime: ReactNode;
   slug: string;
   title: string;
   date: string;
@@ -48,7 +50,8 @@ export async function getPostBySlug(slug: string): Promise<BlogPost> {
     categories: data.categories || [],
     tags: data.tags || [],
     coverImage: data.coverImage,
-    content: processedContent.toString()
+    content: processedContent.toString(),
+    readingTime: calculateReadingTime(content) // Add reading time calculation
   };
 }
 
@@ -78,4 +81,11 @@ export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
 
 export function generatePostPath(slug: string): string {
   return `/blog/${slug}`;
+}
+
+function calculateReadingTime(content: string): ReactNode {
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return `${minutes} min read`;
 }
