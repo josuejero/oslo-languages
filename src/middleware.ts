@@ -33,8 +33,8 @@ async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
 
   // Apply rate limiting to API routes
   if (request.nextUrl.pathname.startsWith('/api/')) {
-    const rateLimitResponse = await apiRateLimit.middleware(request);
-    if (rateLimitResponse.status === 429) {
+    const rateLimitResponse = await apiRateLimit.check();
+    if (rateLimitResponse) {
       return rateLimitResponse;
     }
   }
@@ -93,7 +93,9 @@ async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
   }
 
   return response;
-}export default mainMiddleware;
+}
+
+export default mainMiddleware;
 
 export const config = {
   matcher: [
