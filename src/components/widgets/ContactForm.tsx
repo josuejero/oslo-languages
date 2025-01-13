@@ -3,6 +3,15 @@ import { useState, useEffect } from 'react';
 import { logger } from '@/lib/logger';
 import { ErrorMessage } from '@/components/ErrorBoundary';
 
+interface ErrorSummaryProps {
+  errors: Array<{
+    field: string;
+    message: string;
+  }>;
+  onFieldClick: (field: string) => void;
+}
+
+
 type FormData = {
   name: string;
   email: string;
@@ -13,6 +22,25 @@ type FormData = {
 
 const STORAGE_KEY = 'contact_form_draft';
 const AUTOSAVE_DELAY = 1000; // 1 second
+
+const ErrorSummary = ({ errors, onFieldClick }: ErrorSummaryProps) => (
+  <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+    <h3 className="text-red-800 font-semibold mb-2">Please correct the following errors:</h3>
+    <ul className="list-disc pl-5">
+      {errors.map(({ field, message }) => (
+        <li key={field}>
+          <button
+            type="button"
+            onClick={() => onFieldClick(field)}
+            className="text-red-700 hover:text-red-900 underline"
+          >
+            {message}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);

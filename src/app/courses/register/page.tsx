@@ -1,7 +1,7 @@
 // src/app/courses/register/page.tsx
 import { Metadata } from 'next';
 import CourseRegistrationForm from '@/components/widgets/CourseRegistrationForm';
-import PageContainer from '@/components/layout/PageContainer';
+import Layout from '@/components/layout/Layout';
 
 export const metadata: Metadata = {
   title: 'Course Registration - Oslo Languages',
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <PageContainer narrowWidth>
+    <Layout>
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-bold mb-4">Course Registration</h1>
         <p className="text-lg text-gray-600 mb-8">
@@ -21,6 +21,6 @@ export default function RegisterPage() {
         
         <CourseRegistrationForm />
       </div>
-    </PageContainer>
+    </Layout>
   );
 }

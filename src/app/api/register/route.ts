@@ -2,14 +2,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRateLimitMiddleware } from '@/lib/rate-limit';
 
-const rateLimitMiddleware = getRateLimitMiddleware({
-  limit: 5,
-  windowMs: 60 * 1000,
-});
-
 export async function POST(request: NextRequest) {
   // Check rate limit
-  const rateLimitResponse = await rateLimitMiddleware(request);
+  const rateLimitResponse = await getRateLimitMiddleware();
   if (rateLimitResponse) return rateLimitResponse;
 
   try {

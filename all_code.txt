@@ -119,9 +119,13 @@ Please analyze the project structure, errors, and code carefully:
 │   ├── data.ts
 │   ├── lib
 │   │   ├── api-utils.ts
+│   │   ├── auth
+│   │   │   └── config.ts
 │   │   ├── blog.ts
 │   │   ├── courses.ts
 │   │   ├── logger.ts
+│   │   ├── middleware
+│   │   │   └── sanitize.ts
 │   │   ├── rate-limit.ts
 │   │   └── schema.ts
 │   ├── middleware.ts
@@ -135,7 +139,7 @@ Please analyze the project structure, errors, and code carefully:
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-49 directories, 83 files
+51 directories, 85 files
 
 
 ================================================================================
@@ -565,8 +569,10 @@ File: package.json
     "bundle-analyzer": "^0.0.6",
     "clipboardy": "^4.0.0",
     "cross-env": "^7.0.3",
+    "express-rate-limit": "^7.5.0",
     "gray-matter": "^4.0.3",
     "isomorphic-dompurify": "^2.19.0",
+    "limiter": "^2.1.0",
     "next": "15.1.3",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
@@ -2266,14 +2272,9 @@ File: src/app/api/register/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getRateLimitMiddleware } from '@/lib/rate-limit';
 
-const rateLimitMiddleware = getRateLimitMiddleware({
-  limit: 5,
-  windowMs: 60 * 1000,
-});
-
 export async function POST(request: NextRequest) {
   // Check rate limit
-  const rateLimitResponse = await rateLimitMiddleware(request);
+  const rateLimitResponse = await getRateLimitMiddleware();
   if (rateLimitResponse) return rateLimitResponse;
 
   try {
@@ -4879,6 +4880,15 @@ import { useState, useEffect } from 'react';
 import { logger } from '@/lib/logger';
 import { ErrorMessage } from '@/components/ErrorBoundary';
 
+interface ErrorSummaryProps {
+  errors: Array<{
+    field: string;
+    message: string;
+  }>;
+  onFieldClick: (field: string) => void;
+}
+
+
 type FormData = {
   name: string;
   email: string;
@@ -4889,6 +4899,25 @@ type FormData = {
 
 const STORAGE_KEY = 'contact_form_draft';
 const AUTOSAVE_DELAY = 1000; // 1 second
+
+const ErrorSummary = ({ errors, onFieldClick }: ErrorSummaryProps) => (
+  <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+    <h3 className="text-red-800 font-semibold mb-2">Please correct the following errors:</h3>
+    <ul className="list-disc pl-5">
+      {errors.map(({ field, message }) => (
+        <li key={field}>
+          <button
+            type="button"
+            onClick={() => onFieldClick(field)}
+            className="text-red-700 hover:text-red-900 underline"
+          >
+            {message}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -5993,6 +6022,81 @@ export const validators = {
 };
 
 ================================================================================
+File: src/lib/auth/config.ts
+================================================================================
+
+// src/lib/auth/config.ts
+import type { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
+import { JWT } from 'next-auth/jwt';
+import { DefaultSession } from 'next-auth';
+
+interface User {
+  id: string;
+  email: string;
+  role: string;
+}
+
+interface ExtendedSession extends DefaultSession {
+  user: {
+    role?: string;
+  } & DefaultSession['user'];
+}
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials): Promise<User | null> {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Missing credentials');
+        }
+
+        // In production, validate against your database
+        const isValid = credentials.email === process.env.ADMIN_EMAIL &&
+          await bcrypt.compare(credentials.password, process.env.ADMIN_PASSWORD || '');
+
+        if (isValid) {
+          return {
+            id: '1',
+            email: credentials.email,
+            role: 'admin'
+          };
+        }
+
+        return null;
+      }
+    }),
+  ],
+  session: {
+    strategy: 'jwt',
+  },
+  callbacks: {
+    async jwt({ token, user }: { token: JWT, user: User | null }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }: { session: ExtendedSession, token: JWT }) {
+      if (session.user) {
+        session.user.role = token.role;
+      }
+      return session;
+    }
+  },
+  pages: {
+    signIn: '/admin/login',
+    error: '/admin/login',
+  },
+};
+
+================================================================================
 File: src/lib/blog.ts
 ================================================================================
 
@@ -6176,107 +6280,85 @@ class Logger {
 export const logger = Logger.getInstance();
 
 ================================================================================
+File: src/lib/middleware/sanitize.ts
+================================================================================
+
+// src/lib/middleware/sanitize.ts
+import { NextRequest } from 'next/server';
+import DOMPurify from 'isomorphic-dompurify';
+
+export async function sanitizeMiddleware(request: NextRequest): Promise<NextRequest> {
+  if (['POST', 'PUT', 'PATCH'].includes(request.method)) {
+    const contentType = request.headers.get('content-type');
+    if (contentType?.includes('application/json')) {
+      const body = await request.json();
+      const sanitizedBody = sanitizeObject(body);
+      const newRequest = new Request(request.url, {
+        method: request.method,
+        headers: request.headers,
+        body: JSON.stringify(sanitizedBody),
+      });
+      return newRequest as NextRequest;
+    }
+  }
+  return request;
+}
+
+function sanitizeObject(obj: unknown): unknown {
+  if (typeof obj !== 'object' || obj === null) {
+    return typeof obj === 'string' ? DOMPurify.sanitize(obj) : obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeObject(item));
+  }
+
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    sanitized[key] = sanitizeObject(value);
+  }
+  return sanitized;
+}
+
+================================================================================
 File: src/lib/rate-limit.ts
 ================================================================================
 
 // src/lib/rate-limit.ts
+import { RateLimiter } from 'limiter';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-interface RateLimitConfig {
-  limit: number;
-  windowMs: number;
-  keyGenerator?: (request: NextRequest) => string;
-  handler?: (request: NextRequest) => NextResponse | Promise<NextResponse>;
-  skipFailedRequests?: boolean;
-  skipSuccessfulRequests?: boolean;
-}
+// Create a limiter that allows 100 requests per 15 minutes
+const limiter = new RateLimiter({
+  tokensPerInterval: 100,
+  interval: 900000,
+  fireImmediately: true
+});
 
-export const getRateLimitMiddleware = (config: RateLimitConfig) => {
-  const limiter = new RateLimit(config);
-  return (request: NextRequest) => limiter.middleware(request);
-};
-
-export class RateLimit {
-  private cache: Map<string, { count: number; resetTime: number }>;
-  private config: RateLimitConfig;
-
-  constructor(config: RateLimitConfig) {
-    this.cache = new Map();
-    this.config = {
-      keyGenerator: (request: NextRequest) => 
-        request.headers.get('x-forwarded-for') || 
-        request.headers.get('x-real-ip') || 
-        '127.0.0.1',
-      handler: () => 
-        NextResponse.json(
-          { error: 'Too many requests, please try again later.' },
-          { status: 429 }
-        ),
-      skipFailedRequests: false,
-      skipSuccessfulRequests: false,
-      ...config,
-    };
+export async function getRateLimitMiddleware() {
+  const remaining = await limiter.tryRemoveTokens(1);
+  
+  if (!remaining) {
+    return NextResponse.json(
+      { error: 'Too many requests, please try again later.' },
+      { 
+        status: 429,
+        headers: {
+          'Retry-After': '900' // 15 minutes in seconds
+        }
+      }
+    );
   }
 
-  check(request: NextRequest): { success: boolean; remainingRequests: number; resetTime: number } {
-    const key = this.config.keyGenerator!(request);
-    const now = Date.now();
-    const record = this.cache.get(key);
-
-    if (!record) {
-      this.cache.set(key, {
-        count: 1,
-        resetTime: now + this.config.windowMs,
-      });
-      return { success: true, remainingRequests: this.config.limit - 1, resetTime: now + this.config.windowMs };
-    }
-
-    if (now > record.resetTime) {
-      record.count = 1;
-      record.resetTime = now + this.config.windowMs;
-      this.cache.set(key, record);
-      return { success: true, remainingRequests: this.config.limit - 1, resetTime: record.resetTime };
-    }
-
-    if (record.count >= this.config.limit) {
-      return { success: false, remainingRequests: 0, resetTime: record.resetTime };
-    }
-
-    record.count += 1;
-    this.cache.set(key, record);
-    return { 
-      success: true, 
-      remainingRequests: this.config.limit - record.count,
-      resetTime: record.resetTime 
-    };
-  }
-
-  async middleware(request: NextRequest) {
-    const check = this.check(request);
-
-    if (!check.success) {
-      const response = await this.config.handler!(request);
-      response.headers.set('Retry-After', Math.ceil((check.resetTime - Date.now()) / 1000).toString());
-      response.headers.set('X-RateLimit-Limit', this.config.limit.toString());
-      response.headers.set('X-RateLimit-Remaining', check.remainingRequests.toString());
-      response.headers.set('X-RateLimit-Reset', Math.ceil(check.resetTime / 1000).toString());
-      return response;
-    }
-
-    const response = NextResponse.next();
-    response.headers.set('X-RateLimit-Limit', this.config.limit.toString());
-    response.headers.set('X-RateLimit-Remaining', check.remainingRequests.toString());
-    response.headers.set('X-RateLimit-Reset', Math.ceil(check.resetTime / 1000).toString());
-    return response;
-  }
+  return null;
 }
 
 // Export a pre-configured instance for API routes
-export const apiRateLimit = new RateLimit({
-  limit: 100,
-  windowMs: 15 * 60 * 1000, // 15 minutes
-});
+export const apiRateLimit = {
+  check: async () => {
+    return getRateLimitMiddleware();
+  }
+};
 
 ================================================================================
 File: src/lib/schema.ts
@@ -6599,8 +6681,8 @@ async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
 
   // Apply rate limiting to API routes
   if (request.nextUrl.pathname.startsWith('/api/')) {
-    const rateLimitResponse = await apiRateLimit.middleware(request);
-    if (rateLimitResponse.status === 429) {
+    const rateLimitResponse = await apiRateLimit.check();
+    if (rateLimitResponse) {
       return rateLimitResponse;
     }
   }
@@ -6659,7 +6741,9 @@ async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
   }
 
   return response;
-}export default mainMiddleware;
+}
+
+export default mainMiddleware;
 
 export const config = {
   matcher: [
