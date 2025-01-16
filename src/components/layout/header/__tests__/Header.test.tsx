@@ -1,52 +1,53 @@
+// src/components/layout/header/__tests__/Header.test.tsx
+
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from '../Header';
 
-// Mock useRouter
-jest.mock('next/router', () => ({
-  useRouter() {
-    return {
-      pathname: '/',
-    };
-  },
+// Mock usePathname
+jest.mock('next/navigation', () => ({
+  usePathname: () => '/',
 }));
 
 describe('Header', () => {
   it('renders logo and navigation links', () => {
     render(<Header />);
     
-    // Check logo
-    expect(screen.getByText('Oslo Languages')).toBeInTheDocument();
+    // Check logo specifically
+    expect(screen.getByRole('link', { name: /oslo languages/i })).toBeInTheDocument();
     
-    // Check navigation links
-    expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /courses/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /contact/i })).toBeInTheDocument();
+    // Check desktop navigation links only
+    const desktopNav = screen.getByRole('navigation').querySelector('.md\\:flex');
+    const desktopLinks = desktopNav?.querySelectorAll('a');
+    expect(desktopLinks).toBeDefined();
+    expect(desktopLinks?.length).toBe(4); // Home, Courses, About, Contact
   });
 
   it('toggles mobile menu', () => {
     render(<Header />);
     
-    // Mobile menu should be hidden initially
-    expect(screen.getByRole('navigation')).toHaveClass('hidden');
+    const mobileMenu = screen.getByRole('menu');
+    const menuButton = screen.getByRole('button', { name: /open main menu/i });
     
-    // Click hamburger menu
-    fireEvent.click(screen.getByRole('button', { name: /open main menu/i }));
+    // Initially hidden
+    expect(mobileMenu).toHaveClass('hidden');
     
-    // Mobile menu should be visible
-    expect(screen.getByRole('navigation')).not.toHaveClass('hidden');
+    // Show menu
+    fireEvent.click(menuButton);
+    expect(mobileMenu).not.toHaveClass('hidden');
     
-    // Click again to hide
-    fireEvent.click(screen.getByRole('button', { name: /open main menu/i }));
-    
-    // Mobile menu should be hidden again
-    expect(screen.getByRole('navigation')).toHaveClass('hidden');
+    // Hide menu
+    fireEvent.click(menuButton);
+    expect(mobileMenu).toHaveClass('hidden');
   });
 
-  it('shows correct active link', () => {
+  it('shows correct active link styling', () => {
     render(<Header />);
     
-    const homeLink = screen.getByRole('link', { name: /home/i });
-    expect(homeLink).toHaveClass('text-accent-primary');
+    // Find home link in desktop navigation
+    const desktopNav = screen.getByRole('navigation').querySelector('.md\\:flex');
+    const homeLink = desktopNav?.querySelector('a[href="/"]');
+    
+    // Since path is '/' (from mock), home should have active styling
+    expect(homeLink).toHaveClass('bg-blue-600', 'text-white');
   });
 });

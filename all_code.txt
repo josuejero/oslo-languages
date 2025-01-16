@@ -32,6 +32,8 @@ Please analyze the project structure, errors, and code carefully:
 │   ├── uploads
 │   ├── vercel.svg
 │   └── window.svg
+├── scripts
+│   └── generate-password-hash.ts
 ├── src
 │   ├── app
 │   │   ├── about
@@ -64,7 +66,9 @@ Please analyze the project structure, errors, and code carefully:
 │   │   │   │   └── route.ts
 │   │   │   ├── og
 │   │   │   │   └── route.tsx
-│   │   │   └── register
+│   │   │   ├── register
+│   │   │   │   └── route.ts
+│   │   │   └── upload
 │   │   │       └── route.ts
 │   │   ├── blog
 │   │   │   ├── [slug]
@@ -104,6 +108,8 @@ Please analyze the project structure, errors, and code carefully:
 │   │   │   ├── RichContent.tsx
 │   │   │   ├── ShareButtons.tsx
 │   │   │   └── TableOfContents.tsx
+│   │   ├── forms
+│   │   │   └── SecureFileUpload.tsx
 │   │   ├── layout
 │   │   │   ├── Layout.tsx
 │   │   │   ├── PageContainer.tsx
@@ -138,9 +144,14 @@ Please analyze the project structure, errors, and code carefully:
 │   │   │   └── config.ts
 │   │   ├── blog.ts
 │   │   ├── courses.ts
+│   │   ├── hooks
+│   │   │   └── useCSRFToken.ts
 │   │   ├── logger.ts
 │   │   ├── middleware
-│   │   │   └── sanitize.ts
+│   │   │   ├── csrf.ts
+│   │   │   ├── fileUpload.ts
+│   │   │   ├── sanitize.ts
+│   │   │   └── securityMiddleware.ts
 │   │   ├── rate-limit.ts
 │   │   └── schema.ts
 │   ├── middleware.ts
@@ -156,7 +167,7 @@ Please analyze the project structure, errors, and code carefully:
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-56 directories, 97 files
+60 directories, 104 files
 
 
 ================================================================================
@@ -183,11 +194,11 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
 # Authentication (NextAuth.js)
 NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-nextauth-secret-at-least-32-chars
+NEXTAUTH_SECRET=5XHIY2YRP2vvEy56EqmPI5vW4shh2HVbmlzBOxOeLH0=
 
 # Admin credentials
-ADMIN_EMAIL=admin@oslolanguages.com
-ADMIN_PASSWORD=your-secure-password
+ADMIN_EMAIL=josuejero@hotmail.com
+ADMIN_PASSWORD_HASH=$2a$12$Ux63qBrAMgQV3gXH2e4MW.ixTDW/lX0B.cNnseAc0Gg.kEMrYgg/y
 
 # Email service (SendGrid)
 SENDGRID_API_KEY=your-sendgrid-api-key
@@ -201,6 +212,8 @@ ALLOWED_FILE_TYPES=image/jpeg,image/png,application/pdf,application/msword
 # Rate limiting
 RATE_LIMIT_MAX=100
 RATE_LIMIT_WINDOW_MS=900000 # 15 minutes in milliseconds
+
+
 
 ================================================================================
 File: README.md
@@ -452,11 +465,27 @@ const securityHeaders = [
   },
   {
     key: 'Referrer-Policy',
-    value: 'origin-when-cross-origin'
+    value: 'strict-origin-when-cross-origin'
   },
   {
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+  },
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
+      "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
+      "img-src 'self' data: https: blob:",
+      "font-src 'self' https://cdnjs.cloudflare.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+      "block-all-mixed-content",
+      "upgrade-insecure-requests"
+    ].join('; ')
   }
 ];
 
@@ -585,6 +614,7 @@ File: package.json
     "bcryptjs": "^2.4.3",
     "bundle-analyzer": "^0.0.6",
     "clipboardy": "^4.0.0",
+    "cookies-next": "^5.0.2",
     "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
     "express-rate-limit": "^7.5.0",
@@ -639,6 +669,7 @@ File: package.json
     "prisma": "^6.2.1",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5",
     "typescript-eslint": "^8.19.0"
   }
@@ -779,6 +810,28 @@ model Media {
   uploadedAt  DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+================================================================================
+File: scripts/generate-password-hash.ts
+================================================================================
+
+// scripts/generate-password-hash.ts
+import bcrypt from 'bcryptjs';
+
+async function generateHash() {
+    const password = process.argv[2];
+    if (!password) {
+        console.error('Please provide a password as an argument');
+        process.exit(1);
+    }
+
+    const hash = await bcrypt.hash(password, 12);
+    console.log('\nAdd this hash to your .env file as ADMIN_PASSWORD_HASH:\n');
+    console.log(hash);
+    console.log('\n');
+}
+
+generateHash();
 
 ================================================================================
 File: src/app/about/page.tsx
@@ -2372,6 +2425,12 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+================================================================================
+File: src/app/api/upload/route.ts
+================================================================================
+
+
 
 ================================================================================
 File: src/app/blog/[slug]/page.tsx
@@ -4976,6 +5035,247 @@ export default function TableOfContents({
 }
 
 ================================================================================
+File: src/components/forms/SecureFileUpload.tsx
+================================================================================
+
+// src/components/forms/SecureFileUpload.tsx
+
+import React, { useState, useCallback } from 'react';
+import { useCSRFToken } from '@/lib/hooks/useCSRFToken';
+import { logger } from '@/lib/logger';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+]);
+
+interface FileUploadProps {
+  onUploadComplete?: (results: unknown[]) => void;
+  onError?: (error: string) => void;
+  maxFiles?: number;
+  acceptedFileTypes?: string[];
+  className?: string;
+}
+
+export default function SecureFileUpload({
+  onUploadComplete,
+  onError,
+  maxFiles = 5,
+  acceptedFileTypes = Array.from(ALLOWED_TYPES),
+  className = ''
+}: FileUploadProps) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const csrfToken = useCSRFToken();
+
+  const validateFile = useCallback((file: File) => {
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error(`File ${file.name} exceeds maximum size of 5MB`);
+    }
+
+    if (!ALLOWED_TYPES.has(file.type)) {
+      throw new Error(`File type ${file.type} is not allowed`);
+    }
+
+    return true;
+  }, []);
+
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files || []);
+
+    if (selectedFiles.length > maxFiles) {
+      onError?.(`Maximum ${maxFiles} files allowed`);
+      return;
+    }
+
+    try {
+      selectedFiles.forEach(validateFile);
+      setFiles(selectedFiles);
+    } catch (error) {
+      onError?.(error instanceof Error ? error.message : 'Invalid file');
+      // Reset file input
+      event.target.value = '';
+    }
+  }, [maxFiles, onError, validateFile]);
+
+  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const droppedFiles = Array.from(event.dataTransfer.files);
+
+    if (droppedFiles.length > maxFiles) {
+      onError?.(`Maximum ${maxFiles} files allowed`);
+      return;
+    }
+
+    try {
+      droppedFiles.forEach(validateFile);
+      setFiles(droppedFiles);
+    } catch (error) {
+      onError?.(error instanceof Error ? error.message : 'Invalid file');
+    }
+  }, [maxFiles, onError, validateFile]);
+
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }, []);
+
+  const handleUpload = async () => {
+    if (!files.length || !csrfToken) return;
+
+    setUploading(true);
+    setProgress(0);
+
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/upload', true);
+      xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+
+      // Track upload progress
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          setProgress(Math.round(percentComplete));
+        }
+      };
+
+      // Handle response
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText);
+          onUploadComplete?.(response.results);
+          setFiles([]);
+        } else {
+          throw new Error(xhr.statusText || 'Upload failed');
+        }
+      };
+
+      xhr.onerror = () => {
+        throw new Error('Network error occurred');
+      };
+
+      // Send the request
+      xhr.send(formData);
+    } catch (error) {
+      logger.error('File upload error:', { error });
+      onError?.(error instanceof Error ? error.message : 'Upload failed');
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className={`space-y-4 ${className}`}>
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        className="p-4 border-2 border-dashed rounded-lg bg-white"
+      >
+        <input
+          type="file"
+          multiple
+          accept={acceptedFileTypes.join(',')}
+          onChange={handleFileSelect}
+          disabled={uploading}
+          className="hidden"
+          id="file-upload"
+          aria-label="File upload"
+        />
+        
+        <label 
+          htmlFor="file-upload"
+          className="block w-full text-center cursor-pointer"
+        >
+          {uploading ? (
+            <div className="space-y-2">
+              <div className="text-sm text-gray-500">Uploading...</div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                  role="progressbar"
+                  aria-valuenow={progress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="text-sm text-gray-500">
+                Drop files here or click to upload
+              </div>
+              <div className="text-xs text-gray-400">
+                Maximum {maxFiles} files. Supported formats: {acceptedFileTypes.join(', ')}
+              </div>
+            </div>
+          )}
+        </label>
+      </div>
+
+      {files.length > 0 && (
+        <div className="space-y-2">
+          {files.map((file, index) => (
+            <div 
+              key={index}
+              className="flex items-center justify-between p-2 bg-gray-50 rounded"
+            >
+              <span className="text-sm truncate flex-1">{file.name}</span>
+              <span className="text-xs text-gray-500 mx-4">
+                {(file.size / 1024).toFixed(1)}KB
+              </span>
+              <button
+                onClick={() => removeFile(index)}
+                className="text-red-500 hover:text-red-700 p-1"
+                aria-label={`Remove ${file.name}`}
+              >
+                <svg 
+                  className="w-4 h-4" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M6 18L18 6M6 6l12 12" 
+                  />
+                </svg>
+              </button>
+            </div>
+          ))}
+          
+          <button
+            onClick={handleUpload}
+            disabled={uploading || !csrfToken}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            {uploading ? 'Uploading...' : 'Upload Files'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+================================================================================
 File: src/components/layout/Layout.tsx
 ================================================================================
 
@@ -7255,75 +7555,102 @@ File: src/lib/auth/config.ts
 ================================================================================
 
 // src/lib/auth/config.ts
-import type { NextAuthOptions } from 'next-auth';
+
+import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import { JWT } from 'next-auth/jwt';
-import { DefaultSession } from 'next-auth';
 
-interface User {
-  id: string;
-  email: string;
-  role: string;
-}
-
-interface ExtendedSession extends DefaultSession {
-  user: {
-    role?: string;
-  } & DefaultSession['user'];
-}
+// Rate limiting for login attempts
+const MAXIMUM_LOGIN_ATTEMPTS = 5;
+const LOGIN_ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
+const loginAttempts = new Map<string, { count: number; timestamp: number }>();
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: 'Admin Credentials',
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials): Promise<User | null> {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Missing credentials');
-        }
+      async authorize(credentials) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error('Invalid credentials');
+          }
 
-        // In production, validate against your database
-        const isValid = credentials.email === process.env.ADMIN_EMAIL &&
-          await bcrypt.compare(credentials.password, process.env.ADMIN_PASSWORD || '');
+          // Check rate limiting
+          const ipKey = credentials.email.toLowerCase();
+          const attempt = loginAttempts.get(ipKey);
+          
+          if (attempt) {
+            if (attempt.count >= MAXIMUM_LOGIN_ATTEMPTS && 
+                Date.now() - attempt.timestamp < LOGIN_ATTEMPT_WINDOW) {
+              throw new Error('Too many login attempts. Please try again later.');
+            }
+            if (Date.now() - attempt.timestamp >= LOGIN_ATTEMPT_WINDOW) {
+              loginAttempts.delete(ipKey);
+            }
+          }
 
-        if (isValid) {
+          // Compare with environment variables
+          const isValidEmail = credentials.email === process.env.ADMIN_EMAIL;
+          const isValidPassword = await bcrypt.compare(
+            credentials.password,
+            process.env.ADMIN_PASSWORD_HASH || ''
+          );
+
+          if (!isValidEmail || !isValidPassword) {
+            incrementLoginAttempts(ipKey);
+            throw new Error('Invalid credentials');
+          }
+
+          // Clear login attempts on success
+          loginAttempts.delete(ipKey);
+
           return {
             id: '1',
-            email: credentials.email,
+            email: process.env.ADMIN_EMAIL || '',
             role: 'admin'
           };
+        } catch (error) {
+          console.error('Auth error:', error);
+          return null;
         }
-
-        return null;
       }
-    }),
+    })
   ],
   session: {
     strategy: 'jwt',
-  },
-  callbacks: {
-    async jwt({ token, user }: { token: JWT, user: User | null }) {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }: { session: ExtendedSession, token: JWT }) {
-      if (session.user) {
-        session.user.role = token.role;
-      }
-      return session;
-    }
+    maxAge: 2 * 60 * 60, // 2 hours
   },
   pages: {
     signIn: '/admin/login',
     error: '/admin/login',
   },
+  callbacks: {
+    async jwt({ token }) {
+      token.role = 'admin';
+      return token;
+    },
+    async session({ session }) {
+      if (session.user) {
+        session.user.role = 'admin';
+      }
+      return session;
+    }
+  },
 };
+
+function incrementLoginAttempts(key: string) {
+  const attempt = loginAttempts.get(key);
+  if (attempt) {
+    attempt.count += 1;
+    attempt.timestamp = Date.now();
+  } else {
+    loginAttempts.set(key, { count: 1, timestamp: Date.now() });
+  }
+}
 
 ================================================================================
 File: src/lib/blog.ts
@@ -7444,6 +7771,74 @@ export function filterCourses(courses: Course[], filters: CourseFilter) {
 }
 
 ================================================================================
+File: src/lib/hooks/useCSRFToken.ts
+================================================================================
+
+// src/lib/hooks/useCSRFToken.ts
+
+import { useState, useEffect } from 'react';
+
+export function useCSRFToken() {
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const response = await fetch('/api/csrf', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setToken(data.token);
+        }
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+      }
+    };
+
+    fetchToken();
+  }, []);
+
+  return token;
+}
+
+// Add this to verify CSRF token on form submissions
+export function useSecureForm() {
+  const csrfToken = useCSRFToken();
+
+  const submitForm = async (
+    url: string,
+    data: FormData | Record<string, unknown>,
+    options: RequestInit = {}
+  ) => {
+    if (!csrfToken) {
+      throw new Error('CSRF token not available');
+    }
+
+    const headers = new Headers(options.headers);
+    headers.set('X-CSRF-Token', csrfToken);
+
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      credentials: 'include',
+      body: data instanceof FormData ? data : JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => null);
+      throw new Error(error?.message || 'Form submission failed');
+    }
+
+    return response.json();
+  };
+
+  return { submitForm, csrfToken };
+}
+
+================================================================================
 File: src/lib/logger.ts
 ================================================================================
 
@@ -7519,44 +7914,699 @@ class Logger {
 export const logger = Logger.getInstance();
 
 ================================================================================
+File: src/lib/middleware/csrf.ts
+================================================================================
+
+// src/lib/middleware/csrf.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { createHash, randomBytes } from 'crypto';
+import { useState, useEffect } from 'react';
+import { getCookie } from 'cookies-next';
+
+const CSRF_SALT = process.env.CSRF_SALT || randomBytes(16).toString('hex');
+const CSRF_SECRET = process.env.CSRF_SECRET || randomBytes(32).toString('hex');
+
+export function generateToken(sessionId: string): string {
+  const timestamp = Date.now();
+  const payload = `${sessionId}${timestamp}${CSRF_SALT}`;
+  return createHash('sha256')
+    .update(payload + CSRF_SECRET)
+    .digest('hex');
+}
+
+export function validateToken(token: string, sessionId: string): boolean {
+  // Tokens expire after 4 hours
+  const MAX_AGE = 4 * 60 * 60 * 1000;
+  const timestamp = parseInt(token.slice(0, 13), 10);
+  
+  if (Date.now() - timestamp > MAX_AGE) {
+    return false;
+  }
+
+  const expectedToken = generateToken(sessionId);
+  return token === expectedToken;
+}
+
+export async function csrfMiddleware(request: NextRequest) {
+  // Skip CSRF check for GET, HEAD, OPTIONS requests
+  if (['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
+    return NextResponse.next();
+  }
+
+  const sessionId = request.cookies.get('sessionId')?.value;
+  const csrfToken = request.headers.get('X-CSRF-Token');
+
+  if (!sessionId || !csrfToken) {
+    return new NextResponse(
+      JSON.stringify({ error: 'CSRF token missing' }),
+      { status: 403 }
+    );
+  }
+
+  if (!validateToken(csrfToken, sessionId)) {
+    return new NextResponse(
+      JSON.stringify({ error: 'Invalid CSRF token' }),
+      { status: 403 }
+    );
+  }
+
+  return NextResponse.next();
+}
+
+// React hook for CSRF token management
+export function useCsrfToken() {
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const sessionId = getCookie('sessionId');
+    if (sessionId && typeof sessionId === 'string') {
+      setCsrfToken(generateToken(sessionId));
+    }
+  }, []);
+
+  return csrfToken;
+}
+
+================================================================================
+File: src/lib/middleware/fileUpload.ts
+================================================================================
+
+// src/lib/middleware/fileUpload.ts
+import { NextRequest } from 'next/server';
+import { logger } from '../logger';
+import crypto from 'crypto';
+import path from 'path';
+
+interface FileValidationConfig {
+  maxSize: number;
+  allowedTypes: string[];
+  maxFiles?: number;
+  minSize?: number;
+  scanForVirus?: boolean;
+}
+
+const defaultConfig: FileValidationConfig = {
+  maxSize: 5 * 1024 * 1024, // 5MB
+  minSize: 1024, // 1KB
+  allowedTypes: [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ],
+  maxFiles: 5,
+  scanForVirus: true
+};
+
+export class FileValidationError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode: number = 400
+  ) {
+    super(message);
+    this.name = 'FileValidationError';
+  }
+}
+
+export async function validateFile(
+  file: File,
+  config: Partial<FileValidationConfig> = {}
+): Promise<void> {
+  const finalConfig = { ...defaultConfig, ...config };
+
+  // Check file size
+  if (file.size > finalConfig.maxSize) {
+    throw new FileValidationError(
+      `File size exceeds ${finalConfig.maxSize} bytes`,
+      'FILE_TOO_LARGE',
+      413
+    );
+  }
+
+  if (file.size < finalConfig.minSize!) {
+    throw new FileValidationError(
+      `File size below ${finalConfig.minSize} bytes`,
+      'FILE_TOO_SMALL'
+    );
+  }
+
+  // Validate MIME type
+  if (!finalConfig.allowedTypes.includes(file.type)) {
+    throw new FileValidationError(
+      `File type ${file.type} not allowed`,
+      'INVALID_FILE_TYPE'
+    );
+  }
+
+  // Validate file extension
+  const extension = path.extname(file.name).toLowerCase();
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.pdf', '.doc', '.docx'];
+  if (!allowedExtensions.includes(extension)) {
+    throw new FileValidationError(
+      `File extension ${extension} not allowed`,
+      'INVALID_FILE_EXTENSION'
+    );
+  }
+
+  // Calculate file hash for integrity
+  const arrayBuffer = await file.arrayBuffer();
+  const hash = crypto
+    .createHash('sha256')
+    .update(Buffer.from(arrayBuffer))
+    .digest('hex');
+
+  // Basic header check for common file types
+  const buffer = Buffer.from(arrayBuffer);
+  const fileSignature = buffer.slice(0, 4).toString('hex');
+
+  const signatures: { [key: string]: string[] } = {
+    'image/jpeg': ['ffd8ffe0', 'ffd8ffe1'],
+    'image/png': ['89504e47'],
+    'application/pdf': ['25504446'],
+  };
+
+  if (signatures[file.type] && !signatures[file.type].includes(fileSignature)) {
+    throw new FileValidationError(
+      'File content does not match its extension',
+      'INVALID_FILE_CONTENT'
+    );
+  }
+
+  // TODO: Implement virus scanning if enabled
+  if (finalConfig.scanForVirus) {
+    // Implement virus scanning here
+    // This would typically involve integrating with a virus scanning service
+    logger.info('Virus scanning would occur here', { fileHash: hash });
+  }
+}
+
+export async function validateFiles(
+  files: File[],
+  config: Partial<FileValidationConfig> = {}
+): Promise<void> {
+  const finalConfig = { ...defaultConfig, ...config };
+
+  // Check number of files
+  if (finalConfig.maxFiles && files.length > finalConfig.maxFiles) {
+    throw new FileValidationError(
+      `Number of files exceeds maximum of ${finalConfig.maxFiles}`,
+      'TOO_MANY_FILES'
+    );
+  }
+
+  // Validate each file
+  await Promise.all(files.map(file => validateFile(file, config)));
+}
+
+export async function fileUploadMiddleware(request: NextRequest): Promise<NextRequest> {
+  if (!['POST', 'PUT', 'PATCH'].includes(request.method)) {
+    return request;
+  }
+
+  const contentType = request.headers.get('content-type');
+  if (!contentType?.includes('multipart/form-data')) {
+    return request;
+  }
+
+  try {
+    const formData = await request.formData();
+    const files: File[] = [];
+
+    for (const [, value] of formData.entries()) {
+      if (value instanceof File) {
+        files.push(value);
+      }
+    }
+
+    await validateFiles(files);
+
+    // Create new FormData with validated files
+    const validatedFormData = new FormData();
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        // Generate a secure filename
+        const extension = path.extname(value.name);
+        const safeFilename = `${crypto.randomBytes(16).toString('hex')}${extension}`;
+        
+        validatedFormData.append(
+          key,
+          new File([value], safeFilename, { type: value.type })
+        );
+      } else {
+        validatedFormData.append(key, value);
+      }
+    }
+
+    // Create new request with validated FormData
+    return new Request(request.url, {
+      method: request.method,
+      headers: request.headers,
+      body: validatedFormData
+    }) as NextRequest;
+
+  } catch (error) {
+    if (error instanceof FileValidationError) {
+      logger.warn('File validation failed:', { error });
+      throw error;
+    }
+    logger.error('File upload error:', { error });
+    throw new FileValidationError(
+      'File upload failed',
+      'UPLOAD_ERROR',
+      500
+    );
+  }
+}
+// Helper to get safe file path
+export function getSafeFilePath(filename: string, uploadDir: string): string {
+  const safeFilename = path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_');
+  return path.join(uploadDir, safeFilename);
+}
+
+// Helper to generate unique filename
+export function generateUniqueFilename(originalFilename: string): string {
+  const extension = path.extname(originalFilename);
+  const timestamp = Date.now();
+  const random = crypto.randomBytes(8).toString('hex');
+  return `${timestamp}-${random}${extension}`;
+}
+
+================================================================================
 File: src/lib/middleware/sanitize.ts
 ================================================================================
 
 // src/lib/middleware/sanitize.ts
 import { NextRequest } from 'next/server';
 import DOMPurify from 'isomorphic-dompurify';
+import { logger } from '../logger';
+
+// Define allowed HTML tags and attributes
+const ALLOWED_TAGS = [
+  'p', 'br', 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'
+];
+
+const ALLOWED_ATTR = ['href', 'title', 'target'];
+
+// Define regex patterns for validation
+const PATTERNS = {
+  email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+  phone: /^\+?[\d\s-]{8,}$/,
+  name: /^[a-zA-Z\s-']{2,50}$/,
+  url: /^https?:\/\/[\w\-.]+(:\d+)?([/\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/
+};
+
+export function sanitizeString(input: string, type?: keyof typeof PATTERNS): string {
+  // Basic sanitization
+  const sanitized = DOMPurify.sanitize(input.trim(), {
+    ALLOWED_TAGS: [],
+    ALLOWED_ATTR: []
+  });
+
+  // Pattern validation if type is specified
+  if (type && PATTERNS[type]) {
+    if (!PATTERNS[type].test(sanitized)) {
+      logger.warn('Invalid input pattern', { type, input: sanitized });
+      throw new Error(`Invalid ${type} format`);
+    }
+  }
+
+  return sanitized;
+}
+
+export function sanitizeHtml(input: string): string {
+  return DOMPurify.sanitize(input, {
+    ALLOWED_TAGS,
+    ALLOWED_ATTR,
+    FORBID_TAGS: ['script', 'style', 'iframe', 'form'],
+    FORBID_ATTR: ['onload', 'onclick', 'onmouseover', 'style'],
+    SANITIZE_DOM: true,
+    KEEP_CONTENT: true
+  });
+}
+
+export function sanitizeFileName(fileName: string): string {
+  // Remove any directory traversal attempts
+  const sanitized = fileName.replace(/^.*[\\/]/, '');
+  
+  // Remove any non-allowed characters
+  return sanitized.replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/\.{2,}/g, '.')  // Prevent consecutive dots
+    .slice(0, 255);  // Limit length
+}
 
 export async function sanitizeMiddleware(request: NextRequest): Promise<NextRequest> {
   if (['POST', 'PUT', 'PATCH'].includes(request.method)) {
     const contentType = request.headers.get('content-type');
+
     if (contentType?.includes('application/json')) {
-      const body = await request.json();
-      const sanitizedBody = sanitizeObject(body);
+      try {
+        const body = await request.json();
+        const sanitizedBody = sanitizeRequestBody(body);
+
+        // Create new request with sanitized body
+        const newRequest = new Request(request.url, {
+          method: request.method,
+          headers: request.headers,
+          body: JSON.stringify(sanitizedBody)
+        });
+
+        return newRequest as NextRequest;
+      } catch (error) {
+        logger.error('Sanitization error:', { error });
+        throw error;
+      }
+    }
+
+    if (contentType?.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const sanitizedFormData = new FormData();
+
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          // Sanitize file name and validate mime type
+          const sanitizedName = sanitizeFileName(value.name);
+          sanitizedFormData.append(key, new File([value], sanitizedName, {
+            type: value.type
+          }));
+        } else {
+          sanitizedFormData.append(key, sanitizeString(value.toString()));
+        }
+      }
+
       const newRequest = new Request(request.url, {
         method: request.method,
         headers: request.headers,
-        body: JSON.stringify(sanitizedBody),
+        body: sanitizedFormData
       });
+
       return newRequest as NextRequest;
     }
   }
+
   return request;
 }
 
-function sanitizeObject(obj: unknown): unknown {
-  if (typeof obj !== 'object' || obj === null) {
-    return typeof obj === 'string' ? DOMPurify.sanitize(obj) : obj;
+function sanitizeRequestBody(body: unknown): unknown {
+  if (typeof body !== 'object' || body === null) {
+    return typeof body === 'string' ? sanitizeString(body) : body;
   }
 
-  if (Array.isArray(obj)) {
-    return obj.map(item => sanitizeObject(item));
+  if (Array.isArray(body)) {
+    return body.map(item => sanitizeRequestBody(item));
   }
 
   const sanitized: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    sanitized[key] = sanitizeObject(value);
+  for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
+    sanitized[key] = sanitizeRequestBody(value);
   }
+
   return sanitized;
+}
+
+================================================================================
+File: src/lib/middleware/securityMiddleware.ts
+================================================================================
+
+// src/lib/middleware/securityMiddleware.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+import { logger } from '../logger';
+import { apiRateLimit } from '../rate-limit';
+
+// CSRF Configuration
+const CSRF_SECRET = process.env.CSRF_SECRET || crypto.randomBytes(32).toString('hex');
+const CSRF_SALT = process.env.CSRF_SALT || crypto.randomBytes(16).toString('hex');
+const CSRF_TOKEN_EXPIRY = 4 * 60 * 60 * 1000; // 4 hours
+
+// Content Security Configuration
+const ALLOWED_FILE_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+]);
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const SAFE_FILE_REGEX = /^[a-zA-Z0-9_-]+\.[a-zA-Z0-9]+$/;
+
+interface SecurityConfig {
+  csrfProtection?: boolean;
+  inputSanitization?: boolean;
+  fileUploadSecurity?: boolean;
+  rateLimit?: {
+    maxRequests: number;
+    windowMs: number;
+  };
+}
+
+// CSRF Token Generation and Validation
+export function generateCSRFToken(sessionId: string): { token: string; expires: number } {
+  const expires = Date.now() + CSRF_TOKEN_EXPIRY;
+  const payload = `${sessionId}${expires}${CSRF_SALT}`;
+  const token = crypto
+    .createHmac('sha256', CSRF_SECRET)
+    .update(payload)
+    .digest('hex');
+
+  return { token, expires };
+}
+
+function validateCSRFToken(token: string, sessionId: string): boolean {
+  try {
+    const [providedToken, expiresStr] = token.split('.');
+    const expires = parseInt(expiresStr, 10);
+
+    if (isNaN(expires) || Date.now() > expires) {
+      return false;
+    }
+
+    const expectedToken = generateCSRFToken(sessionId).token;
+    return crypto.timingSafeEqual(
+      Buffer.from(providedToken),
+      Buffer.from(expectedToken)
+    );
+  } catch (error) {
+    logger.error('CSRF validation error:', { error });
+    return false;
+  }
+}
+
+// Input Sanitization
+
+function sanitizeInput(input: unknown): string | unknown {
+  if (typeof input === 'string') {
+    // Remove potential XSS vectors
+    return input
+      .replace(/[<>]/g, '')  // Remove < and >
+      .replace(/javascript:/gi, '')  // Remove javascript: protocol
+      .replace(/data:/gi, '')  // Remove data: protocol
+      .replace(/on\w+=/gi, '')  // Remove event handlers
+      .trim();
+  }
+
+  if (Array.isArray(input)) {
+    return input.map(item => sanitizeInput(item));
+  }
+
+  if (input && typeof input === 'object') {
+    return Object.fromEntries(
+      Object.entries(input).map(([key, value]) => [
+        sanitizeInput(key),
+        sanitizeInput(value)
+      ])
+    );
+  }
+
+  return input;
+}
+
+// File Upload Security
+interface FileValidationResult {
+  isValid: boolean;
+  error?: string;
+  generatedFilename?: string;
+}
+
+function validateFile(file: File): FileValidationResult {
+  // Check file size
+  if (file.size > MAX_FILE_SIZE) {
+    return {
+      isValid: false,
+      error: `File size exceeds maximum limit of ${MAX_FILE_SIZE / 1024 / 1024}MB`
+    };
+  }
+
+  // Check file type
+  if (!ALLOWED_FILE_TYPES.has(file.type)) {
+    return {
+      isValid: false,
+      error: 'File type not allowed'
+    };
+  }
+
+  // Validate filename
+  if (!SAFE_FILE_REGEX.test(file.name)) {
+    return {
+      isValid: false,
+      error: 'Invalid filename'
+    };
+  }
+
+  return { isValid: true };
+}
+
+async function validateFileContent(file: File): Promise<FileValidationResult> {
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    
+    // Check file signature (magic numbers)
+    const fileSignature = buffer.slice(0, 4).toString('hex');
+    
+    const signatures: { [key: string]: string[] } = {
+      'image/jpeg': ['ffd8ffe0', 'ffd8ffe1', 'ffd8ffe2'],
+      'image/png': ['89504e47'],
+      'application/pdf': ['25504446'],
+    };
+
+    if (signatures[file.type] && !signatures[file.type].includes(fileSignature)) {
+      return {
+        isValid: false,
+        error: 'File content does not match its extension'
+      };
+    }
+
+    // Generate safe filename
+    const ext = file.name.split('.').pop()?.toLowerCase();
+
+    const generatedFilename = `${crypto.randomBytes(16).toString('hex')}.${ext}`;
+
+    // Return success with safe filename
+    return {
+      isValid: true,
+
+      generatedFilename
+    };
+  } catch (error) {
+    logger.error('File content validation error:', { error });
+    return {
+      isValid: false,
+      error: 'Failed to validate file content'
+    };
+  }
+}
+
+// Main Security Middleware
+export async function securityMiddleware(
+  request: NextRequest,
+  config: SecurityConfig = {}
+
+): Promise<NextResponse> {
+  try {
+    // 1. Rate Limiting
+    if (config.rateLimit) {
+
+      const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
+      const rateLimitResult = await apiRateLimit(clientIp, config.rateLimit);
+      if (!rateLimitResult.success) {
+        return new NextResponse(
+          JSON.stringify({ error: 'Too many requests' }),
+          { status: 429 }
+        );
+      }
+    }
+
+    // 2. CSRF Protection
+    if (config.csrfProtection && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
+      const sessionId = request.cookies.get('sessionId')?.value;
+      const csrfToken = request.headers.get('X-CSRF-Token');
+
+      if (!sessionId || !csrfToken || !validateCSRFToken(csrfToken, sessionId)) {
+        return new NextResponse(
+          JSON.stringify({ error: 'Invalid CSRF token' }),
+          { status: 403 }
+        );
+      }
+    }
+
+    // 3. Input Sanitization
+    if (config.inputSanitization && request.body) {
+      const contentType = request.headers.get('content-type');
+
+      if (contentType?.includes('application/json')) {
+        const body = await request.json();
+        const sanitizedBody = sanitizeInput(body);
+        
+        // Create new request with sanitized body
+
+        const newRequest = new NextRequest(request.url, {
+          method: request.method,
+          headers: request.headers,
+          body: JSON.stringify(sanitizedBody)
+        });
+        return NextResponse.next({ request: newRequest });
+      }
+
+      if (contentType?.includes('multipart/form-data')) {
+        const formData = await request.formData();
+        const sanitizedFormData = new FormData();
+
+        for (const [key, value] of formData.entries()) {
+          if (value instanceof File) {
+            // Validate file
+            const fileValidation = await validateFile(value);
+            if (!fileValidation.isValid) {
+              return new NextResponse(
+                JSON.stringify({ error: fileValidation.error }),
+                { status: 400 }
+              );
+            }
+
+            // Validate file content
+            const contentValidation = await validateFileContent(value);
+            if (!contentValidation.isValid) {
+              return new NextResponse(
+                JSON.stringify({ error: contentValidation.error }),
+                { status: 400 }
+              );
+            }
+
+            sanitizedFormData.append(key, value);
+          } else {
+
+            sanitizedFormData.append(key, sanitizeInput(value.toString()) as string);
+          }
+        }
+
+        // Create new request with sanitized form data
+
+        const newRequest = new NextRequest(request.url, {
+          method: request.method,
+          headers: request.headers,
+          body: sanitizedFormData
+        });
+        return NextResponse.next({ request: newRequest });
+      }
+    }
+
+
+
+    // If no modifications needed, continue with original request
+    return NextResponse.next();
+
+  } catch (error) {
+    logger.error('Security middleware error:', { error });
+    return new NextResponse(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500 }
+    );
+  }
 }
 
 ================================================================================
@@ -7564,40 +8614,46 @@ File: src/lib/rate-limit.ts
 ================================================================================
 
 // src/lib/rate-limit.ts
+
 import { RateLimiter } from 'limiter';
-import { NextResponse } from 'next/server';
 
-// Create a limiter that allows 100 requests per 15 minutes
-const limiter = new RateLimiter({
-  tokensPerInterval: 100,
-  interval: 900000,
-  fireImmediately: true
-});
+// Map to store RateLimiter instances per client IP
+const rateLimiters: Map<string, RateLimiter> = new Map();
 
-export async function getRateLimitMiddleware() {
-  const remaining = await limiter.tryRemoveTokens(1);
-  
-  if (!remaining) {
-    return NextResponse.json(
-      { error: 'Too many requests, please try again later.' },
-      { 
-        status: 429,
-        headers: {
-          'Retry-After': '900' // 15 minutes in seconds
-        }
-      }
-    );
-  }
-
-  return null;
+interface RateLimitConfig {
+  maxRequests: number;
+  windowMs: number;
 }
 
-// Export a pre-configured instance for API routes
-export const apiRateLimit = {
-  check: async () => {
-    return getRateLimitMiddleware();
+/**
+ * Checks if the given client IP has exceeded the rate limit.
+ * @param clientIp - The IP address of the client.
+ * @param config - Rate limit configuration.
+ * @returns An object indicating whether the request is allowed.
+ */
+export async function apiRateLimit(clientIp: string, config: RateLimitConfig): Promise<{ success: boolean }> {
+  let limiter = rateLimiters.get(clientIp);
+
+  // Initialize a new RateLimiter for the client if not present
+  if (!limiter) {
+    limiter = new RateLimiter({
+      tokensPerInterval: config.maxRequests,
+      interval: config.windowMs,
+      fireImmediately: true
+    });
+    rateLimiters.set(clientIp, limiter);
   }
-};
+
+  // Attempt to remove a token (i.e., allow the request)
+  const remaining = await limiter.tryRemoveTokens(1);
+
+  if (!remaining) {
+    return { success: false };
+  }
+
+  return { success: true };
+}
+
 
 ================================================================================
 File: src/lib/schema.ts
@@ -7887,94 +8943,70 @@ File: src/middleware.ts
 
 // src/middleware.ts
 import { NextResponse } from 'next/server';
-import type { NextFetchEvent, NextRequest } from 'next/server';
-import { apiRateLimit } from './lib/rate-limit';
-import { sanitizeMiddleware } from './lib/middleware/sanitize';
-import { withAuth } from 'next-auth/middleware';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-// CSRF token generation
-function generateCSRFToken() {
-  return crypto.randomUUID();
-}
-
-const authMiddleware = withAuth(
-  function middleware() {
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => token?.role === 'admin',
-    },
-    pages: {
-      signIn: '/admin/login',
-    },
-  }
-);
-
-async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
-  // For admin routes, use auth middleware
-  if (request.nextUrl.pathname.startsWith('/admin/') && 
-      !request.nextUrl.pathname.startsWith('/admin/login')) {
-    return (authMiddleware as (request: NextRequest, event: NextFetchEvent) => Promise<NextResponse>)(request, event);
-  }
-
-  // Apply rate limiting to API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    const rateLimitResponse = await apiRateLimit.check();
-    if (rateLimitResponse) {
-      return rateLimitResponse;
-    }
-  }
-
-  // Apply input sanitization
-  const sanitizedRequest = await sanitizeMiddleware(request);
-  
-  const response = NextResponse.next({
-    request: sanitizedRequest,
-  });
-
-  // Security Headers
-  response.headers.set('X-DNS-Prefetch-Control', 'on');
-  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
-  
-  // Content Security Policy
-  response.headers.set(
-    'Content-Security-Policy',
+// Security headers
+const securityHeaders = {
+  'Content-Security-Policy': 
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
     "style-src 'self' 'unsafe-inline'; " +
-    "img-src 'self' data: https:; " +
+    "img-src 'self' data: blob: https:; " +
     "font-src 'self'; " +
-    "connect-src 'self'; " +
-    "media-src 'self'; " +
-    "object-src 'none';"
-  );
+    "object-src 'none';",
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+};
 
-  // Set CSRF token for GET requests
-  if (request.method === 'GET' && !request.nextUrl.pathname.startsWith('/api/')) {
-    const csrfToken = generateCSRFToken();
-    response.cookies.set('XSRF-TOKEN', csrfToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
+export async function middleware(request: NextRequest) {
+  // Create base response
+  const response = NextResponse.next();
+
+  // Apply security headers to all routes
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+
+  // Protect admin routes
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET 
     });
+    
+    // Allow access to login page
+    if (request.nextUrl.pathname === '/admin/login') {
+      return response;
+    }
+
+    // Redirect to login if not authenticated
+    if (!token || token.role !== 'admin') {
+      const url = new URL('/admin/login', request.url);
+      url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
   }
 
-  // Verify CSRF token for mutating requests
-  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
-    const csrfToken = request.headers.get('X-XSRF-TOKEN');
-    const cookieToken = request.cookies.get('XSRF-TOKEN');
+  // Protect admin API routes
+  if (request.nextUrl.pathname.startsWith('/api/admin')) {
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET 
+    });
 
-    if (!csrfToken || !cookieToken || csrfToken !== cookieToken.value) {
+    if (!token || token.role !== 'admin') {
       return new NextResponse(
-        JSON.stringify({ error: 'Invalid CSRF token' }),
-        { status: 403 }
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
     }
   }
@@ -7982,11 +9014,16 @@ async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
   return response;
 }
 
-export default mainMiddleware;
-
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public (public files)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
 };
 
