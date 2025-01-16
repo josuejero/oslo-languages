@@ -1,93 +1,69 @@
 // src/middleware.ts
 import { NextResponse } from 'next/server';
-import type { NextFetchEvent, NextRequest } from 'next/server';
-import { apiRateLimit } from './lib/rate-limit';
-import { sanitizeMiddleware } from './lib/middleware/sanitize';
-import { withAuth } from 'next-auth/middleware';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-// CSRF token generation
-function generateCSRFToken() {
-  return crypto.randomUUID();
-}
-
-const authMiddleware = withAuth(
-  function middleware() {
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => token?.role === 'admin',
-    },
-    pages: {
-      signIn: '/admin/login',
-    },
-  }
-);
-
-async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
-  // For admin routes, use auth middleware
-  if (request.nextUrl.pathname.startsWith('/admin/') && 
-      !request.nextUrl.pathname.startsWith('/admin/login')) {
-    return (authMiddleware as (request: NextRequest, event: NextFetchEvent) => Promise<NextResponse>)(request, event);
-  }
-
-  // Apply rate limiting to API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    const rateLimitResponse = await apiRateLimit.check();
-    if (rateLimitResponse) {
-      return rateLimitResponse;
-    }
-  }
-
-  // Apply input sanitization
-  const sanitizedRequest = await sanitizeMiddleware(request);
-  
-  const response = NextResponse.next({
-    request: sanitizedRequest,
-  });
-
-  // Security Headers
-  response.headers.set('X-DNS-Prefetch-Control', 'on');
-  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
-  
-  // Content Security Policy
-  response.headers.set(
-    'Content-Security-Policy',
+// Security headers
+const securityHeaders = {
+  'Content-Security-Policy': 
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
     "style-src 'self' 'unsafe-inline'; " +
-    "img-src 'self' data: https:; " +
+    "img-src 'self' data: blob: https:; " +
     "font-src 'self'; " +
-    "connect-src 'self'; " +
-    "media-src 'self'; " +
-    "object-src 'none';"
-  );
+    "object-src 'none';",
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+};
 
-  // Set CSRF token for GET requests
-  if (request.method === 'GET' && !request.nextUrl.pathname.startsWith('/api/')) {
-    const csrfToken = generateCSRFToken();
-    response.cookies.set('XSRF-TOKEN', csrfToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
+export async function middleware(request: NextRequest) {
+  // Create base response
+  const response = NextResponse.next();
+
+  // Apply security headers to all routes
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+
+  // Protect admin routes
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET 
     });
+    
+    // Allow access to login page
+    if (request.nextUrl.pathname === '/admin/login') {
+      return response;
+    }
+
+    // Redirect to login if not authenticated
+    if (!token || token.role !== 'admin') {
+      const url = new URL('/admin/login', request.url);
+      url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
   }
 
-  // Verify CSRF token for mutating requests
-  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
-    const csrfToken = request.headers.get('X-XSRF-TOKEN');
-    const cookieToken = request.cookies.get('XSRF-TOKEN');
+  // Protect admin API routes
+  if (request.nextUrl.pathname.startsWith('/api/admin')) {
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET 
+    });
 
-    if (!csrfToken || !cookieToken || csrfToken !== cookieToken.value) {
+    if (!token || token.role !== 'admin') {
       return new NextResponse(
-        JSON.stringify({ error: 'Invalid CSRF token' }),
-        { status: 403 }
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
     }
   }
@@ -95,10 +71,15 @@ async function mainMiddleware(request: NextRequest, event: NextFetchEvent) {
   return response;
 }
 
-export default mainMiddleware;
-
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public (public files)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
 };

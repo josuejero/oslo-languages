@@ -1,105 +1,153 @@
 
 > tito-website@0.1.0 test
-> jest
+> jest --testPathIgnorePatterns=e2e/
 
   console.info
-    [36m[2025-01-07T17:20:37.638Z] INFO[0m: Form autosaved
-
-      at Logger.log (src/lib/logger.ts:49:21)
-
-  console.info
-    [36m[2025-01-07T17:20:37.838Z] INFO[0m: Submitting contact form { email: 'invalid-emailjohn@example.com' }
+    [36m[2025-01-16T01:04:27.853Z] INFO[0m: Form autosaved
 
       at Logger.log (src/lib/logger.ts:49:21)
 
   console.error
+    The current testing environment is not configured to support act(...)
+
+      at isConcurrentActEnvironment (node_modules/react-dom/cjs/react-dom-client.development.js:14234:17)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:15748:7)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:14311:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:7208:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:7161:7)
+      at Object.next (node_modules/react-hook-form/src/useForm.ts:109:19)
+      at Object.isPrimitive [as next] (node_modules/react-hook-form/src/utils/isPrimitive.ts:6:1)
+      at node_modules/react-hook-form/src/logic/createFormControl.ts:1214:7
+
+  console.error
+    The current testing environment is not configured to support act(...)
+
+      64 |
+      65 |   const onSubmit = async (data: FormData) => {
+    > 66 |     setIsSubmitting(true);
+         |     ^
+      67 |     setSubmitError(null);
+      68 |     setUploadProgress(0);
+      69 |     
+
+      at isConcurrentActEnvironment (node_modules/react-dom/cjs/react-dom-client.development.js:14234:17)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:15748:7)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:14311:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:7208:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:7161:7)
+      at setIsSubmitting (src/components/widgets/ContactForm.tsx:66:5)
+      at isSubmitted (node_modules/react-hook-form/src/logic/createFormControl.ts:1208:9)
+
+  console.error
+    The current testing environment is not configured to support act(...)
+
+      65 |   const onSubmit = async (data: FormData) => {
+      66 |     setIsSubmitting(true);
+    > 67 |     setSubmitError(null);
+         |     ^
+      68 |     setUploadProgress(0);
+      69 |     
+      70 |     try {
+
+      at isConcurrentActEnvironment (node_modules/react-dom/cjs/react-dom-client.development.js:14234:17)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:15748:7)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:14311:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:7208:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:7161:7)
+      at setSubmitError (src/components/widgets/ContactForm.tsx:67:5)
+      at isSubmitted (node_modules/react-hook-form/src/logic/createFormControl.ts:1208:9)
+
+  console.error
+    The current testing environment is not configured to support act(...)
+
+      66 |     setIsSubmitting(true);
+      67 |     setSubmitError(null);
+    > 68 |     setUploadProgress(0);
+         |     ^
+      69 |     
+      70 |     try {
+      71 |       logger.info('Submitting contact form', { email: data.email });
+
+      at isConcurrentActEnvironment (node_modules/react-dom/cjs/react-dom-client.development.js:14234:17)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:15748:7)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:14311:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:7208:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:7161:7)
+      at setUploadProgress (src/components/widgets/ContactForm.tsx:68:5)
+      at isSubmitted (node_modules/react-hook-form/src/logic/createFormControl.ts:1208:9)
+
+  console.info
+    [36m[2025-01-16T01:04:27.236Z] INFO[0m: Submitting contact form { email: 'john@example.com' }
+
+      at Logger.log (src/lib/logger.ts:49:21)
+
+  console.error
+    The current testing environment is not configured to support act(...)
+
+      113 |       setSubmitError('Failed to submit the form. Please try again later.');
+      114 |     } finally {
+    > 115 |       setIsSubmitting(false);
+          |       ^
+      116 |       setUploadProgress(0);
+      117 |     }
+      118 |   };
+
+      at isConcurrentActEnvironment (node_modules/react-dom/cjs/react-dom-client.development.js:14234:17)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:15748:7)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:14311:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:7208:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:7161:7)
+      at setIsSubmitting (src/components/widgets/ContactForm.tsx:115:7)
+      at isSubmitted (node_modules/react-hook-form/src/logic/createFormControl.ts:1208:9)
+
+  console.error
+    The current testing environment is not configured to support act(...)
+
+      114 |     } finally {
+      115 |       setIsSubmitting(false);
+    > 116 |       setUploadProgress(0);
+          |       ^
+      117 |     }
+      118 |   };
+      119 |
+
+      at isConcurrentActEnvironment (node_modules/react-dom/cjs/react-dom-client.development.js:14234:17)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:15748:7)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:14311:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:7208:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:7161:7)
+      at setUploadProgress (src/components/widgets/ContactForm.tsx:116:7)
+      at isSubmitted (node_modules/react-hook-form/src/logic/createFormControl.ts:1208:9)
+
+  console.error
+    The current testing environment is not configured to support act(...)
+
+      at isConcurrentActEnvironment (node_modules/react-dom/cjs/react-dom-client.development.js:14234:17)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:15748:7)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:14311:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:7208:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:7161:7)
+      at Object.next (node_modules/react-hook-form/src/useForm.ts:109:19)
+      at Object.isPrimitive [as next] (node_modules/react-hook-form/src/utils/isPrimitive.ts:6:1)
+      at errors (node_modules/react-hook-form/src/logic/createFormControl.ts:1212:9)
+
+  console.error
     [Error: Uncaught [Error: Network error occurred]] {
       detail: Error: Network error occurred
-          at XMLHttpRequest.xhr.onerror (/Users/wholesway/Documents/Programming/Projects/tito-website/src/components/widgets/ContactForm.tsx:128:15)
-          at XMLHttpRequest.invokeTheCallbackFunction (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/generated/EventHandlerNonNull.js:14:28)
-          at XMLHttpRequest.<anonymous> (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/helpers/create-event-accessor.js:35:32)
-          at innerInvokeEventListeners (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
-          at invokeEventListeners (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
-          at XMLHttpRequestImpl._dispatch (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
-          at fireAnEvent (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/helpers/events.js:18:36)
-          at requestErrorSteps (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:131:3)
-          at Object.dispatchError (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:60:3)
-          at Request.<anonymous> (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
-          at Request.emit (node:events:530:35)
-          at ClientRequest.<anonymous> (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:121:14)
-          at ClientRequest.emit (node:events:518:28)
-          at Socket.socketErrorListener (node:_http_client:500:9)
-          at Socket.emit (node:events:518:28)
-          at emitErrorNT (node:internal/streams/destroy:169:8)
-          at emitErrorCloseNT (node:internal/streams/destroy:128:3)
-          at processTicksAndRejections (node:internal/process/task_queues:82:21),
+          at Object.xhr.onerror (/Users/wholesway/Documents/Programming/Projects/tito-website/src/components/widgets/ContactForm.tsx:104:15)
+          at call (/Users/wholesway/Documents/Programming/Projects/tito-website/src/components/widgets/__tests__/ContactForm.test.tsx:60:26)
+          at Timeout.task [as _onTimeout] (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+          at listOnTimeout (node:internal/timers:573:17)
+          at processTimers (node:internal/timers:514:7),
       type: 'unhandled exception'
     }
 
       at VirtualConsole.<anonymous> (node_modules/jest-environment-jsdom/build/index.js:63:23)
       at reportException (node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:70:28)
-      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
-      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
-      at XMLHttpRequestImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
-      at fireAnEvent (node_modules/jsdom/lib/jsdom/living/helpers/events.js:18:36)
-      at requestErrorSteps (node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:131:3)
-      at Object.dispatchError (node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:60:3)
-      at Request.<anonymous> (node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
-      at ClientRequest.<anonymous> (node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:121:14)
-
-  console.error
-    [Error: AggregateError] { type: 'XMLHttpRequest' }
-
-      at VirtualConsole.<anonymous> (node_modules/jest-environment-jsdom/build/index.js:63:23)
-      at Object.dispatchError (node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:66:53)
-      at Request.<anonymous> (node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
-      at ClientRequest.<anonymous> (node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:121:14)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:525:9)
 
   console.info
-    [36m[2025-01-07T17:20:39.038Z] INFO[0m: Submitting contact form { email: 'invalid-emailjohn@example.com' }
+    [36m[2025-01-16T01:04:28.255Z] INFO[0m: Form autosaved
 
       at Logger.log (src/lib/logger.ts:49:21)
-
-  console.error
-    [Error: Uncaught [Error: Network error occurred]] {
-      detail: Error: Network error occurred
-          at XMLHttpRequest.xhr.onerror (/Users/wholesway/Documents/Programming/Projects/tito-website/src/components/widgets/ContactForm.tsx:128:15)
-          at XMLHttpRequest.invokeTheCallbackFunction (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/generated/EventHandlerNonNull.js:14:28)
-          at XMLHttpRequest.<anonymous> (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/helpers/create-event-accessor.js:35:32)
-          at innerInvokeEventListeners (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
-          at invokeEventListeners (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
-          at XMLHttpRequestImpl._dispatch (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
-          at fireAnEvent (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/helpers/events.js:18:36)
-          at requestErrorSteps (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:131:3)
-          at Object.dispatchError (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:60:3)
-          at Request.<anonymous> (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
-          at Request.emit (node:events:530:35)
-          at ClientRequest.<anonymous> (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:121:14)
-          at ClientRequest.emit (node:events:518:28)
-          at Socket.socketErrorListener (node:_http_client:500:9)
-          at Socket.emit (node:events:518:28)
-          at emitErrorNT (node:internal/streams/destroy:169:8)
-          at emitErrorCloseNT (node:internal/streams/destroy:128:3)
-          at processTicksAndRejections (node:internal/process/task_queues:82:21),
-      type: 'unhandled exception'
-    }
-
-      at VirtualConsole.<anonymous> (node_modules/jest-environment-jsdom/build/index.js:63:23)
-      at reportException (node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:70:28)
-      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:353:9)
-      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
-      at XMLHttpRequestImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9)
-      at fireAnEvent (node_modules/jsdom/lib/jsdom/living/helpers/events.js:18:36)
-      at requestErrorSteps (node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:131:3)
-      at Object.dispatchError (node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:60:3)
-      at Request.<anonymous> (node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
-      at ClientRequest.<anonymous> (node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:121:14)
-
-  console.error
-    [Error: AggregateError] { type: 'XMLHttpRequest' }
-
-      at VirtualConsole.<anonymous> (node_modules/jest-environment-jsdom/build/index.js:63:23)
-      at Object.dispatchError (node_modules/jsdom/lib/jsdom/living/xhr/xhr-utils.js:66:53)
-      at Request.<anonymous> (node_modules/jsdom/lib/jsdom/living/xhr/XMLHttpRequest-impl.js:655:18)
-      at ClientRequest.<anonymous> (node_modules/jsdom/lib/jsdom/living/helpers/http-request.js:121:14)
 
