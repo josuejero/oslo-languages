@@ -5,10 +5,15 @@ import crypto from 'crypto';
 import { logger } from '../logger';
 import { apiRateLimit } from '../rate-limit';
 
+
+
 // CSRF Configuration
 const CSRF_SECRET = process.env.CSRF_SECRET || crypto.randomBytes(32).toString('hex');
 const CSRF_SALT = process.env.CSRF_SALT || crypto.randomBytes(16).toString('hex');
 const CSRF_TOKEN_EXPIRY = 4 * 60 * 60 * 1000; // 4 hours
+
+
+
 
 // Content Security Configuration
 const ALLOWED_FILE_TYPES = new Set([
@@ -173,19 +178,14 @@ async function validateFileContent(file: File): Promise<FileValidationResult> {
 export async function securityMiddleware(
   request: NextRequest,
   config: SecurityConfig = {}
-
 ): Promise<NextResponse> {
   try {
     // 1. Rate Limiting
     if (config.rateLimit) {
-
       const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
       const rateLimitResult = await apiRateLimit(clientIp, config.rateLimit);
-      if (!rateLimitResult.success) {
-        return new NextResponse(
-          JSON.stringify({ error: 'Too many requests' }),
-          { status: 429 }
-        );
+      if (rateLimitResult instanceof NextResponse) {
+        return rateLimitResult;
       }
     }
 

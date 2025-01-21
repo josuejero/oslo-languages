@@ -1,12 +1,12 @@
 // src/app/api/register/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getRateLimitMiddleware } from '@/lib/rate-limit';
+import { apiRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   // Check rate limit
-  const rateLimitResponse = await getRateLimitMiddleware();
+  const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
+  const rateLimitResponse = await apiRateLimit(clientIp);
   if (rateLimitResponse) return rateLimitResponse;
-
   try {
     const data = await request.json();
 
