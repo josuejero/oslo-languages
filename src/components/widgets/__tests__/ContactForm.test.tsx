@@ -13,8 +13,8 @@ interface MockXMLHttpRequest {
   status: number;
   response: string;
   responseText: string;
-  onload: ((this: XMLHttpRequest, ev: Event) => unknown) | null;
-  onerror: ((this: XMLHttpRequest, ev: Event) => unknown) | null;
+  onload: ((this: XMLHttpRequest, ev: Event) => void) | null;
+  onerror: ((this: XMLHttpRequest, ev: Event) => void) | null;
 }
 
 describe('ContactForm', () => {
@@ -58,10 +58,10 @@ describe('ContactForm', () => {
         setTimeout(() => {
           if (this.onerror) {
             this.onerror.call(this as unknown as XMLHttpRequest, new Event('error'));
-            setTimeout(() => {
+            setImmediate(() => {
               // Let React process state updates
               act(() => {});
-            }, 0);
+            });
           }
         }, 0);
       }),

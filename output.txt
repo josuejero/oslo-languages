@@ -3,7 +3,7 @@
 > jest --testPathIgnorePatterns=e2e/
 
   console.info
-    [36m[2025-01-16T01:04:27.853Z] INFO[0m: Form autosaved
+    [36m[2025-01-21T00:11:11.395Z] INFO[0m: Form autosaved
 
       at Logger.log (src/lib/logger.ts:49:21)
 
@@ -77,7 +77,7 @@
       at isSubmitted (node_modules/react-hook-form/src/logic/createFormControl.ts:1208:9)
 
   console.info
-    [36m[2025-01-16T01:04:27.236Z] INFO[0m: Submitting contact form { email: 'john@example.com' }
+    [36m[2025-01-21T00:11:10.805Z] INFO[0m: Submitting contact form { email: 'john@example.com' }
 
       at Logger.log (src/lib/logger.ts:49:21)
 
@@ -135,7 +135,7 @@
     [Error: Uncaught [Error: Network error occurred]] {
       detail: Error: Network error occurred
           at Object.xhr.onerror (/Users/wholesway/Documents/Programming/Projects/tito-website/src/components/widgets/ContactForm.tsx:104:15)
-          at call (/Users/wholesway/Documents/Programming/Projects/tito-website/src/components/widgets/__tests__/ContactForm.test.tsx:60:26)
+          at onerror (/Users/wholesway/Documents/Programming/Projects/tito-website/src/components/widgets/__tests__/ContactForm.test.tsx:60:18)
           at Timeout.task [as _onTimeout] (/Users/wholesway/Documents/Programming/Projects/tito-website/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
           at listOnTimeout (node:internal/timers:573:17)
           at processTimers (node:internal/timers:514:7),
@@ -147,7 +147,7 @@
       at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:525:9)
 
   console.info
-    [36m[2025-01-16T01:04:28.255Z] INFO[0m: Form autosaved
+    [36m[2025-01-21T00:11:11.823Z] INFO[0m: Form autosaved
 
       at Logger.log (src/lib/logger.ts:49:21)
 

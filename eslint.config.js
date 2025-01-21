@@ -27,7 +27,8 @@ export default [
       // Since we're using Next.js 13+ with App Router, we don't need React in scope
       "react/react-in-jsx-scope": "off",
       "react/jsx-uses-react": "off",
-      "react/prop-types": "off"
+      "react/prop-types": "off",
+      '@typescript-eslint/no-explicit-any': 'off',
     }
   }
 ];
