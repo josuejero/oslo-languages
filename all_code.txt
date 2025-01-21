@@ -41,6 +41,8 @@ Please analyze the project structure, errors, and code carefully:
 │   │   │   └── page.tsx
 │   │   ├── admin
 │   │   │   ├── BlogEditor.tsx
+│   │   │   ├── __tests__
+│   │   │   │   └── login.test.tsx
 │   │   │   ├── dashboard
 │   │   │   │   └── page.tsx
 │   │   │   ├── login
@@ -105,12 +107,15 @@ Please analyze the project structure, errors, and code carefully:
 │   │   ├── OptimizedImage.tsx
 │   │   ├── ThemeControls.tsx
 │   │   ├── __tests__
-│   │   │   └── ErrorBoundary.test.tsx
+│   │   │   ├── ErrorBoundary.test.tsx
+│   │   │   └── OptimizedImage.test.tsx
 │   │   ├── blog
 │   │   │   ├── BlogPost.tsx
 │   │   │   ├── RichContent.tsx
 │   │   │   ├── ShareButtons.tsx
-│   │   │   └── TableOfContents.tsx
+│   │   │   ├── TableOfContents.tsx
+│   │   │   └── __tests__
+│   │   │       └── BlogPost.test.tsx
 │   │   ├── forms
 │   │   │   └── SecureFileUpload.tsx
 │   │   ├── layout
@@ -142,10 +147,13 @@ Please analyze the project structure, errors, and code carefully:
 │   │   └── ThemeContext.tsx
 │   ├── data.ts
 │   ├── lib
+│   │   ├── __tests__
+│   │   │   └── blog.test.ts
 │   │   ├── api-utils.ts
 │   │   ├── auth
 │   │   │   ├── __tests__
-│   │   │   │   └── auth.test.ts
+│   │   │   │   ├── auth.test.ts
+│   │   │   │   └── config.test.ts
 │   │   │   └── config.ts
 │   │   ├── blog.ts
 │   │   ├── courses.ts
@@ -153,10 +161,13 @@ Please analyze the project structure, errors, and code carefully:
 │   │   │   └── useCSRFToken.ts
 │   │   ├── logger.ts
 │   │   ├── middleware
+│   │   │   ├── __tests__
+│   │   │   │   └── securityMiddleware.test.ts
 │   │   │   ├── csrf.ts
 │   │   │   ├── fileUpload.ts
 │   │   │   ├── sanitize.ts
 │   │   │   └── securityMiddleware.ts
+│   │   ├── rate-limit.test.ts
 │   │   ├── rate-limit.ts
 │   │   └── schema.ts
 │   ├── middleware.ts
@@ -173,7 +184,7 @@ Please analyze the project structure, errors, and code carefully:
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-63 directories, 107 files
+67 directories, 114 files
 
 
 ================================================================================
@@ -1291,6 +1302,166 @@ export default function BlogEditor({ initialData, isEditing = false }: BlogEdito
     </form>
   );
 }
+
+================================================================================
+File: src/app/admin/__tests__/login.test.tsx
+================================================================================
+
+// src/app/admin/__tests__/login.test.tsx
+
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import LoginPage from '../login/page';
+
+// Mock next-auth
+jest.mock('next-auth/react', () => ({
+  signIn: jest.fn(),
+}));
+
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+}));
+
+describe('Admin Login Page', () => {
+  const mockRouter = {
+    push: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+  });
+
+  it('should render login form', () => {
+    render(<LoginPage />);
+    
+    expect(screen.getByRole('heading', { name: /admin login/i })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /email/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+  });
+
+  it('should handle successful login', async () => {
+    (signIn as jest.Mock).mockResolvedValueOnce({ error: null });
+    
+    render(<LoginPage />);
+    
+    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'admin@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    await waitFor(() => {
+      expect(signIn).toHaveBeenCalledWith('credentials', {
+        redirect: false,
+        email: 'admin@example.com',
+        password: 'password123',
+      });
+      expect(mockRouter.push).toHaveBeenCalledWith('/admin/dashboard');
+    });
+  });
+
+  it('should handle login failure', async () => {
+    (signIn as jest.Mock).mockResolvedValueOnce({ error: 'CredentialsSignin' });
+    
+    render(<LoginPage />);
+    
+    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'wrong@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'wrongpassword');
+    
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText(/invalid email or password/i)).toBeInTheDocument();
+      expect(mockRouter.push).not.toHaveBeenCalled();
+    });
+  });
+
+  it('should handle unexpected errors', async () => {
+    (signIn as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+    
+    render(<LoginPage />);
+    
+    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'admin@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    await waitFor(() => {
+      expect(screen.getByText(/an unexpected error occurred/i)).toBeInTheDocument();
+    });
+  });
+
+  it('should validate required fields', async () => {
+    render(<LoginPage />);
+    
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    await waitFor(() => {
+      expect(signIn).not.toHaveBeenCalled();
+      expect(screen.getByRole('textbox', { name: /email/i })).toBeInvalid();
+      expect(screen.getByLabelText(/password/i)).toBeInvalid();
+    });
+  });
+
+  it('should show loading state during login', async () => {
+    (signIn as jest.Mock).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    
+    render(<LoginPage />);
+    
+    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'admin@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    expect(screen.getByText(/signing in/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
+  });
+
+  it('should maintain accessibility during state changes', async () => {
+    render(<LoginPage />);
+    
+    // Check initial accessibility
+    expect(screen.getByRole('form')).toHaveAttribute('aria-label', 'Admin login');
+    
+    // Error state accessibility
+    (signIn as jest.Mock).mockResolvedValueOnce({ error: 'CredentialsSignin' });
+    
+    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'wrong@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'wrongpassword');
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    await waitFor(() => {
+      const errorMessage = screen.getByText(/invalid email or password/i);
+      expect(errorMessage).toHaveAttribute('role', 'alert');
+    });
+    
+    // Loading state accessibility
+    (signIn as jest.Mock).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    
+    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'admin@example.com');
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    
+    expect(screen.getByRole('button', { name: /signing in/i })).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('should prevent automated submissions', async () => {
+    const mockPreventDefault = jest.fn();
+    render(<LoginPage />);
+    
+    const form = screen.getByRole('form');
+    fireEvent.submit(form, { preventDefault: mockPreventDefault });
+    
+    expect(mockPreventDefault).toHaveBeenCalled();
+    expect(signIn).not.toHaveBeenCalled();
+  });
+});
 
 ================================================================================
 File: src/app/admin/dashboard/page.tsx
@@ -4703,6 +4874,327 @@ describe('ErrorBoundary', () => {
 });
 
 ================================================================================
+File: src/components/__tests__/OptimizedImage.test.tsx
+================================================================================
+
+// src/components/__tests__/OptimizedImage.test.tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useInView } from 'react-intersection-observer';
+import OptimizedImage from '../OptimizedImage';
+import Image from 'next/image';
+
+// Mock next/image
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: jest.fn(() => null)
+}));
+
+// Mock react-intersection-observer
+jest.mock('react-intersection-observer', () => ({
+  useInView: jest.fn()
+}));
+
+describe('OptimizedImage', () => {
+  const mockProps = {
+    src: '/test-image.jpg',
+    alt: 'Test image',
+    width: 800,
+    height: 600
+  };
+
+  let inViewCallback: (inView: boolean) => void;
+
+  beforeEach(() => {
+    // Reset mocks
+    (Image as unknown as jest.Mock).mockClear();
+    (useInView as jest.Mock).mockReset();
+
+    // Default useInView implementation
+    (useInView as jest.Mock).mockImplementation(() => ({
+      ref: jest.fn(),
+      inView: true
+    }));
+  });
+
+  describe('Image Optimization', () => {
+    it('should pass correct optimization props to next/image', () => {
+      render(<OptimizedImage {...mockProps} />);
+
+      expect(Image).toHaveBeenCalledWith(
+        expect.objectContaining({
+          quality: expect.any(Number),
+          sizes: expect.any(String)
+        }),
+        expect.any(Object)
+      );
+    });
+
+    it('should handle responsive sizing correctly', () => {
+      render(
+        <OptimizedImage
+          {...mockProps}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+      );
+
+      expect(Image).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sizes: "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        }),
+        expect.any(Object)
+      );
+    });
+
+    it('should respect aspect ratio constraints', () => {
+      render(<OptimizedImage {...mockProps} aspectRatio={16/9} />);
+
+      const container = screen.getByTestId('image-container');
+      expect(container).toHaveStyle({
+        paddingTop: '56.25%' // 9/16 * 100
+      });
+    });
+
+    it('should handle different image formats', () => {
+      render(
+        <OptimizedImage
+          {...mockProps}
+          src="/test.webp"
+        />
+      );
+
+      expect(Image).toHaveBeenCalledWith(
+        expect.objectContaining({
+          src: '/test.webp'
+        }),
+        expect.any(Object)
+      );
+    });
+  });
+
+  describe('Lazy Loading', () => {
+    it('should not render image when out of view', () => {
+      (useInView as jest.Mock).mockImplementation(() => ({
+        ref: jest.fn(),
+        inView: false
+      }));
+
+      render(<OptimizedImage {...mockProps} />);
+      expect(Image).not.toHaveBeenCalled();
+    });
+
+    it('should render image when it comes into view', () => {
+      (useInView as jest.Mock).mockImplementation(() => ({
+        ref: jest.fn(),
+        inView: false,
+        onChange: (callback: (inView: boolean) => void) => {
+          inViewCallback = callback;
+        }
+      }));
+
+      render(<OptimizedImage {...mockProps} />);
+      expect(Image).not.toHaveBeenCalled();
+
+      // Simulate image coming into view
+      if (inViewCallback) {
+        inViewCallback(true);
+        expect(Image).toHaveBeenCalled();
+      }
+    });
+
+    it('should respect custom lazyBoundary', () => {
+      render(<OptimizedImage {...mockProps} lazyBoundary="300px" />);
+
+      expect(useInView).toHaveBeenCalledWith(
+        expect.objectContaining({
+          rootMargin: '300px'
+        })
+      );
+    });
+
+    it('should prioritize images above the fold', () => {
+      render(<OptimizedImage {...mockProps} priority />);
+
+      expect(Image).toHaveBeenCalledWith(
+        expect.objectContaining({
+          priority: true,
+          loading: undefined
+        }),
+        expect.any(Object)
+      );
+    });
+  });
+
+  describe('Placeholder Handling', () => {
+    it('should show loading skeleton initially', () => {
+      render(<OptimizedImage {...mockProps} />);
+      
+      const skeleton = screen.getByTestId('image-skeleton');
+      expect(skeleton).toHaveClass('animate-pulse');
+    });
+
+    it('should handle blur placeholder', () => {
+      render(
+        <OptimizedImage
+          {...mockProps}
+          lowQualityPlaceholder="/test-image-small.jpg"
+        />
+      );
+
+      expect(Image).toHaveBeenCalledWith(
+        expect.objectContaining({
+          placeholder: 'blur',
+          blurDataURL: '/test-image-small.jpg'
+        }),
+        expect.any(Object)
+      );
+    });
+
+    it('should remove loading state after image loads', async () => {
+      render(<OptimizedImage {...mockProps} />);
+      
+      const image = screen.getByTestId('optimized-image');
+      fireEvent.load(image);
+
+      await waitFor(() => {
+        const skeleton = screen.queryByTestId('image-skeleton');
+        expect(skeleton).not.toBeInTheDocument();
+      });
+    });
+
+    it('should handle custom background colors', () => {
+      render(<OptimizedImage {...mockProps} background="bg-blue-100" />);
+      
+      const container = screen.getByTestId('image-container');
+      expect(container).toHaveClass('bg-blue-100');
+    });
+  });
+
+  describe('Error States', () => {
+    it('should show fallback image on error', async () => {
+      render(
+        <OptimizedImage
+          {...mockProps}
+          src="/non-existent.jpg"
+          fallbackSrc="/fallback.jpg"
+        />
+      );
+
+      const image = screen.getByTestId('optimized-image');
+      fireEvent.error(image);
+
+      await waitFor(() => {
+        expect(Image).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            src: '/fallback.jpg'
+          }),
+          expect.any(Object)
+        );
+      });
+    });
+
+    it('should handle missing fallback image', async () => {
+      render(<OptimizedImage {...mockProps} src="/non-existent.jpg" />);
+
+      const image = screen.getByTestId('optimized-image');
+      fireEvent.error(image);
+
+      await waitFor(() => {
+        expect(Image).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            src: '/images/placeholder.jpg' // Default fallback
+          }),
+          expect.any(Object)
+        );
+      });
+    });
+
+    it('should maintain aspect ratio with fallback image', async () => {
+      render(
+        <OptimizedImage
+          {...mockProps}
+          src="/non-existent.jpg"
+          fallbackSrc="/fallback.jpg"
+          aspectRatio={1}
+        />
+      );
+
+      const image = screen.getByTestId('optimized-image');
+      fireEvent.error(image);
+
+      const container = screen.getByTestId('image-container');
+      expect(container).toHaveStyle({ paddingTop: '100%' });
+    });
+
+    it('should handle subsequent source changes after error', async () => {
+      const { rerender } = render(
+        <OptimizedImage {...mockProps} src="/non-existent.jpg" />
+      );
+
+      const image = screen.getByTestId('optimized-image');
+      fireEvent.error(image);
+
+      rerender(<OptimizedImage {...mockProps} src="/new-image.jpg" />);
+
+      await waitFor(() => {
+        expect(Image).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            src: '/new-image.jpg'
+          }),
+          expect.any(Object)
+        );
+      });
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('should have appropriate alt text', () => {
+      render(<OptimizedImage {...mockProps} />);
+
+      expect(Image).toHaveBeenCalledWith(
+        expect.objectContaining({
+          alt: 'Test image'
+        }),
+        expect.any(Object)
+      );
+    });
+
+    it('should mark decorative images appropriately', () => {
+      render(<OptimizedImage {...mockProps} alt="" aria-hidden="true" role="presentation" />);
+
+      expect(Image).toHaveBeenCalledWith(
+        expect.objectContaining({
+          alt: '',
+          role: 'presentation',
+          'aria-hidden': 'true'
+        }),
+        expect.any(Object)
+      );
+    });
+
+    it('should handle loading state announcements', () => {
+      render(<OptimizedImage {...mockProps} />);
+      
+      const loadingStatus = screen.getByTestId('loading-status');
+      expect(loadingStatus).toHaveAttribute('aria-live', 'polite');
+      expect(loadingStatus).toHaveTextContent(/loading/i);
+    });
+
+    it('should announce load errors to screen readers', async () => {
+      render(<OptimizedImage {...mockProps} src="/non-existent.jpg" />);
+
+      const image = screen.getByTestId('optimized-image');
+      fireEvent.error(image);
+
+      await waitFor(() => {
+        const errorStatus = screen.getByTestId('error-status');
+        expect(errorStatus).toHaveAttribute('aria-live', 'assertive');
+        expect(errorStatus).toHaveTextContent(/failed to load/i);
+      });
+    });
+  });
+});
+
+================================================================================
 File: src/components/blog/BlogPost.tsx
 ================================================================================
 
@@ -5099,6 +5591,317 @@ export default function TableOfContents({
     </nav>
   );
 }
+
+================================================================================
+File: src/components/blog/__tests__/BlogPost.test.tsx
+================================================================================
+
+// src/components/blog/__tests__/BlogPost.test.tsx
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import BlogPost from '../BlogPost';
+import { BlogPost as BlogPostType } from '@/lib/blog';
+
+// Mock Next/Image
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => <img {...props} />
+}));
+
+// Mock clipboard API
+Object.assign(navigator, {
+  clipboard: {
+    writeText: jest.fn(),
+  },
+});
+
+// Mock useRouter
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn()
+}));
+
+describe('BlogPost', () => {
+  const mockPost: BlogPostType = {
+    slug: 'test-post',
+    title: 'Test Blog Post',
+    date: '2024-01-20',
+    excerpt: 'This is a test blog post',
+    author: 'John Doe',
+    content: '<h1>Test Blog Post</h1><p>This is test content.</p><pre><code>const test = "code";</code></pre>',
+    categories: ['Test', 'Example'],
+    tags: ['test', 'example'],
+    coverImage: '/images/test.jpg',
+    readingTime: '3 min read'
+  };
+
+  describe('Content Rendering', () => {
+    it('should render the post title and metadata', () => {
+      render(<BlogPost post={mockPost} />);
+      
+      expect(screen.getByRole('heading', { name: mockPost.title })).toBeInTheDocument();
+      expect(screen.getByText(mockPost.author)).toBeInTheDocument();
+      expect(screen.getByText('January 20, 2024')).toBeInTheDocument();
+      expect(screen.getByText('3 min read')).toBeInTheDocument();
+    });
+
+    it('should render categories as clickable links', () => {
+      render(<BlogPost post={mockPost} />);
+      
+      mockPost.categories.forEach(category => {
+        const categoryLink = screen.getByRole('link', { name: new RegExp(category, 'i') });
+        expect(categoryLink).toBeInTheDocument();
+        expect(categoryLink).toHaveAttribute('href', expect.stringContaining('/blog/category/'));
+      });
+    });
+
+    it('should render tags with proper formatting', () => {
+      render(<BlogPost post={mockPost} />);
+      
+      mockPost.tags.forEach(tag => {
+        const tagLink = screen.getByRole('link', { name: new RegExp(`#${tag}`, 'i') });
+        expect(tagLink).toBeInTheDocument();
+        expect(tagLink).toHaveAttribute('href', expect.stringContaining('/blog/tag/'));
+      });
+    });
+
+    it('should handle posts without optional fields', () => {
+      const minimalPost: BlogPostType = {
+        ...mockPost,
+        categories: [],
+        tags: [],
+        coverImage: '/images/default.jpg'  // Changed from undefined to a default image path
+      };
+      
+      render(<BlogPost post={minimalPost} />);
+      
+      expect(screen.queryByRole('img')).toBeInTheDocument();
+      expect(screen.queryByTestId('categories')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('tags')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Rich Text Handling', () => {
+    const richTextPost: BlogPostType = {
+      ...mockPost,
+      content: `
+        <h1>Main Title</h1>
+        <p>Regular paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
+        <h2>Subheading</h2>
+        <ul>
+          <li>List item 1</li>
+          <li>List item 2</li>
+        </ul>
+        <pre><code class="language-javascript">
+        const example = "code block";
+        console.log(example);
+        </code></pre>
+        <blockquote>
+          <p>This is a quote</p>
+        </blockquote>
+      `
+    };
+
+    it('should render HTML elements with proper styling', () => {
+      render(<BlogPost post={richTextPost} />);
+      
+      expect(screen.getByText('Main Title')).toHaveClass('prose-h1');
+      expect(screen.getByText('Subheading')).toHaveClass('prose-h2');
+      expect(screen.getByText(/Regular paragraph/)).toHaveClass('prose-p');
+    });
+
+    it('should render code blocks with syntax highlighting', () => {
+      render(<BlogPost post={richTextPost} />);
+      
+      const codeBlock = screen.getByText(/const example/);
+      expect(codeBlock).toBeInTheDocument();
+      expect(codeBlock.closest('pre')).toHaveClass('language-javascript');
+    });
+
+    it('should handle markdown tables correctly', () => {
+      const postWithTable: BlogPostType = {
+        ...mockPost,
+        content: `
+          <table>
+            <thead>
+              <tr><th>Header 1</th><th>Header 2</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Cell 1</td><td>Cell 2</td></tr>
+            </tbody>
+          </table>
+        `
+      };
+      
+      render(<BlogPost post={postWithTable} />);
+      
+      expect(screen.getByRole('table')).toBeInTheDocument();
+      expect(screen.getAllByRole('row')).toHaveLength(2);
+    });
+
+    it('should sanitize potentially unsafe HTML', () => {
+      const postWithUnsafeContent: BlogPostType = {
+        ...mockPost,
+        content: `
+          <p>Safe content</p>
+          <script>alert('unsafe');</script>
+          <img src="x" onerror="alert('unsafe')">
+        `
+      };
+      
+      render(<BlogPost post={postWithUnsafeContent} />);
+      
+      expect(screen.getByText('Safe content')).toBeInTheDocument();
+      expect(document.querySelector('script')).not.toBeInTheDocument();
+      const img = document.querySelector('img');
+      expect(img?.getAttribute('onerror')).toBeNull();
+    });
+  });
+
+  describe('Share Functionality', () => {
+    beforeEach(() => {
+      // Reset clipboard mock
+      jest.spyOn(navigator.clipboard, 'writeText').mockClear();
+    });
+
+    it('should share to social media platforms', async () => {
+      const { window } = global;
+      window.open = jest.fn();
+      
+      render(<BlogPost post={mockPost} />);
+      
+      // Twitter share
+      const twitterButton = screen.getByRole('button', { name: /share on twitter/i });
+      await userEvent.click(twitterButton);
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining('twitter.com/intent/tweet'),
+        expect.any(String)
+      );
+
+      // LinkedIn share
+      const linkedInButton = screen.getByRole('button', { name: /share on linkedin/i });
+      await userEvent.click(linkedInButton);
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining('linkedin.com/shareArticle'),
+        expect.any(String)
+      );
+    });
+
+    it('should copy URL to clipboard', async () => {
+      render(<BlogPost post={mockPost} />);
+      
+      const copyButton = screen.getByRole('button', { name: /copy link/i });
+      await userEvent.click(copyButton);
+      
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        expect.stringContaining(mockPost.slug)
+      );
+      
+      await waitFor(() => {
+        expect(screen.getByText(/copied!/i)).toBeInTheDocument();
+      });
+
+      // Success message should disappear
+      await waitFor(() => {
+        expect(screen.queryByText(/copied!/i)).not.toBeInTheDocument();
+      }, { timeout: 3000 });
+    });
+
+    it('should show error message when copy fails', async () => {
+      (navigator.clipboard.writeText as jest.Mock).mockRejectedValueOnce(new Error('Copy failed'));
+      
+      render(<BlogPost post={mockPost} />);
+      
+      const copyButton = screen.getByRole('button', { name: /copy link/i });
+      await userEvent.click(copyButton);
+      
+      expect(screen.getByText(/failed to copy/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('SEO Metadata', () => {
+    it('should render OG metadata tags', () => {
+      render(<BlogPost post={mockPost} />);
+      
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      expect(ogTitle).toHaveAttribute('content', mockPost.title);
+      
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      expect(ogDescription).toHaveAttribute('content', mockPost.excerpt);
+      
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      expect(ogImage).toHaveAttribute('content', mockPost.coverImage);
+    });
+
+    it('should render schema.org metadata', () => {
+      render(<BlogPost post={mockPost} />);
+      
+      const script = document.querySelector('script[type="application/ld+json"]');
+      expect(script).toBeInTheDocument();
+      
+      const schema = JSON.parse(script!.innerHTML);
+      expect(schema['@type']).toBe('BlogPosting');
+      expect(schema.headline).toBe(mockPost.title);
+      expect(schema.author.name).toBe(mockPost.author);
+    });
+
+    it('should update metadata when post changes', () => {
+      const { rerender } = render(<BlogPost post={mockPost} />);
+      
+      const updatedPost: BlogPostType = {
+        ...mockPost,
+        title: 'Updated Title',
+        excerpt: 'Updated excerpt'
+      };
+      
+      rerender(<BlogPost post={updatedPost} />);
+      
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      expect(ogTitle).toHaveAttribute('content', 'Updated Title');
+      
+      const ogDescription = document.querySelector('meta[property="og:description"]');
+      expect(ogDescription).toHaveAttribute('content', 'Updated excerpt');
+    });
+
+    it('should have proper canonical URL', () => {
+      render(<BlogPost post={mockPost} />);
+      
+      const canonical = document.querySelector('link[rel="canonical"]');
+      expect(canonical).toHaveAttribute('href', expect.stringContaining(mockPost.slug));
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('should have proper heading hierarchy', () => {
+      render(<BlogPost post={mockPost} />);
+      
+      const headings = screen.getAllByRole('heading');
+      const levels = headings.map(h => parseInt(h.tagName.replace('H', '')));
+      expect(Math.min(...levels)).toBe(1);
+      expect(levels).toEqual(levels.sort());
+    });
+
+    it('should have proper ARIA labels', () => {
+      render(<BlogPost post={mockPost} />);
+      
+      expect(screen.getByRole('article')).toHaveAttribute('aria-labelledby');
+      expect(screen.getByRole('complementary')).toHaveAttribute('aria-label');
+    });
+
+    it('should have keyboard-accessible share buttons', async () => {
+      render(<BlogPost post={mockPost} />);
+      
+      const shareButtons = screen.getAllByRole('button');
+      for (const button of shareButtons) {
+        expect(button).toHaveAttribute('aria-label');
+        button.focus();
+        expect(document.activeElement).toBe(button);
+        await userEvent.keyboard('{enter}');
+        // Verify the button action was triggered
+        expect(button).toHaveAttribute('aria-pressed', 'true');
+      }
+    });
+  });
+});
 
 ================================================================================
 File: src/components/forms/SecureFileUpload.tsx
@@ -7135,118 +7938,292 @@ export default function Testimonials() {
 File: src/components/widgets/__tests__/ContactForm.test.tsx
 ================================================================================
 
-// src/components/widgets/__tests__/ContactForm.test.tsx
-
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+// src/components/widgets/__tests__/CourseList.test.tsx
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ContactForm from '../ContactForm';
+import CourseList from '../CourseList';
+import { Course } from '@/types';
 
-interface MockXMLHttpRequest {
-  open: jest.Mock;
-  send: jest.Mock;
-  setRequestHeader: jest.Mock;
-  upload: { onprogress: jest.Mock };
-  readyState: number;
-  status: number;
-  response: string;
-  responseText: string;
-  onload: ((this: XMLHttpRequest, ev: Event) => void) | null;
-  onerror: ((this: XMLHttpRequest, ev: Event) => void) | null;
-}
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+}));
 
-describe('ContactForm', () => {
-  beforeEach(() => {
-    window.localStorage.clear();
-  });
+describe('CourseList', () => {
+  const mockCourses: Course[] = [
+    {
+      id: '1',
+      title: 'Norwegian A1',
+      language: 'Norwegian',
+      level: 'A1',
+      schedule: 'Morning',
+      image: '/images/course1.jpg'
+    },
+    {
+      id: '2',
+      title: 'English B2',
+      language: 'English',
+      level: 'B2',
+      schedule: 'Evening',
+      image: '/images/course2.jpg'
+    },
+    {
+      id: '3',
+      title: 'Spanish A2',
+      language: 'Spanish',
+      level: 'A2',
+      schedule: 'Afternoon',
+      image: '/images/course3.jpg'
+    }
+  ];
 
-  afterEach(() => {
-    jest.useRealTimers();
-  });
+  describe('Course Filtering', () => {
+    it('should filter courses by language', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const filterInput = screen.getByLabelText(/filter by language/i);
+      fireEvent.change(filterInput, { target: { value: 'norwegian' } });
 
-  it('saves form data to localStorage', async () => {
-    jest.useFakeTimers();
-    render(<ContactForm />);
-
-    // Wait for form to be rendered
-    await waitFor(() => {
-      expect(screen.getByRole('form')).toBeInTheDocument();
+      const courseItems = screen.getAllByRole('article');
+      expect(courseItems).toHaveLength(1);
+      expect(courseItems[0]).toHaveTextContent('Norwegian A1');
     });
 
-    // Get the name input field
-    const nameInput = screen.getByRole('textbox', { name: /name/i });
-    
-    // Type in name field synchronously
-    fireEvent.change(nameInput, { target: { value: 'John Doe' } });
+    it('should filter courses by level', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const filterInput = screen.getByLabelText(/filter by level/i);
+      fireEvent.change(filterInput, { target: { value: 'B2' } });
 
-    // Fast forward timers
-    jest.advanceTimersByTime(1100);
-
-    // Verify localStorage
-    const savedData = JSON.parse(localStorage.getItem('contact_form_draft') || '{}');
-    expect(savedData.name).toBe('John Doe');
-  });
-
-  it('handles submission error', async () => {
-    // Setup XHR mock
-    const xhrMockInstance: MockXMLHttpRequest = {
-      open: jest.fn(),
-      send: jest.fn().mockImplementation(function(this: MockXMLHttpRequest) {
-        // Simulate network error
-        setTimeout(() => {
-          if (this.onerror) {
-            this.onerror.call(this as unknown as XMLHttpRequest, new Event('error'));
-            setImmediate(() => {
-              // Let React process state updates
-              act(() => {});
-            });
-          }
-        }, 0);
-      }),
-      setRequestHeader: jest.fn(),
-      upload: { onprogress: jest.fn() },
-      readyState: 4,
-      status: 500,
-      response: '',
-      responseText: '',
-      onload: null,
-      onerror: null
-    };
-
-    const xhrMock = jest.fn(() => xhrMockInstance);
-    const originalXHR = window.XMLHttpRequest;
-    window.XMLHttpRequest = xhrMock as unknown as typeof XMLHttpRequest;
-
-    // Render form
-    render(<ContactForm />);
-
-    // Fill out form
-    await userEvent.type(screen.getByRole('textbox', { name: /name/i }), 'John Doe');
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'john@example.com');
-    await userEvent.type(screen.getByRole('textbox', { name: /subject/i }), 'Test');
-    await userEvent.type(screen.getByRole('textbox', { name: /message/i }), 'Test message');
-
-    // Submit form
-    await act(async () => {
-      await userEvent.click(screen.getByRole('button', { name: /send message/i }));
+      const courseItems = screen.getAllByRole('article');
+      expect(courseItems).toHaveLength(1);
+      expect(courseItems[0]).toHaveTextContent('English B2');
     });
 
-    // Wait for error message
-    await waitFor(() => {
-      expect(screen.getByText(/failed to submit the form/i)).toBeInTheDocument();
+    it('should show "no courses" message when filters match nothing', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const filterInput = screen.getByLabelText(/filter by language/i);
+      fireEvent.change(filterInput, { target: { value: 'German' } });
+
+      expect(screen.getByText(/no courses available/i)).toBeInTheDocument();
     });
 
-    // Cleanup
-    window.XMLHttpRequest = originalXHR;
+    it('should handle multiple active filters', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const languageFilter = screen.getByLabelText(/filter by language/i);
+      const levelFilter = screen.getByLabelText(/filter by level/i);
+
+      fireEvent.change(languageFilter, { target: { value: 'Norwegian' } });
+      fireEvent.change(levelFilter, { target: { value: 'A1' } });
+
+      const courseItems = screen.getAllByRole('article');
+      expect(courseItems).toHaveLength(1);
+      expect(courseItems[0]).toHaveTextContent('Norwegian A1');
+    });
   });
 
-  it('renders all form fields', () => {
-    render(<ContactForm />);
+  describe('Pagination', () => {
+    const manyMockCourses = Array.from({ length: 15 }).map((_, index) => ({
+      id: String(index + 1),
+      title: `Course ${index + 1}`,
+      language: 'English',
+      level: 'A1',
+      schedule: 'Morning',
+      image: '/images/course.jpg'
+    }));
 
-    expect(screen.getByRole('textbox', { name: /name/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /email/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /subject/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /message/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /send message/i })).toBeInTheDocument();
+    it('should display correct number of courses per page', () => {
+      render(<CourseList courses={manyMockCourses} title="Course List" />);
+      
+      const courseItems = screen.getAllByRole('article');
+      expect(courseItems).toHaveLength(6); // Default items per page
+    });
+
+    it('should navigate between pages', async () => {
+      render(<CourseList courses={manyMockCourses} title="Course List" />);
+      
+      const nextButton = screen.getByRole('button', { name: /next page/i });
+      fireEvent.click(nextButton);
+
+      // Check second page content
+      expect(screen.getByText('Course 7')).toBeInTheDocument();
+
+      const prevButton = screen.getByRole('button', { name: /previous page/i });
+      fireEvent.click(prevButton);
+
+      // Check first page content
+      expect(screen.getByText('Course 1')).toBeInTheDocument();
+    });
+
+    it('should disable pagination buttons appropriately', () => {
+      render(<CourseList courses={manyMockCourses} title="Course List" />);
+      
+      const prevButton = screen.getByRole('button', { name: /previous page/i });
+      expect(prevButton).toBeDisabled();
+
+      const nextButton = screen.getByRole('button', { name: /next page/i });
+      expect(nextButton).not.toBeDisabled();
+
+      // Go to last page
+      for (let i = 0; i < Math.ceil(manyMockCourses.length / 6) - 1; i++) {
+        fireEvent.click(nextButton);
+      }
+
+      expect(nextButton).toBeDisabled();
+    });
+
+    it('should maintain page state when filtering', () => {
+      render(<CourseList courses={manyMockCourses} title="Course List" />);
+      
+      // Go to second page
+      const nextButton = screen.getByRole('button', { name: /next page/i });
+      fireEvent.click(nextButton);
+
+      // Apply filter
+      const filterInput = screen.getByLabelText(/filter by language/i);
+      fireEvent.change(filterInput, { target: { value: 'English' } });
+
+      // Should reset to first page
+      expect(screen.getByText('Course 1')).toBeInTheDocument();
+    });
+  });
+
+  describe('Sorting', () => {
+    it('should sort courses by title', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const sortSelect = screen.getByLabelText(/sort by/i);
+      fireEvent.change(sortSelect, { target: { value: 'title' } });
+
+      const courseItems = screen.getAllByRole('article');
+      expect(courseItems[0]).toHaveTextContent('English B2');
+      expect(courseItems[2]).toHaveTextContent('Spanish A2');
+    });
+
+    it('should sort courses by level', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const sortSelect = screen.getByLabelText(/sort by/i);
+      fireEvent.change(sortSelect, { target: { value: 'level' } });
+
+      const courseItems = screen.getAllByRole('article');
+      expect(courseItems[0]).toHaveTextContent('A1');
+      expect(courseItems[2]).toHaveTextContent('B2');
+    });
+
+    it('should handle reverse sorting', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const sortSelect = screen.getByLabelText(/sort by/i);
+      fireEvent.change(sortSelect, { target: { value: 'title' } });
+      
+      const reverseButton = screen.getByRole('button', { name: /reverse sort/i });
+      fireEvent.click(reverseButton);
+
+      const courseItems = screen.getAllByRole('article');
+      expect(courseItems[0]).toHaveTextContent('Spanish A2');
+      expect(courseItems[2]).toHaveTextContent('English B2');
+    });
+  });
+
+  describe('Accessibility Features', () => {
+    it('should have correct ARIA landmarks', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      expect(screen.getByRole('region', { name: /course list/i })).toBeInTheDocument();
+      expect(screen.getByRole('search')).toBeInTheDocument();
+      expect(screen.getByRole('navigation', { name: /pagination/i })).toBeInTheDocument();
+    });
+
+    it('should handle keyboard navigation', async () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const courseLinks = screen.getAllByRole('link', { name: /learn more about/i });
+      
+      // First link should be initially focusable
+      courseLinks[0].focus();
+      expect(document.activeElement).toBe(courseLinks[0]);
+
+      // Test arrow key navigation
+      await userEvent.keyboard('[ArrowRight]');
+      expect(document.activeElement).toBe(courseLinks[1]);
+
+      await userEvent.keyboard('[ArrowLeft]');
+      expect(document.activeElement).toBe(courseLinks[0]);
+    });
+
+    it('should announce live region updates', async () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const filterInput = screen.getByLabelText(/filter by language/i);
+      await userEvent.type(filterInput, 'Norwegian');
+
+      const liveRegion = screen.getByRole('status');
+      expect(liveRegion).toHaveTextContent(/showing 1 course/i);
+    });
+
+    it('should provide skip links for keyboard users', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const skipLink = screen.getByText(/skip to course list/i);
+      expect(skipLink).toHaveAttribute('href', '#course-list');
+      
+      // Should be visually hidden by default
+      expect(skipLink).toHaveClass('sr-only');
+      
+      // Should be visible on focus
+      fireEvent.focus(skipLink);
+      expect(skipLink).toHaveClass('sr-only-focusable');
+    });
+
+    it('should provide descriptive button labels', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const buttons = screen.getAllByRole('button');
+      buttons.forEach(button => {
+        expect(button).toHaveAccessibleName();
+      });
+    });
+
+    it('should maintain focus after filtering', async () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const filterInput = screen.getByLabelText(/filter by language/i);
+      filterInput.focus();
+      await userEvent.type(filterInput, 'Norwegian');
+
+      expect(document.activeElement).toBe(filterInput);
+    });
+
+    it('should provide sort order information to screen readers', () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const sortSelect = screen.getByLabelText(/sort by/i);
+      fireEvent.change(sortSelect, { target: { value: 'title' } });
+
+      const sortStatus = screen.getByText(/sorted by title, ascending/i);
+      expect(sortStatus).toHaveAttribute('aria-live', 'polite');
+    });
+
+    it('should handle focus trap in filter dropdowns', async () => {
+      render(<CourseList courses={mockCourses} title="Course List" />);
+      
+      const filterButton = screen.getByRole('button', { name: /open filters/i });
+      await userEvent.click(filterButton);
+
+      const filterDialog = screen.getByRole('dialog', { name: /filters/i });
+      const focusableElements = within(filterDialog).getAllByRole('button');
+
+      // Test focus trap
+      await userEvent.tab();
+      expect(document.activeElement).toBe(focusableElements[0]);
+
+      // Test focus trap wrap-around
+      await userEvent.tab({ shift: true });
+      expect(document.activeElement).toBe(focusableElements[focusableElements.length - 1]);
+    });
   });
 });
 
@@ -7462,6 +8439,278 @@ export const courseDetails: { [key: string]: CourseDetail } = {
 };
 
 ================================================================================
+File: src/lib/__tests__/blog.test.ts
+================================================================================
+
+// src/lib/__tests__/blog.test.ts
+import fs from 'fs/promises';
+import path from 'path';
+import { 
+  getPostBySlug, 
+  getAllPosts, 
+  getPostsByCategory, 
+  getPostsByTag,
+  generatePostPath 
+} from '../blog';
+
+// Mock fs module
+jest.mock('fs/promises');
+jest.mock('path');
+
+// Mock posts data
+const mockPosts = [
+  {
+    slug: 'first-post',
+    content: '# First Post\nThis is a test post with some content.\nIt has multiple paragraphs.\nAnd some more text.',
+    data: {
+      title: 'First Post',
+      date: '2024-01-01',
+      excerpt: 'First post excerpt',
+      author: 'John Doe',
+      categories: ['Norwegian', 'Beginner'],
+      tags: ['language', 'learning'],
+      coverImage: '/images/post1.jpg'
+    }
+  },
+  {
+    slug: 'second-post',
+    content: '# Second Post\nAnother test post.\nWith different content.',
+    data: {
+      title: 'Second Post',
+      date: '2024-01-02',
+      excerpt: 'Second post excerpt',
+      author: 'Jane Smith',
+      categories: ['English', 'Advanced'],
+      tags: ['business', 'language'],
+      coverImage: '/images/post2.jpg'
+    }
+  },
+  {
+    slug: 'third-post',
+    content: '# Third Post\nYet another post.\nThis one is shorter.',
+    data: {
+      title: 'Third Post',
+      date: '2024-01-03',
+      excerpt: 'Third post excerpt',
+      author: 'John Doe',
+      categories: ['Norwegian', 'Advanced'],
+      tags: ['learning', 'culture'],
+      coverImage: '/images/post3.jpg'
+    }
+  }
+];
+
+// Setup mock filesystem
+beforeAll(() => {
+  const mockFileSystem: Record<string, string> = mockPosts.reduce((acc: Record<string, string>, post) => {
+    acc[`${post.slug}.md`] = `---
+title: ${post.data.title}
+date: ${post.data.date}
+excerpt: ${post.data.excerpt}
+author: ${post.data.author}
+categories: ${JSON.stringify(post.data.categories)}
+tags: ${JSON.stringify(post.data.tags)}
+coverImage: ${post.data.coverImage}
+---
+
+${post.content}`;
+    return acc;
+  }, {});
+
+  // Mock fs.readdir
+  (fs.readdir as jest.Mock).mockResolvedValue(Object.keys(mockFileSystem));
+
+  // Mock fs.readFile
+  (fs.readFile as jest.Mock).mockImplementation((filePath) => {
+    const fileName = path.basename(filePath);
+    const content = mockFileSystem[fileName];
+    if (!content) throw new Error(`File not found: ${fileName}`);
+    return Promise.resolve(content);
+  });
+
+  // Mock path.join to return the file name
+  (path.join as jest.Mock).mockImplementation((...args) => args[args.length - 1]);
+});
+
+describe('Blog Functions', () => {
+  describe('Post Retrieval', () => {
+    it('should retrieve a single post by slug', async () => {
+      const post = await getPostBySlug('first-post');
+      
+      expect(post).toBeDefined();
+      expect(post.title).toBe('First Post');
+      expect(post.content).toContain('<h1>First Post</h1>');
+      expect(post.author).toBe('John Doe');
+    });
+
+    it('should retrieve all posts sorted by date', async () => {
+      const posts = await getAllPosts();
+      
+      expect(posts).toHaveLength(3);
+      expect(posts[0].title).toBe('Third Post'); // Most recent first
+      expect(posts[2].title).toBe('First Post'); // Oldest last
+    });
+
+    it('should handle non-existent post slugs', async () => {
+      await expect(getPostBySlug('non-existent')).rejects.toThrow();
+    });
+
+    it('should correctly parse markdown content', async () => {
+      const post = await getPostBySlug('first-post');
+      
+      expect(post.content).toContain('<h1>');
+      expect(post.content).toContain('<p>');
+      expect(post.content).not.toContain('#');
+    });
+  });
+
+  describe('Category Filtering', () => {
+    it('should filter posts by category', async () => {
+      const norwegianPosts = await getPostsByCategory('Norwegian');
+      
+      expect(norwegianPosts).toHaveLength(2);
+      expect(norwegianPosts.every(post => 
+        post.categories.includes('Norwegian')
+      )).toBe(true);
+    });
+
+    it('should handle category case-insensitively', async () => {
+      const norwegianPosts = await getPostsByCategory('norwegian');
+      const advancedPosts = await getPostsByCategory('ADVANCED');
+      
+      expect(norwegianPosts).toHaveLength(2);
+      expect(advancedPosts).toHaveLength(2);
+    });
+
+    it('should return empty array for non-existent category', async () => {
+      const posts = await getPostsByCategory('non-existent');
+      
+      expect(posts).toHaveLength(0);
+    });
+
+    it('should maintain post order within category', async () => {
+      const norwegianPosts = await getPostsByCategory('Norwegian');
+      
+      expect(new Date(norwegianPosts[0].date).getTime()).toBeGreaterThan(new Date(norwegianPosts[1].date).getTime());
+    });
+  });
+
+  describe('Tag Filtering', () => {
+    it('should filter posts by tag', async () => {
+      const learningPosts = await getPostsByTag('learning');
+      
+      expect(learningPosts).toHaveLength(2);
+      expect(learningPosts.every(post => 
+        post.tags.includes('learning')
+      )).toBe(true);
+    });
+
+    it('should handle tag case-insensitively', async () => {
+      const learningPosts = await getPostsByTag('LEARNING');
+      const businessPosts = await getPostsByTag('business');
+      
+      expect(learningPosts).toHaveLength(2);
+      expect(businessPosts).toHaveLength(1);
+    });
+
+    it('should return empty array for non-existent tag', async () => {
+      const posts = await getPostsByTag('non-existent');
+      
+      expect(posts).toHaveLength(0);
+    });
+
+    it('should maintain post order within tag', async () => {
+      const learningPosts = await getPostsByTag('learning');
+      
+      expect(new Date(learningPosts[0].date).getTime()).toBeGreaterThan(new Date(learningPosts[1].date).getTime());
+    });
+  });
+
+  describe('Reading Time Calculation', () => {
+    it('should calculate reading time for short posts', async () => {
+      const post = await getPostBySlug('third-post');
+      expect(post.readingTime).toBe('1 min read');
+    });
+
+    it('should calculate reading time for longer posts', async () => {
+      // Create a longer post content
+      const longContent = 'word '.repeat(1000); // 1000 words
+      (fs.readFile as jest.Mock).mockResolvedValueOnce(`---
+title: Long Post
+date: 2024-01-04
+excerpt: Long post excerpt
+author: John Doe
+categories: ["Test"]
+tags: ["test"]
+coverImage: /images/long.jpg
+---
+
+${longContent}`);
+
+      const post = await getPostBySlug('long-post');
+      expect(post.readingTime).toBe('5 min read');
+    });
+
+    it('should round reading time up to nearest minute', async () => {
+      // Create a post with 250 words (should round up to 2 minutes)
+      const mediumContent = 'word '.repeat(250);
+      (fs.readFile as jest.Mock).mockResolvedValueOnce(`---
+title: Medium Post
+date: 2024-01-04
+excerpt: Medium post excerpt
+author: John Doe
+categories: ["Test"]
+tags: ["test"]
+coverImage: /images/medium.jpg
+---
+
+${mediumContent}`);
+
+      const post = await getPostBySlug('medium-post');
+      expect(post.readingTime).toBe('2 min read');
+    });
+
+    it('should handle posts with code blocks', async () => {
+      const postWithCode = `---
+title: Code Post
+date: 2024-01-04
+excerpt: Code post excerpt
+author: John Doe
+categories: ["Test"]
+tags: ["test"]
+coverImage: /images/code.jpg
+---
+
+Here's some regular text.
+
+\`\`\`javascript
+function example() {
+  return 'Hello World';
+}
+\`\`\`
+
+More text here.`;
+
+      (fs.readFile as jest.Mock).mockResolvedValueOnce(postWithCode);
+
+      const post = await getPostBySlug('code-post');
+      expect(post.readingTime).toBeDefined();
+      expect(typeof post.readingTime).toBe('string');
+    });
+  });
+
+  describe('Path Generation', () => {
+    it('should generate correct post paths', () => {
+      expect(generatePostPath('test-post')).toBe('/blog/test-post');
+    });
+
+    it('should handle slugs with special characters', () => {
+      expect(generatePostPath('test-post-123!')).toBe('/blog/test-post-123!');
+    });
+  });
+});
+
+================================================================================
 File: src/lib/api-utils.ts
 ================================================================================
 
@@ -7594,6 +8843,329 @@ describe('Authentication', () => {
     const user = await authorize(credentials, {});
     expect(user).toBeTruthy();
     expect(user?.email).toBe(credentials.email);
+  });
+});
+
+================================================================================
+File: src/lib/auth/__tests__/config.test.ts
+================================================================================
+
+// src/lib/auth/__tests__/config.test.ts
+
+import { authOptions } from '../config';
+import type { Session, Account } from 'next-auth';
+import bcrypt from 'bcryptjs';
+import type { JWT } from 'next-auth/jwt';
+import type { AdapterUser } from 'next-auth/adapters';
+
+interface MockUser extends AdapterUser {
+  role: string;
+}
+
+describe('Auth Configuration', () => {
+  const mockEnv = {
+    ADMIN_EMAIL: 'admin@example.com',
+    ADMIN_PASSWORD_HASH: '',
+  };
+
+  let originalEnv: NodeJS.ProcessEnv;
+
+  beforeAll(async () => {
+    // Generate a test password hash
+    mockEnv.ADMIN_PASSWORD_HASH = await bcrypt.hash('testpassword123', 12);
+    
+    // Back up original env vars
+    originalEnv = { ...process.env };
+    
+    // Set mock env vars
+    process.env = { ...originalEnv, ...mockEnv };
+  });
+
+  afterAll(() => {
+    // Restore original env vars
+    process.env = originalEnv;
+  });
+
+  describe('Session Management', () => {
+    it('should configure session with correct settings', () => {
+      expect(authOptions.session).toEqual({
+        strategy: 'jwt',
+        maxAge: 2 * 60 * 60, // 2 hours
+      });
+    });
+
+    it('should update session with user role', async () => {
+      const mockUser: MockUser = {
+        id: '1',
+        email: mockEnv.ADMIN_EMAIL,
+        emailVerified: null,
+        role: 'admin'
+      };
+
+      const mockSession: Session = {
+        user: mockUser,
+        expires: new Date(Date.now() + 3600000).toISOString()
+      };
+
+      const mockToken = { role: 'admin' } as JWT;
+
+      const newSession = await authOptions.callbacks?.session?.({
+        session: mockSession,
+        token: mockToken,
+        user: mockUser,
+        trigger: 'update',
+        newSession: null
+      });
+
+      expect(newSession?.user).toBeDefined();
+      expect(newSession?.user).toHaveProperty('role', 'admin');
+    });
+
+    it('should handle session expiry correctly', async () => {
+      const mockUser: MockUser = {
+        id: '1',
+        email: mockEnv.ADMIN_EMAIL,
+        emailVerified: null,
+        role: 'admin'
+      };
+
+      const expiredSession: Session = {
+        user: mockUser,
+        expires: new Date(Date.now() - 1000).toISOString() // Expired session
+      };
+
+      const mockToken = { role: 'admin' } as JWT;
+
+      const newSession = await authOptions.callbacks?.session?.({
+        session: expiredSession,
+        token: mockToken,
+        user: mockUser,
+        trigger: 'update',
+        newSession: null
+      });
+
+      expect(newSession?.expires).toBeDefined();
+      expect(new Date(newSession?.expires as string).getTime()).toBeGreaterThan(Date.now());
+    });
+  });
+
+  describe('Token Refresh', () => {
+    it('should maintain role during token refresh', async () => {
+      const mockUser: MockUser = {
+        id: '1',
+        email: mockEnv.ADMIN_EMAIL,
+        emailVerified: null,
+        role: 'admin'
+      };
+
+      const mockAccount: Account = {
+        provider: 'credentials',
+        type: 'credentials',
+        providerAccountId: '1'
+      };
+
+      const initialToken = { email: mockEnv.ADMIN_EMAIL } as JWT;
+
+      const refreshedToken = await authOptions.callbacks?.jwt?.({
+        token: initialToken,
+        user: mockUser,
+        account: mockAccount,
+        trigger: 'signIn'
+      });
+
+      expect(refreshedToken).toHaveProperty('role', 'admin');
+    });
+
+    it('should handle token rotation', async () => {
+      // Simulate token refresh after halfway through session
+      jest.useFakeTimers();
+      const maxAge = authOptions.session?.maxAge ?? 0;
+      const halfSessionTime = maxAge * 500; // Half of maxAge in ms
+      
+      const initialToken = { 
+        email: mockEnv.ADMIN_EMAIL,
+        role: 'admin',
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + maxAge
+      } as JWT;
+
+      // Advance time
+      jest.advanceTimersByTime(halfSessionTime);
+
+      const mockUser: MockUser = {
+        id: '1',
+        email: mockEnv.ADMIN_EMAIL,
+        emailVerified: null,
+        role: 'admin'
+      };
+
+      const refreshedToken = await authOptions.callbacks?.jwt?.({
+        token: initialToken,
+        user: mockUser,
+        account: null,
+        trigger: 'update'
+      });
+
+      expect(Number(refreshedToken?.exp)).toBeGreaterThan(Number(initialToken.exp));
+      
+      jest.useRealTimers();
+    });
+  });
+
+  describe('Role-Based Access', () => {
+    it('should assign admin role during authentication', async () => {
+      const credentials = {
+        email: mockEnv.ADMIN_EMAIL,
+        password: 'testpassword123'
+      };
+
+      const provider = authOptions.providers[0];
+      if ('authorize' in provider) {
+        const user = await provider.authorize?.(credentials, {});
+        expect(user).toBeTruthy();
+        expect((user as MockUser)?.role).toBe('admin');
+      }
+    });
+
+    it('should deny access for non-admin users', async () => {
+      const credentials = {
+        email: 'user@example.com', // Non-admin email
+        password: 'testpassword123'
+      };
+
+      const provider = authOptions.providers[0];
+      if ('authorize' in provider) {
+        const user = await provider.authorize?.(credentials, {});
+        expect(user).toBeNull();
+      }
+    });
+
+    it('should maintain role consistency across session updates', async () => {
+      const mockUser: MockUser = {
+        id: '1',
+        email: mockEnv.ADMIN_EMAIL,
+        emailVerified: null,
+        role: 'admin'
+      };
+
+      const mockToken = { email: mockEnv.ADMIN_EMAIL, role: 'admin' } as JWT;
+      const mockSession: Session = {
+        user: {
+          ...mockUser,
+          name: undefined,
+          image: undefined
+        },
+        expires: new Date(Date.now() + 3600000).toISOString()
+      };
+
+      // Test session callback
+      const updatedSession = await authOptions.callbacks?.session?.({
+        session: mockSession,
+        token: mockToken,
+        user: mockUser,
+        trigger: 'update',
+        newSession: null
+      });
+
+      expect((updatedSession?.user as MockUser)?.role).toBe('admin');
+
+      // Test token callback
+      const updatedToken = await authOptions.callbacks?.jwt?.({
+        token: mockToken,
+        user: mockUser,
+        account: null,
+        trigger: 'update'
+      });
+
+      expect(updatedToken?.role).toBe('admin');
+    });    it('should prevent role escalation attempts', async () => {
+      const mockUser: MockUser = {
+        id: '1',
+        email: mockEnv.ADMIN_EMAIL,
+        emailVerified: null,
+        role: 'admin'
+      };
+
+      const mockToken = { 
+        email: mockEnv.ADMIN_EMAIL, 
+        role: 'super-admin' // Attempting to escalate privileges
+      } as JWT;
+
+      const updatedToken = await authOptions.callbacks?.jwt?.({
+        token: mockToken,
+        user: mockUser,
+        account: null,
+        trigger: 'update'
+      });
+
+      expect(updatedToken?.role).toBe('admin'); // Should always be 'admin'
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle missing environment variables', async () => {
+      const originalEnv = { ...process.env };
+      delete process.env.ADMIN_EMAIL;
+      delete process.env.ADMIN_PASSWORD_HASH;
+
+      const credentials = {
+        email: 'test@example.com',
+        password: 'password123'
+      };
+
+      const provider = authOptions.providers[0];
+      if ('authorize' in provider) {
+        const user = await provider.authorize?.(credentials, {});
+        expect(user).toBeNull();
+      }
+
+      process.env = originalEnv;
+    });
+
+    it('should handle invalid JWT tokens', async () => {
+      const mockUser: MockUser = {
+        id: '1',
+        email: mockEnv.ADMIN_EMAIL,
+        emailVerified: null,
+        role: 'admin'
+      };
+
+      const invalidToken = { 
+        email: mockEnv.ADMIN_EMAIL,
+        exp: Math.floor(Date.now() / 1000) - 3600 // Expired token
+      } as JWT;
+
+      const updatedToken = await authOptions.callbacks?.jwt?.({
+        token: invalidToken,
+        user: mockUser,
+        account: null,
+        trigger: 'update'
+      });
+
+      expect(updatedToken).toBeNull();
+    });
+
+    it('should handle database connection errors', async () => {
+      // Simulate database error
+      const mockError = new Error('Database connection failed');
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const credentials = {
+        email: mockEnv.ADMIN_EMAIL,
+        password: 'testpassword123'
+      };
+
+      const provider = authOptions.providers[0];
+      if ('authorize' in provider) {
+        // @ts-expect-error Mocking internal provider behavior
+        provider.adapter = {
+          getUserByEmail: () => Promise.reject(mockError)
+        };
+
+        const user = await provider.authorize?.(credentials, {});
+        expect(user).toBeNull();
+      }
+    });
   });
 });
 
@@ -7959,6 +9531,346 @@ class Logger {
 }
 
 export const logger = Logger.getInstance();
+
+================================================================================
+File: src/lib/middleware/__tests__/securityMiddleware.test.ts
+================================================================================
+
+import { NextRequest, NextResponse } from 'next/server';
+import { securityMiddleware } from '../securityMiddleware';
+import { generateToken } from '../csrf';
+
+// Mock Next.js response
+jest.mock('next/server', () => ({
+  NextResponse: {
+    next: jest.fn(() => ({
+      headers: new Map(),
+    })),
+    json: jest.fn((body, init) => ({
+      ...new Response(JSON.stringify(body), init),
+      status: init?.status || 200,
+    })),
+  },
+}));
+
+describe('Security Middleware', () => {
+  let mockRequest: Partial<NextRequest>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Create a mock request with all necessary properties
+    const headers = new Headers();
+    const cookies = new Map();
+    
+    mockRequest = {
+      method: 'POST',
+      url: 'http://localhost:3000/api/test',
+      headers,
+      cookies: {
+        get: jest.fn((key: string) => ({ value: cookies.get(key) })),
+        set: jest.fn((key: string, value: string) => cookies.set(key, value)),
+        getAll: jest.fn(() => Array.from(cookies.entries())),
+        has: jest.fn((key: string) => cookies.has(key)),
+        delete: jest.fn((key: string) => cookies.delete(key)),
+        [Symbol.iterator]: jest.fn(),
+        entries: jest.fn(),
+        keys: jest.fn(),
+        values: jest.fn(),
+        toString: jest.fn(),
+        size: cookies.size,
+      },
+      clone: jest.fn(),
+      formData: jest.fn(),
+      json: jest.fn(),
+    } as unknown as Partial<NextRequest>;
+  });
+
+  describe('CSRF Protection', () => {
+    it('should allow GET requests without CSRF token', async () => {
+      const request = {
+        ...mockRequest,
+        method: 'GET',
+      } as unknown as NextRequest;
+
+      await securityMiddleware(request, { csrfProtection: true });
+      expect(NextResponse.next).toHaveBeenCalled();
+    });
+
+    it('should block POST requests without CSRF token', async () => {
+      const request = {
+        ...mockRequest,
+        method: 'POST',
+      } as unknown as NextRequest;
+
+      const response = await securityMiddleware(request, { csrfProtection: true });
+      expect(response.status).toBe(403);
+      expect(JSON.parse(await response.json())).toEqual({
+        error: 'Invalid CSRF token',
+      });
+    });
+
+    it('should allow POST requests with valid CSRF token', async () => {
+      const sessionId = 'test-session';
+
+      const { token } = generateToken(sessionId) as unknown as { token: string };
+
+      const headers = new Headers();
+      headers.set('X-CSRF-Token', token);
+
+      const request = {
+        ...mockRequest,
+        method: 'POST',
+        headers,
+        cookies: {
+          ...mockRequest.cookies,
+          get: jest.fn().mockReturnValue({ value: sessionId }),
+        },
+      } as unknown as NextRequest;
+
+      await securityMiddleware(request, { csrfProtection: true });
+      expect(NextResponse.next).toHaveBeenCalled();
+
+    });
+    it('should block requests with expired CSRF tokens', async () => {
+      const sessionId = 'test-session';
+      const { token } = generateToken(sessionId) as unknown as { token: string };
+
+      // Fast forward time to expire token
+      jest.advanceTimersByTime(5 * 60 * 60 * 1000); // 5 hours
+
+      const headers = new Headers();
+      headers.set('X-CSRF-Token', token);
+
+      const request = {
+        ...mockRequest,
+        method: 'POST',
+        headers,
+        cookies: {
+          ...mockRequest.cookies,
+          get: jest.fn().mockReturnValue({ value: sessionId }),
+        },
+      } as unknown as NextRequest;
+
+      const response = await securityMiddleware(request, { csrfProtection: true });
+      expect(response.status).toBe(403);
+    });  });
+
+  describe('Input Sanitization', () => {
+    it('should sanitize JSON request body', async () => {
+      const unsafeBody = {
+        name: '<script>alert("xss")</script>John',
+        email: 'test@example.com',
+        message: 'Hello <img src=x onerror=alert(1)>',
+      };
+
+      const request = {
+        ...mockRequest,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: jest.fn().mockResolvedValue(unsafeBody),
+      } as unknown as NextRequest;
+
+      await securityMiddleware(request, { inputSanitization: true });
+
+      const newRequest = (NextResponse.next as jest.Mock).mock.calls[0][0].request;
+      const sanitizedBody = JSON.parse(await newRequest.text());
+
+      expect(sanitizedBody.name).not.toContain('<script>');
+      expect(sanitizedBody.message).not.toContain('<img');
+      expect(sanitizedBody.email).toBe('test@example.com');
+    });
+
+    it('should sanitize form data', async () => {
+      const formData = new FormData();
+      formData.append('name', '<script>alert("xss")</script>John');
+      formData.append('email', 'test@example.com');
+
+      const request = {
+        ...mockRequest,
+        headers: new Headers({ 'content-type': 'multipart/form-data' }),
+        formData: jest.fn().mockResolvedValue(formData),
+      } as unknown as NextRequest;
+
+      await securityMiddleware(request, { inputSanitization: true });
+
+      const newRequest = (NextResponse.next as jest.Mock).mock.calls[0][0].request;
+      const sanitizedFormData = await newRequest.formData();
+
+      expect(sanitizedFormData.get('name')).not.toContain('<script>');
+      expect(sanitizedFormData.get('email')).toBe('test@example.com');
+    });
+  });
+
+  describe('File Upload Security', () => {
+    it('should validate file types', async () => {
+      const formData = new FormData();
+      const file = new File(['test'], 'test.exe', { type: 'application/x-msdownload' });
+      formData.append('file', file);
+
+      const request = {
+        ...mockRequest,
+        headers: new Headers({ 'content-type': 'multipart/form-data' }),
+        formData: jest.fn().mockResolvedValue(formData),
+      } as unknown as NextRequest;
+
+      const response = await securityMiddleware(request, { fileUploadSecurity: true });
+      expect(response.status).toBe(400);
+      expect(JSON.parse(await response.json())).toEqual({
+        error: 'File type application/x-msdownload not allowed',
+      });
+    });
+
+    it('should validate file size', async () => {
+      const formData = new FormData();
+      // Create a file larger than 5MB
+      const largeFile = new File([new ArrayBuffer(6 * 1024 * 1024)], 'large.jpg', { type: 'image/jpeg' });
+      formData.append('file', largeFile);
+
+      const request = {
+        ...mockRequest,
+        headers: new Headers({ 'content-type': 'multipart/form-data' }),
+        formData: jest.fn().mockResolvedValue(formData),
+      } as unknown as NextRequest;
+
+      const response = await securityMiddleware(request, { fileUploadSecurity: true });
+      expect(response.status).toBe(400);
+      expect(JSON.parse(await response.json())).toEqual({
+        error: 'File size exceeds maximum limit of 5MB',
+      });
+    });
+
+    it('should allow valid files', async () => {
+      const formData = new FormData();
+      const validFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+      formData.append('file', validFile);
+
+      const request = {
+        ...mockRequest,
+        headers: new Headers({ 'content-type': 'multipart/form-data' }),
+        formData: jest.fn().mockResolvedValue(formData),
+      } as unknown as NextRequest;
+
+      await securityMiddleware(request, { fileUploadSecurity: true });
+      expect(NextResponse.next).toHaveBeenCalled();
+    });
+  });
+
+  describe('Rate Limiting Integration', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should apply rate limits', async () => {
+      const config = {
+        maxRequests: 2,
+        windowMs: 1000, // 1 second
+      };
+
+      const headers = new Headers();
+      headers.set('x-forwarded-for', '127.0.0.1');
+
+      const request = {
+        ...mockRequest,
+        headers,
+      } as unknown as NextRequest;
+
+      // Make multiple requests
+      const responses = await Promise.all([
+        securityMiddleware(request, { rateLimit: config }),
+        securityMiddleware(request, { rateLimit: config }),
+        securityMiddleware(request, { rateLimit: config }),
+      ]);
+
+      // Third request should be rate limited
+      expect(responses[2].status).toBe(429);
+      expect(JSON.parse(await responses[2].json())).toMatchObject({
+        error: 'Too many requests, please try again later.',
+      });
+    });
+
+    it('should reset rate limit after window expires', async () => {
+      const config = {
+        maxRequests: 1,
+        windowMs: 1000, // 1 second
+      };
+
+      const headers = new Headers();
+      headers.set('x-forwarded-for', '127.0.0.1');
+
+      const request = {
+        ...mockRequest,
+        headers,
+      } as unknown as NextRequest;
+
+      // First request should succeed
+      await securityMiddleware(request, { rateLimit: config });
+      expect(NextResponse.next).toHaveBeenCalled();
+
+      // Second request should be rate limited
+      const rateLimitedResponse = await securityMiddleware(request, { rateLimit: config });
+      expect(rateLimitedResponse.status).toBe(429);
+
+      // Advance time beyond rate limit window
+      jest.advanceTimersByTime(1100);
+
+      // Request should succeed again
+      await securityMiddleware(request, { rateLimit: config });
+      expect(NextResponse.next).toHaveBeenCalledTimes(2);
+    });
+
+    it('should track rate limits separately by IP', async () => {
+      const config = {
+        maxRequests: 1,
+        windowMs: 1000,
+      };
+
+      const request1 = {
+        ...mockRequest,
+        headers: new Headers({ 'x-forwarded-for': '127.0.0.1' }),
+      } as unknown as NextRequest;
+
+      const request2 = {
+        ...mockRequest,
+        headers: new Headers({ 'x-forwarded-for': '127.0.0.2' }),
+      } as unknown as NextRequest;
+
+      // Both first requests should succeed
+      await securityMiddleware(request1, { rateLimit: config });
+      await securityMiddleware(request2, { rateLimit: config });
+      expect(NextResponse.next).toHaveBeenCalledTimes(2);
+
+      // Both second requests should be rate limited
+      const response1 = await securityMiddleware(request1, { rateLimit: config });
+      const response2 = await securityMiddleware(request2, { rateLimit: config });
+      expect(response1.status).toBe(429);
+      expect(response2.status).toBe(429);
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle internal errors gracefully', async () => {
+      const request = {
+        ...mockRequest,
+        formData: jest.fn().mockRejectedValue(new Error('Internal error')),
+      } as unknown as NextRequest;
+
+      const response = await securityMiddleware(request, {
+        csrfProtection: true,
+        inputSanitization: true,
+        fileUploadSecurity: true,
+      });
+
+      expect(response.status).toBe(500);
+      expect(JSON.parse(await response.json())).toEqual({
+        error: 'Internal server error',
+      });
+    });
+  });
+});
 
 ================================================================================
 File: src/lib/middleware/csrf.ts
@@ -8655,6 +10567,112 @@ export async function securityMiddleware(
     );
   }
 }
+
+================================================================================
+File: src/lib/rate-limit.test.ts
+================================================================================
+
+// src/lib/rate-limit.test.ts
+
+import { apiRateLimit } from './rate-limit';
+import { NextResponse } from 'next/server';
+
+describe('Rate Limiter', () => {
+  beforeEach(() => {
+    // Clear rate limiter state between tests
+    jest.clearAllMocks();
+  });
+
+  it('should allow requests within rate limit', async () => {
+    const config = {
+      maxRequests: 5,
+      windowMs: 1000 // 1 second window
+    };
+
+    const response = await apiRateLimit('127.0.0.1', config);
+    expect(response).toBeNull(); // Null response means request is allowed
+  });
+
+  it('should block requests exceeding rate limit', async () => {
+    const config = {
+      maxRequests: 2,
+      windowMs: 1000
+    };
+
+    // Make multiple requests
+    await apiRateLimit('127.0.0.1', config);
+    await apiRateLimit('127.0.0.1', config);
+    const response = await apiRateLimit('127.0.0.1', config);
+
+    expect(response).toBeInstanceOf(NextResponse);
+    expect(response?.status).toBe(429);
+  });
+
+  it('should handle different IPs separately', async () => {
+    const config = {
+      maxRequests: 2,
+      windowMs: 1000
+    };
+
+    // Exhaust limit for first IP
+    await apiRateLimit('127.0.0.1', config);
+    await apiRateLimit('127.0.0.1', config);
+    const blockedResponse = await apiRateLimit('127.0.0.1', config);
+
+    // Different IP should still be allowed
+    const allowedResponse = await apiRateLimit('127.0.0.2', config);
+
+    expect(blockedResponse?.status).toBe(429);
+    expect(allowedResponse).toBeNull();
+  });
+
+  it('should reset rate limit after window expires', async () => {
+    jest.useFakeTimers();
+    
+    const config = {
+      maxRequests: 2,
+      windowMs: 1000
+    };
+
+    // Exhaust limit
+    await apiRateLimit('127.0.0.1', config);
+    await apiRateLimit('127.0.0.1', config);
+    const blockedResponse = await apiRateLimit('127.0.0.1', config);
+    expect(blockedResponse?.status).toBe(429);
+
+    // Advance time beyond window
+    jest.advanceTimersByTime(1100);
+
+    // Should be allowed again
+    const allowedResponse = await apiRateLimit('127.0.0.1', config);
+    expect(allowedResponse).toBeNull();
+
+    jest.useRealTimers();
+  });
+
+  it('should include proper headers in rate limit response', async () => {
+    const config = {
+      maxRequests: 1,
+      windowMs: 1000
+    };
+
+    await apiRateLimit('127.0.0.1', config);
+    const response = await apiRateLimit('127.0.0.1', config);
+
+    expect(response?.headers.get('Retry-After')).toBeDefined();
+    expect(JSON.parse(await response?.json())).toHaveProperty('retryAfter');
+  });
+
+  it('should use default config when none provided', async () => {
+    // Make many requests without config
+    const responses = await Promise.all(
+      Array(101).fill(null).map(() => apiRateLimit('127.0.0.1'))
+    );
+
+    // 101st request should be blocked (default is 100 requests per window)
+    expect(responses[100]?.status).toBe(429);
+  });
+});
 
 ================================================================================
 File: src/lib/rate-limit.ts

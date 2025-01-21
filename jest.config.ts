@@ -8,9 +8,7 @@ const createJestConfig = nextJest({
 
 const config: Config = {
   testEnvironment: 'jest-environment-jsdom',
-  // Point Jest to the setup file below
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
@@ -35,6 +33,10 @@ const config: Config = {
   },
   testTimeout: 10000,
   verbose: true,
+  // Add bail option to stop at first failure
+  bail: true,
+  // Add sequence enforcement
+  maxWorkers: 1,
 };
 
 export default createJestConfig(config);
