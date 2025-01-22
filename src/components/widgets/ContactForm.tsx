@@ -96,12 +96,12 @@ const ContactForm = () => {
           localStorage.removeItem(STORAGE_KEY);
           reset();
         } else {
-          throw new Error(`HTTP error! status: ${xhr.status}`);
+          setSubmitError('Failed to submit the form. Please try again later.');
         }
       };
 
       xhr.onerror = () => {
-        throw new Error('Network error occurred');
+        setSubmitError('Failed to submit the form. Please check your connection and try again.');
       };
 
       xhr.send(formData);
@@ -116,6 +116,8 @@ const ContactForm = () => {
       setUploadProgress(0);
     }
   };
+
+
 
   const clearSavedData = () => {
     localStorage.removeItem(STORAGE_KEY);
