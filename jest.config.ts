@@ -7,8 +7,14 @@ const createJestConfig = nextJest({
 });
 
 const config: Config = {
-  testEnvironment: 'jest-environment-jsdom',
+  testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  transform: {
+    '^.+\\.(t|j)sx?$': '@swc/jest',
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(just-performance|limiter|lucide-react)/)',
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
@@ -38,5 +44,4 @@ const config: Config = {
   // Add sequence enforcement
   maxWorkers: 1,
 };
-
 export default createJestConfig(config);

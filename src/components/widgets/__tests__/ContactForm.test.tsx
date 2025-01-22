@@ -1,25 +1,83 @@
-// src/components/widgets/__tests__/ContactForm.test.tsx
-
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+// 1. Mocks must be defined before imports
+import React from 'react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ContactForm from '../ContactForm';
 
-interface MockXMLHttpRequest {
-  open: jest.Mock;
-  send: jest.Mock;
-  setRequestHeader: jest.Mock;
-  upload: { onprogress: jest.Mock };
-  readyState: number;
-  status: number;
-  response: string;
-  responseText: string;
-  onload: ((this: XMLHttpRequest, ev: Event) => void) | null;
-  onerror: ((this: XMLHttpRequest, ev: Event) => void) | null;
+// Define an interface for child props
+interface ChildProps extends React.HTMLAttributes<HTMLElement> {
+  id?: string;
+  'aria-label'?: string;
+  required?: boolean;
 }
 
+// Mocked Components
+jest.mock('@/components/ui/form', () => ({
+  FormField: ({
+    label,
+    children,
+    required,
+  }: {
+    label: string;
+    children: React.ReactElement<ChildProps>;
+    required?: boolean;
+  }) => (
+    <div>
+      <label htmlFor={label.toLowerCase().replace(/\s+/g, '-')}>{label}</label>
+      {React.cloneElement(children, {
+        id: label.toLowerCase().replace(/\s+/g, '-'),
+        'aria-label': label,
+        required,
+      })}
+    </div>
+  ),
+  Input: (props: any) => <input {...props} />,
+  Textarea: (props: any) => <textarea {...props} />,
+}));
+
+// 3. Mock configurations
+
+// Mock Class for XMLHttpRequest
+class MockXMLHttpRequest implements Partial<XMLHttpRequest> {
+  open = jest.fn();
+  send = jest.fn();
+  setRequestHeader = jest.fn();
+  get readyState() { return 4; }
+  get status() { return 200; }
+  upload: XMLHttpRequestUpload = {
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+    onabort: null,
+    onerror: null,
+    onload: null,
+    onloadstart: null,
+    onloadend: null,
+    onprogress: null,
+    ontimeout: null,
+  };
+  onload: ((this: XMLHttpRequest, ev: Event) => any) | null = null;
+  onerror: ((this: XMLHttpRequest, ev: Event) => any) | null = null;
+}
+
+// Assign the Mock to global.XMLHttpRequest
+global.XMLHttpRequest = MockXMLHttpRequest as unknown as typeof XMLHttpRequest;
+
+// LocalStorage Mock
+const localStorageMock = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+};
+
+// Assign the Mock to window.localStorage
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+// 4. Test suite
 describe('ContactForm', () => {
   beforeEach(() => {
-    window.localStorage.clear();
+    jest.useFakeTimers();
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
@@ -27,88 +85,64 @@ describe('ContactForm', () => {
   });
 
   it('saves form data to localStorage', async () => {
-    jest.useFakeTimers();
     render(<ContactForm />);
 
-    // Wait for form to be rendered
-    await waitFor(() => {
-      expect(screen.getByRole('form')).toBeInTheDocument();
+    await act(async () => {
+      const nameInput = screen.getByLabelText('Name');
+      await userEvent.type(nameInput, 'John Doe');
+      jest.advanceTimersByTime(1100);
     });
 
-    // Get the name input field
-    const nameInput = screen.getByRole('textbox', { name: /name/i });
-    
-    // Type in name field synchronously
-    fireEvent.change(nameInput, { target: { value: 'John Doe' } });
-
-    // Fast forward timers
-    jest.advanceTimersByTime(1100);
-
-    // Verify localStorage
-    const savedData = JSON.parse(localStorage.getItem('contact_form_draft') || '{}');
-    expect(savedData.name).toBe('John Doe');
+    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      'contact_form_draft',
+      expect.stringContaining('John Doe')
+    );
   });
 
   it('handles submission error', async () => {
-    // Setup XHR mock
-    const xhrMockInstance: MockXMLHttpRequest = {
-      open: jest.fn(),
-      send: jest.fn().mockImplementation(function(this: MockXMLHttpRequest) {
-        // Simulate network error
-        setTimeout(() => {
-          if (this.onerror) {
-            this.onerror.call(this as unknown as XMLHttpRequest, new Event('error'));
-            setImmediate(() => {
-              // Let React process state updates
-              act(() => {});
-            });
-          }
-        }, 0);
-      }),
-      setRequestHeader: jest.fn(),
-      upload: { onprogress: jest.fn() },
-      readyState: 4,
-      status: 500,
-      response: '',
-      responseText: '',
-      onload: null,
-      onerror: null
-    };
+    const errorMock = new MockXMLHttpRequest();
+    errorMock.send.mockImplementation(function(this: any) {
+      setTimeout(() => this.onerror?.(), 0);
+    });
 
-    const xhrMock = jest.fn(() => xhrMockInstance);
-    const originalXHR = window.XMLHttpRequest;
-    window.XMLHttpRequest = xhrMock as unknown as typeof XMLHttpRequest;
+    (global.XMLHttpRequest as unknown as jest.Mock).mockImplementation(() => errorMock);
 
-    // Render form
     render(<ContactForm />);
 
-    // Fill out form
-    await userEvent.type(screen.getByRole('textbox', { name: /name/i }), 'John Doe');
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'john@example.com');
-    await userEvent.type(screen.getByRole('textbox', { name: /subject/i }), 'Test');
-    await userEvent.type(screen.getByRole('textbox', { name: /message/i }), 'Test message');
-
-    // Submit form
     await act(async () => {
-      await userEvent.click(screen.getByRole('button', { name: /send message/i }));
+      await userEvent.type(screen.getByLabelText('Name'), 'John');
+      await userEvent.type(screen.getByLabelText('Email'), 'john@example.com');
+      await userEvent.type(screen.getByLabelText('Subject'), 'Test');
+      await userEvent.type(screen.getByLabelText('Message'), 'Test message');
     });
 
-    // Wait for error message
-    await waitFor(() => {
-      expect(screen.getByText(/failed to submit the form/i)).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+      jest.runAllTimers();
     });
 
-    // Cleanup
-    window.XMLHttpRequest = originalXHR;
+    expect(screen.getByText(/failed to submit the form/i)).toBeInTheDocument();
   });
 
   it('renders all form fields', () => {
     render(<ContactForm />);
 
-    expect(screen.getByRole('textbox', { name: /name/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /email/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /subject/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /message/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /send message/i })).toBeInTheDocument();
+    const fields = [
+      { label: 'Name', type: 'text' },
+      { label: 'Email', type: 'email' },
+      { label: 'Subject', type: 'text' },
+      { label: 'Message', type: 'textarea' },
+      { label: 'Attachments', type: 'file' },
+    ];
+
+    fields.forEach(({ label, type }) => {
+      const labelElement = screen.getByText(label);
+      expect(labelElement).toBeInTheDocument();
+      const input = screen.getByLabelText(label);
+      expect(input).toBeInTheDocument();
+      if (type !== 'textarea') {
+        expect(input).toHaveAttribute('type', type);
+      }
+    });
   });
 });
