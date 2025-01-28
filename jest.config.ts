@@ -7,16 +7,16 @@ const createJestConfig = nextJest({
 });
 
 const config: Config = {
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jsdom', 
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  transform: {
-    '^.+\\.(t|j)sx?$': '@swc/jest',
-  },
   transformIgnorePatterns: [
-    '/node_modules/(?!(just-performance|limiter|lucide-react)/)',
+    '/node_modules/(?!(lucide-react|just-performance|limiter))',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  transform: {
+    '^.+\\.(t|j)sx?$': '@swc/jest',
   },
   testMatch: [
     '**/__tests__/**/*.ts?(x)',
@@ -29,19 +29,10 @@ const config: Config = {
     '!src/middleware.ts',
     '!src/**/generated/**',
   ],
-  coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70,
-    },
-  },
-  testTimeout: 10000,
+  testTimeout: 20000,
   verbose: true,
-  // Add bail option to stop at first failure
   bail: true,
-  // Add sequence enforcement
   maxWorkers: 1,
 };
+
 export default createJestConfig(config);

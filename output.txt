@@ -1,4 +1,0 @@
-
-> tito-website@0.1.0 test
-> jest --testPathIgnorePatterns=e2e/ --bail --runInBand
-
