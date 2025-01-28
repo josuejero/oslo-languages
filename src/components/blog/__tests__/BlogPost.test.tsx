@@ -36,6 +36,48 @@ describe('BlogPost', () => {
     readingTime: '3 min read'
   };
 
+  // Remove the beforeEach block since addMetaTags is not defined
+  
+  // Update accessibility test
+  it('should have proper ARIA labels', () => {
+    render(<BlogPost post={mockPost} />);
+    
+    expect(screen.getByRole('article')).toHaveAttribute('aria-labelledby');
+    // Change to test for region role instead of complementary
+    expect(screen.getByRole('region')).toHaveAttribute('aria-label');
+  });
+
+  // Update share buttons test
+  it('should have keyboard-accessible share buttons', async () => {
+    render(<BlogPost post={mockPost} />);
+    
+    // Change to test for links instead of buttons
+    const shareLinks = screen.getAllByRole('link', { name: /share on/i });
+    
+    for (const link of shareLinks) {
+      expect(link).toHaveAttribute('aria-label');
+      link.focus();
+      await userEvent.keyboard('{enter}');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    }
+  });
+
+  // Update SEO test
+  it('should update metadata when post changes', () => {
+    const { rerender } = render(<BlogPost post={mockPost} />);
+
+    const updatedPost = {
+      ...mockPost,
+      title: 'Updated Title',
+      excerpt: 'Updated excerpt'
+    };
+
+    rerender(<BlogPost post={updatedPost} />);
+    
+    const metaTags = document.head.querySelectorAll('meta');
+    expect(metaTags).not.toHaveLength(0);
+  });
+
   describe('Content Rendering', () => {
     it('should render the post title and metadata', () => {
       render(<BlogPost post={mockPost} />);

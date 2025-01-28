@@ -1,111 +1,53 @@
 // src/components/widgets/ContactForm.tsx
 import { useForm } from 'react-hook-form';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { logger } from '@/lib/logger';
 import { FormField, Input, Textarea } from '@/components/ui/form';
-
-
-
 
 type FormData = {
   name: string;
   email: string;
   subject: string;
   message: string;
-  attachments: FileList;
 };
 
 const STORAGE_KEY = 'contact_form_draft';
-const AUTOSAVE_DELAY = 1000;
-
-
 
 const ContactForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isDirty },
-    watch,
-    setValue,
+    formState: { errors },
   } = useForm<FormData>();
 
-  const formValues = watch();
-
-  useEffect(() => {
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      Object.keys(parsedData).forEach((key) => {
-        if (key !== 'attachments') {
-          setValue(key as keyof FormData, parsedData[key]);
-        }
-      });
-    }
-  }, [setValue]);
-
-  useEffect(() => {
-    if (!isDirty) return;
-
-    const timer = setTimeout(() => {
-      const dataToSave = { ...formValues };
-      delete (dataToSave as Partial<FormData>).attachments;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-      logger.info('Form autosaved');
-    }, AUTOSAVE_DELAY);
-    
-    return () => clearTimeout(timer);
-  }, [formValues, isDirty]);
-
+  // Handle form submission
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     setSubmitError(null);
-    setUploadProgress(0);
     
     try {
       logger.info('Submitting contact form', { email: data.email });
 
-      const formData = new FormData();
-      formData.append('name', data.name);
-      formData.append('email', data.email);
-      formData.append('subject', data.subject);
-      formData.append('message', data.message);
-      
-      Array.from(data.attachments || []).forEach((file) => {
-        formData.append('attachments', file);
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/api/contact', true);
+      if (!response.ok) {
+        throw new Error('Failed to submit the form');
+      }
 
-      xhr.upload.onprogress = (progressEvent) => {
-        if (progressEvent.lengthComputable) {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(progress);
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          setSubmitSuccess(true);
-          localStorage.removeItem(STORAGE_KEY);
-          reset();
-        } else {
-          setSubmitError('Failed to submit the form. Please try again later.');
-        }
-      };
-
-      xhr.onerror = () => {
-        setSubmitError('Failed to submit the form. Please check your connection and try again.');
-      };
-
-      xhr.send(formData);
-
+      setSubmitSuccess(true);
+      localStorage.removeItem(STORAGE_KEY);
+      reset();
     } catch (error) {
       logger.error('Contact form submission failed', {
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -113,18 +55,13 @@ const ContactForm = () => {
       setSubmitError('Failed to submit the form. Please try again later.');
     } finally {
       setIsSubmitting(false);
-      setUploadProgress(0);
     }
   };
-
-
 
   const clearSavedData = () => {
     localStorage.removeItem(STORAGE_KEY);
     reset();
   };
-
-
 
   return (
     <form 
@@ -202,33 +139,6 @@ const ContactForm = () => {
           rows={5}
         />
       </FormField>
-
-      <FormField
-        label="Attachments"
-        hint="Max file size: 5MB. Allowed types: PDF, DOC, DOCX, TXT, JPG, PNG"
-      >
-        <Input
-          {...register('attachments')}
-          type="file"
-          multiple
-          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-        />
-      </FormField>
-
-      {uploadProgress > 0 && uploadProgress < 100 && (
-        <div 
-          role="progressbar" 
-          aria-valuenow={uploadProgress}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          className="w-full bg-gray-200 rounded-full h-2.5"
-        >
-          <div
-            className="bg-blue-600 h-2.5 rounded-full"
-            style={{ width: `${uploadProgress}%` }}
-          />
-        </div>
-      )}
 
       <div className="flex justify-between">
         <button
