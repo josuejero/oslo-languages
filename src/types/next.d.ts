@@ -6,6 +6,6 @@ export type PageProps = {
   searchParams?: { [key: string]: string | string[] | undefined };
 };
 
-export type NextPageWithProps<P extends Record<string, unknown> = Record<string, unknown>, IP = P> = NextPage<P, IP> & {
+export type NextPageWithProps<P = Record<string, unknown>, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: React.ReactElement) => React.ReactNode;
 };

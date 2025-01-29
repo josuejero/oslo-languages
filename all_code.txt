@@ -22,8 +22,6 @@ Please analyze the project structure, errors, and code carefully:
 ├── package.json
 ├── playwright.config.ts
 ├── postcss.config.mjs
-├── prisma
-│   └── schema.prisma
 ├── problem.js
 ├── public
 │   ├── blog
@@ -39,35 +37,22 @@ Please analyze the project structure, errors, and code carefully:
 │   ├── app
 │   │   ├── about
 │   │   │   └── page.tsx
-│   │   ├── admin
-│   │   │   ├── BlogEditor.tsx
-│   │   │   ├── __tests__
-│   │   │   │   └── login.test.tsx
-│   │   │   ├── dashboard
-│   │   │   │   └── page.tsx
-│   │   │   ├── login
-│   │   │   │   └── page.tsx
-│   │   │   └── posts
-│   │   │       ├── [slug]
-│   │   │       │   └── edit
-│   │   │       │       └── page.tsx
-│   │   │       ├── new
-│   │   │       │   └── page.tsx
-│   │   │       └── page.tsx
 │   │   ├── api
 │   │   │   ├── __tests__
-│   │   │   │   └── contact.test.ts
 │   │   │   ├── admin
 │   │   │   │   └── posts
 │   │   │   │       └── route.ts
 │   │   │   ├── auth
+│   │   │   ├── blog
+│   │   │   │   ├── preview
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── search
+│   │   │   │       └── route.ts
 │   │   │   ├── contact
 │   │   │   │   └── route.ts
 │   │   │   ├── og
 │   │   │   │   └── route.tsx
-│   │   │   ├── register
-│   │   │   │   └── route.ts
-│   │   │   └── upload
+│   │   │   └── register
 │   │   ├── blog
 │   │   │   ├── [slug]
 │   │   │   │   └── page.tsx
@@ -77,9 +62,7 @@ Please analyze the project structure, errors, and code carefully:
 │   │   ├── courses
 │   │   │   ├── [courseId]
 │   │   │   │   └── page.tsx
-│   │   │   ├── page.tsx
-│   │   │   └── register
-│   │   │       └── page.tsx
+│   │   │   └── page.tsx
 │   │   ├── error.tsx
 │   │   ├── faq
 │   │   │   └── page.tsx
@@ -98,11 +81,12 @@ Please analyze the project structure, errors, and code carefully:
 │   │   ├── ErrorBoundary.tsx
 │   │   ├── LoadingSpinner.tsx
 │   │   ├── OptimizedImage.tsx
-│   │   ├── ThemeControls.tsx
 │   │   ├── __tests__
 │   │   │   ├── ErrorBoundary.test.tsx
 │   │   │   └── OptimizedImage.test.tsx
 │   │   ├── blog
+│   │   │   ├── BlogFilter.tsx
+│   │   │   ├── BlogList.tsx
 │   │   │   ├── BlogPost.tsx
 │   │   │   ├── RichContent.tsx
 │   │   │   ├── ShareButtons.tsx
@@ -124,28 +108,29 @@ Please analyze the project structure, errors, and code carefully:
 │   │   ├── providers
 │   │   │   └── AuthProvider.tsx
 │   │   ├── ui
-│   │   │   └── form
-│   │   │       └── index.tsx
+│   │   │   ├── alert.tsx
+│   │   │   ├── form
+│   │   │   │   └── index.tsx
+│   │   │   └── index.ts
 │   │   └── widgets
 │   │       ├── BlogList.tsx
 │   │       ├── ContactForm.tsx
 │   │       ├── CourseFilters.tsx
 │   │       ├── CourseList.tsx
-│   │       ├── CourseRegistrationForm.tsx
 │   │       ├── Testimonials.tsx
 │   │       └── __tests__
 │   │           └── ContactForm.test.tsx
 │   ├── context
-│   │   └── ThemeContext.tsx
 │   ├── data.ts
 │   ├── lib
 │   │   ├── __tests__
 │   │   │   └── blog.test.ts
 │   │   ├── api-utils.ts
+│   │   ├── blog
+│   │   │   └── operations.ts
 │   │   ├── blog.ts
 │   │   ├── courses.ts
 │   │   ├── hooks
-│   │   │   └── useCSRFToken.ts
 │   │   ├── logger.ts
 │   │   ├── middleware
 │   │   │   └── __tests__
@@ -154,9 +139,7 @@ Please analyze the project structure, errors, and code carefully:
 │   ├── styles
 │   │   └── colors.ts
 │   ├── types
-│   │   ├── auth.ts
 │   │   ├── md-editor.d.ts
-│   │   ├── media.ts
 │   │   └── next.d.ts
 │   └── types.ts
 ├── tailwind.config.ts
@@ -164,7 +147,7 @@ Please analyze the project structure, errors, and code carefully:
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-62 directories, 99 files
+55 directories, 89 files
 
 
 ================================================================================
@@ -776,6 +759,7 @@ File: package.json
     "@testing-library/user-event": "^14.5.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.15",
     "@types/node": "20.17.11",
     "@types/react": "19.0.2",
     "@types/react-dom": "^19",
@@ -841,102 +825,6 @@ const config = {
 
 export default config;
 
-
-================================================================================
-File: prisma/schema.prisma
-================================================================================
-
-// prisma/schema.prisma
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-// Blog System
-model Post {
-  id         String     @id @default(cuid())
-  title      String
-  slug       String     @unique
-  content    String     @db.Text
-  excerpt    String?
-  author     String     // Just store the author name
-  published  Boolean    @default(false)
-  coverImage String?    // URL to the image
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  categories Category[]
-  tags       Tag[]
-  comments   Comment[]
-}
-
-model Comment {
-  id        String   @id @default(cuid())
-  content   String   @db.Text
-  author    String   // Name of commenter
-  email     String   // Email of commenter
-  approved  Boolean  @default(false)
-  postId    String
-  post      Post     @relation(fields: [postId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Category {
-  id    String @id @default(cuid())
-  name  String @unique
-  slug  String @unique
-  posts Post[]
-}
-
-model Tag {
-  id    String @id @default(cuid())
-  name  String @unique
-  slug  String @unique
-  posts Post[]
-}
-
-// Form Submissions
-model FormSubmission {
-  id        String           @id @default(cuid())
-  type      SubmissionType
-  status    SubmissionStatus @default(PENDING)
-  data      Json            // Store all form fields as JSON
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-}
-
-enum SubmissionType {
-  CONTACT
-  REGISTRATION
-  INQUIRY
-}
-
-enum SubmissionStatus {
-  PENDING
-  PROCESSED
-  ARCHIVED
-}
-
-// Media Library
-model Media {
-  id          String   @id @default(cuid())
-  filename    String
-  path        String   @unique
-  mimeType    String
-  size        Int      // in bytes
-  width       Int?     // for images
-  height      Int?     // for images
-  alt         String?  // alt text for images
-  title       String?  // display title
-  isPublic    Boolean  @default(true)
-  uploadedAt  DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
 
 ================================================================================
 File: scripts/generate-password-hash.ts
@@ -1117,934 +1005,142 @@ export default function AboutPage() {
 }
 
 ================================================================================
-File: src/app/admin/BlogEditor.tsx
-================================================================================
-
-// src/app/admin/BlogEditor.tsx
-
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import type { MDEditorProps } from '@uiw/react-md-editor';
-
-const MDEditor = dynamic<MDEditorProps>(
-  () => import('@uiw/react-md-editor'),
-  { ssr: false }
-);
-// src/app/admin/BlogEditor.tsx
-interface BlogPost {
-  title: string;
-  excerpt: string;
-  content: string;
-  categories: string[];
-  tags: string[];
-  coverImage: string;
-  status?: 'draft' | 'published'; // Make status optional
-  publishDate?: string;
-}
-
-
-interface BlogEditorProps {
-  initialData?: BlogPost;
-  isEditing?: boolean;
-}
-
-export default function BlogEditor({ initialData, isEditing = false }: BlogEditorProps) {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showMediaLibrary, setShowMediaLibrary] = useState(false);
-  
-  const [formData, setFormData] = useState<BlogPost>(initialData || {
-    title: '',
-    excerpt: '',
-    content: '',
-    categories: [],
-    tags: [],
-    coverImage: '',
-    status: 'draft',
-  });
-
-  const handleSubmit = async (e: React.FormEvent, status: 'draft' | 'published' = 'draft') => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const postData = {
-        ...formData,
-        status,
-        publishDate: status === 'published' ? new Date().toISOString() : undefined,
-      };
-
-      const response = await fetch(
-        `/api/admin/posts${isEditing ? `/${initialData?.title.toLowerCase().replace(/\s+/g, '-')}` : ''}`,
-        {
-          method: isEditing ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(postData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to save post');
-      }
-
-      router.push('/admin/posts');
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleArrayInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: 'categories' | 'tags'
-  ) => {
-    const values = e.target.value.split(',').map(item => item.trim());
-    setFormData(prev => ({ ...prev, [field]: values }));
-  };
-
-  return (
-    <form onSubmit={(e) => handleSubmit(e, formData.status)} className="space-y-6">
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded-md">
-          {error}
-        </div>
-      )}
-
-      <div>
-        <label className="block text-sm font-medium text-text-primary mb-2">
-          Title
-        </label>
-        <input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleInputChange}
-          required
-          className="w-full px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-text-primary mb-2">
-          Excerpt
-        </label>
-        <textarea
-          name="excerpt"
-          value={formData.excerpt}
-          onChange={handleInputChange}
-          required
-          rows={3}
-          className="w-full px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-text-primary mb-2">
-          Cover Image
-        </label>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            name="coverImage"
-            value={formData.coverImage}
-            onChange={handleInputChange}
-            className="flex-1 px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
-          />
-          <button
-            type="button"
-            onClick={() => setShowMediaLibrary(true)}
-            className="px-4 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-secondary"
-          >
-            Browse Media
-          </button>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-text-primary mb-2">
-          Categories (comma-separated)
-        </label>
-        <input
-          type="text"
-          value={formData.categories.join(', ')}
-          onChange={(e) => handleArrayInputChange(e, 'categories')}
-          className="w-full px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-text-primary mb-2">
-          Tags (comma-separated)
-        </label>
-        <input
-          type="text"
-          value={formData.tags.join(', ')}
-          onChange={(e) => handleArrayInputChange(e, 'tags')}
-          className="w-full px-3 py-2 border border-text-secondary rounded-md bg-bg-secondary text-text-primary"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-text-primary mb-2">
-          Content
-        </label>
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setShowMediaLibrary(true)}
-            className="absolute top-2 right-2 z-10 px-3 py-1 bg-accent-primary text-white rounded-md hover:bg-accent-secondary text-sm"
-          >
-            Add Image
-          </button>
-          <div data-color-mode="dark">
-            <MDEditor
-              value={formData.content}
-              onChange={(value) => setFormData(prev => ({ ...prev, content: value || '' }))}
-              preview="edit"
-              height={400}
-              textareaProps={{
-                placeholder: 'Write your content here...',
-              }}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-between">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-4 py-2 border border-text-secondary rounded-md hover:bg-bg-secondary text-text-primary"
-        >
-          Cancel
-        </button>
-        
-        <div className="space-x-4">
-          <button
-            type="submit"
-            onClick={(e) => {
-              e.preventDefault();
-              handleSubmit(e, 'draft');
-            }}
-            disabled={isSubmitting}
-            className="px-4 py-2 border border-accent-primary text-accent-primary rounded-md hover:bg-accent-primary hover:text-white disabled:opacity-50"
-          >
-            Save as Draft
-          </button>
-          <button
-            type="submit"
-            onClick={(e) => {
-              e.preventDefault();
-              handleSubmit(e, 'published');
-            }}
-            disabled={isSubmitting}
-            className="px-4 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-secondary disabled:opacity-50"
-          >
-            {isSubmitting ? 'Publishing...' : 'Publish'}
-          </button>
-        </div>
-      </div>
-
-      {showMediaLibrary && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-bg-tertiary p-6 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-text-primary">Media Library</h2>
-              <button
-                onClick={() => setShowMediaLibrary(false)}
-                className="text-text-secondary hover:text-text-primary"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            {/* Media Library content goes here */}
-          </div>
-        </div>
-      )}
-    </form>
-  );
-}
-
-================================================================================
-File: src/app/admin/__tests__/login.test.tsx
-================================================================================
-
-// src/app/admin/__tests__/login.test.tsx
-
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import LoginPage from '../login/page';
-
-// Mock next-auth
-jest.mock('next-auth/react', () => ({
-  signIn: jest.fn(),
-}));
-
-// Mock next/navigation
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-}));
-
-describe('Admin Login Page', () => {
-  const mockRouter = {
-    push: jest.fn(),
-    back: jest.fn(),
-    forward: jest.fn(),
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-  });
-
-  it('should render login form', () => {
-    render(<LoginPage />);
-    
-    expect(screen.getByRole('heading', { name: /admin login/i })).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /email/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
-  });
-
-  it('should handle successful login', async () => {
-    (signIn as jest.Mock).mockResolvedValueOnce({ error: null });
-    
-    render(<LoginPage />);
-    
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'admin@example.com');
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
-    
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
-    await waitFor(() => {
-      expect(signIn).toHaveBeenCalledWith('credentials', {
-        redirect: false,
-        email: 'admin@example.com',
-        password: 'password123',
-      });
-      expect(mockRouter.push).toHaveBeenCalledWith('/admin/dashboard');
-    });
-  });
-
-  it('should handle login failure', async () => {
-    (signIn as jest.Mock).mockResolvedValueOnce({ error: 'CredentialsSignin' });
-    
-    render(<LoginPage />);
-    
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'wrong@example.com');
-    await userEvent.type(screen.getByLabelText(/password/i), 'wrongpassword');
-    
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
-    await waitFor(() => {
-      expect(screen.getByText(/invalid email or password/i)).toBeInTheDocument();
-      expect(mockRouter.push).not.toHaveBeenCalled();
-    });
-  });
-
-  it('should handle unexpected errors', async () => {
-    (signIn as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
-    
-    render(<LoginPage />);
-    
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'admin@example.com');
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
-    
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
-    await waitFor(() => {
-      expect(screen.getByText(/an unexpected error occurred/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should validate required fields', async () => {
-    render(<LoginPage />);
-    
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
-    await waitFor(() => {
-      expect(signIn).not.toHaveBeenCalled();
-      expect(screen.getByRole('textbox', { name: /email/i })).toBeInvalid();
-      expect(screen.getByLabelText(/password/i)).toBeInvalid();
-    });
-  });
-
-  it('should show loading state during login', async () => {
-    (signIn as jest.Mock).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
-    
-    render(<LoginPage />);
-    
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'admin@example.com');
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
-    
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
-    expect(screen.getByText(/signing in/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
-  });
-
-  it('should maintain accessibility during state changes', async () => {
-    render(<LoginPage />);
-    
-    // Check initial accessibility
-    expect(screen.getByRole('form')).toHaveAttribute('aria-label', 'Admin login');
-    
-    // Error state accessibility
-    (signIn as jest.Mock).mockResolvedValueOnce({ error: 'CredentialsSignin' });
-    
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'wrong@example.com');
-    await userEvent.type(screen.getByLabelText(/password/i), 'wrongpassword');
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
-    await waitFor(() => {
-      const errorMessage = screen.getByText(/invalid email or password/i);
-      expect(errorMessage).toHaveAttribute('role', 'alert');
-    });
-    
-    // Loading state accessibility
-    (signIn as jest.Mock).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
-    
-    await userEvent.type(screen.getByRole('textbox', { name: /email/i }), 'admin@example.com');
-    await userEvent.type(screen.getByLabelText(/password/i), 'password123');
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    
-    expect(screen.getByRole('button', { name: /signing in/i })).toHaveAttribute('aria-busy', 'true');
-  });
-
-  it('should prevent automated submissions', async () => {
-    const mockPreventDefault = jest.fn();
-    render(<LoginPage />);
-    
-    const form = screen.getByRole('form');
-    fireEvent.submit(form, { preventDefault: mockPreventDefault });
-    
-    expect(mockPreventDefault).toHaveBeenCalled();
-    expect(signIn).not.toHaveBeenCalled();
-  });
-});
-
-================================================================================
-File: src/app/admin/dashboard/page.tsx
-================================================================================
-
-// src/app/admin/dashboard/page.tsx
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
-
-export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect('/admin/login');
-  }
-
-  return (
-    <div className="min-h-screen bg-bg-secondary p-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-text-primary">Admin Dashboard</h1>
-          <p className="text-text-secondary">
-            Welcome back, {session.user?.email}
-          </p>
-        </header>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Blog Posts Management */}
-          <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-text-primary">
-              Blog Posts
-            </h2>
-            <p className="text-text-secondary mb-4">
-              Manage your blog posts, create new content, and edit existing articles.
-            </p>
-            <a
-              href="/admin/posts"
-              className="inline-block bg-accent-primary text-white px-4 py-2 rounded hover:bg-accent-secondary transition-colors"
-            >
-              Manage Posts
-            </a>
-          </div>
-
-          {/* Course Management */}
-          <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-text-primary">
-              Courses
-            </h2>
-            <p className="text-text-secondary mb-4">
-              Update course information, schedules, and pricing.
-            </p>
-            <a
-              href="/admin/courses"
-              className="inline-block bg-accent-primary text-white px-4 py-2 rounded hover:bg-accent-secondary transition-colors"
-            >
-              Manage Courses
-            </a>
-          </div>
-
-          {/* Media Library */}
-          <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-text-primary">
-              Media Library
-            </h2>
-            <p className="text-text-secondary mb-4">
-              Upload and manage images and other media files.
-            </p>
-            <a
-              href="/admin/media"
-              className="inline-block bg-accent-primary text-white px-4 py-2 rounded hover:bg-accent-secondary transition-colors"
-            >
-              Media Library
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-================================================================================
-File: src/app/admin/login/page.tsx
-================================================================================
-
-// src/app/admin/login/page.tsx
-'use client';
-
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-
-export default function LoginPage() {
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setFormError(null);
-    setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    try {
-      const result = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
-      });
-
-      if (result?.error) {
-        const errorMessage = result.error === 'CredentialsSignin' 
-          ? 'Invalid email or password'
-          : result.error;
-        setFormError(errorMessage);
-      } else {
-        router.push('/admin/dashboard');
-      }
-    } catch {
-      setFormError('An unexpected error occurred');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-secondary">
-      <div className="max-w-md w-full space-y-8 p-8 bg-bg-tertiary rounded-lg shadow-xl">
-        <div>
-          <h1 className="text-3xl font-bold text-center text-text-primary">
-            Admin Login
-          </h1>
-        </div>
-
-        {formError && (
-          <div className="bg-red-100 text-red-700 p-3 rounded">
-            {formError}
-          </div>
-        )}
-
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label 
-              htmlFor="email" 
-              className="block text-sm font-medium text-text-primary"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="mt-1 block w-full px-3 py-2 bg-bg-secondary border border-text-secondary rounded-md shadow-sm focus:outline-none focus:ring-accent-primary focus:border-accent-primary"
-            />
-          </div>
-
-          <div>
-            <label 
-              htmlFor="password" 
-              className="block text-sm font-medium text-text-primary"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="mt-1 block w-full px-3 py-2 bg-bg-secondary border border-text-secondary rounded-md shadow-sm focus:outline-none focus:ring-accent-primary focus:border-accent-primary"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-accent-primary hover:bg-accent-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-primary disabled:opacity-50"
-          >
-            {isLoading ? 'Signing in...' : 'Sign in'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-================================================================================
-File: src/app/admin/posts/[slug]/edit/page.tsx
-================================================================================
-
-// src/app/admin/posts/[slug]/edit/page.tsx
-import { notFound } from 'next/navigation';
-import BlogEditor from '@/app/admin/BlogEditor';
-import { getPostBySlug } from '@/lib/blog';
-
-// Define the BlogPost interface here
-interface BlogPost {
-  title: string;
-  excerpt: string;
-  content: string;
-  categories: string[];
-  tags: string[];
-  coverImage: string;
-  status?: 'draft' | 'published'; // Make status optional
-  publishDate?: string;
-}
-
-interface Props {
-  params: { slug: string };
-}
-
-export default async function EditBlogPostPage({ params }: Props) {
-  let post: BlogPost | null = null;
-  try {
-    post = await getPostBySlug(params.slug);
-    if (!post) {
-      notFound();
-    }
-  } catch (error) {
-    console.error('Error fetching post:', error);
-    notFound();
-  }
-
-  // Ensure that post is not null before proceeding
-  if (!post) {
-    return null; // or a fallback UI
-  }
-
-  return (
-    <div className="min-h-screen bg-bg-secondary p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-text-primary">
-          Edit Blog Post: {post.title}
-        </h1>
-        
-        <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
-          <BlogEditor 
-            initialData={{
-              title: post.title,
-              excerpt: post.excerpt,
-              content: post.content,
-              categories: post.categories,
-              tags: post.tags,
-              coverImage: post.coverImage,
-              status: post.status || 'draft', // Add this line
-            }} 
-            isEditing={true} 
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-================================================================================
-File: src/app/admin/posts/new/page.tsx
-================================================================================
-
-// src/app/admin/posts/new/page.tsx
-import BlogEditor from '@/app/admin/BlogEditor';
-
-export default function NewBlogPostPage() {
-  return (
-    <div className="min-h-screen bg-bg-secondary p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-text-primary">Create New Blog Post</h1>
-        
-        <div className="bg-bg-tertiary p-6 rounded-lg shadow-lg">
-          <BlogEditor />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-================================================================================
-File: src/app/admin/posts/page.tsx
-================================================================================
-
-// src/app/admin/posts/page.tsx
-import { getAllPosts } from '@/lib/blog';
-import Link from 'next/link';
-
-export default async function BlogManagementPage() {
-  const posts = await getAllPosts();
-
-  return (
-    <div className="min-h-screen bg-bg-secondary p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-text-primary">Manage Blog Posts</h1>
-          <Link
-            href="/admin/posts/new"
-            className="bg-accent-primary text-white px-4 py-2 rounded-md hover:bg-accent-secondary"
-          >
-            Create New Post
-          </Link>
-        </div>
-
-        <div className="bg-bg-tertiary rounded-lg shadow-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-bg-secondary">
-              <tr>
-                <th className="px-6 py-3 text-left text-text-primary">Title</th>
-                <th className="px-6 py-3 text-left text-text-primary">Author</th>
-                <th className="px-6 py-3 text-left text-text-primary">Date</th>
-                <th className="px-6 py-3 text-left text-text-primary">Categories</th>
-                <th className="px-6 py-3 text-right text-text-primary">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-text-secondary">
-              {posts.map((post) => (
-                <tr key={post.slug} className="hover:bg-bg-secondary">
-                  <td className="px-6 py-4 text-text-primary">{post.title}</td>
-                  <td className="px-6 py-4 text-text-secondary">{post.author}</td>
-                  <td className="px-6 py-4 text-text-secondary">
-                    {new Date(post.date).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-2">
-                      {post.categories.map((category) => (
-                        <span
-                          key={category}
-                          className="bg-accent-primary text-white px-2 py-1 rounded-full text-sm"
-                        >
-                          {category}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <Link
-                      href={`/admin/posts/${post.slug}/edit`}
-                      className="text-accent-primary hover:text-accent-secondary"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={async () => {
-                        if (confirm('Are you sure you want to delete this post?')) {
-                          await fetch(`/api/admin/posts/${post.slug}`, {
-                            method: 'DELETE',
-                          });
-                          window.location.reload();
-                        }
-                      }}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-================================================================================
-File: src/app/api/__tests__/contact.test.ts
-================================================================================
-
-// src/app/api/__tests__/contact.test.ts
-import { POST } from '../contact/route';
-import { NextRequest } from 'next/server';
-
-describe('Contact API', () => {
-  it('validates input correctly', async () => {
-    const request = new NextRequest('http://localhost:3000/api/contact', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: '',
-        email: 'invalid-email',
-        message: ''
-      })
-    });
-
-    const response = await POST(request);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data.errors).toContain('Name is required');
-    expect(data.errors).toContain('Invalid email address');
-    expect(data.errors).toContain('Message is required');
-  });
-});
-
-================================================================================
 File: src/app/api/admin/posts/route.ts
 ================================================================================
 
-// src/app/api/admin/posts/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
-import fs from 'fs/promises';
-import path from 'path';
-import matter from 'gray-matter';
-import { User } from 'next-auth';
+import * as blogOps from '@/lib/blog/operations';
+import { logger } from '@/lib/logger';
 
-interface SessionUser extends User {
-  role: string;
-}
-
-const postsDirectory = path.join(process.cwd(), 'content/posts');
-
-export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  const user = session?.user as SessionUser | undefined;
-  
-  if (!user || user.role !== 'admin') {
+export async function POST(request: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const data = await request.json();
-    
-    // Create slug from title
-    const slug = data.title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-');
+    const post = await blogOps.createPost({
+      ...data,
+      author: session.user.email,
+    });
 
-    // Create frontmatter
-    const frontmatter = {
-      title: data.title,
-      date: new Date().toISOString(),
-      excerpt: data.excerpt,
-      author: user.email,
-      categories: data.categories,
-      tags: data.tags,
-      coverImage: data.coverImage,
-    };
-
-    // Create markdown content
-    const fileContent = matter.stringify(data.content, frontmatter);
-
-    // Write to file
-    await fs.writeFile(
-      path.join(postsDirectory, `${slug}.md`),
-      fileContent,
-      'utf8'
-    );
-
-    return NextResponse.json({ success: true, slug });
-  } catch (err) {
-    const error = err as Error;
-    console.error('Error creating post:', error);
+    logger.info('Post created successfully', { postId: post.id });
+    return NextResponse.json({ post });
+  } catch (error) {
+    logger.error('Failed to create post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      user: session.user.email
+    });
     return NextResponse.json(
-      { error: error.message || 'Failed to create post' },
+      { error: 'Failed to create post' },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { slug: string } }
-) {
-  const session = await getServerSession(authOptions);
-  const user = session?.user as SessionUser | undefined;
-  
-  if (!user || user.role !== 'admin') {
+export async function PUT(request: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const data = await request.json();
-    const slug = params.slug;
+    const { slug, ...updates } = await request.json();
+    const post = await blogOps.updatePost(slug, updates);
 
-    // Create frontmatter
-    const frontmatter = {
-      title: data.title,
-      excerpt: data.excerpt,
-      author: user.email,
-      categories: data.categories,
-      tags: data.tags,
-      coverImage: data.coverImage,
-      date: new Date().toISOString(),
-    };
-
-    // Create markdown content
-    const fileContent = matter.stringify(data.content, frontmatter);
-
-    // Write to file
-    await fs.writeFile(
-      path.join(postsDirectory, `${slug}.md`),
-      fileContent,
-      'utf8'
-    );
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    const error = err as Error;
-    console.error('Error updating post:', error);
+    logger.info('Post updated successfully', { 
+      postId: post.id,
+      slug 
+    });
+    return NextResponse.json({ post });
+  } catch (error) {
+    logger.error('Failed to update post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      user: session.user.email
+    });
     return NextResponse.json(
-      { error: error.message || 'Failed to update post' },
+      { error: 'Failed to update post' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { slug } = await request.json();
+    await blogOps.deletePost(slug);
+
+    logger.info('Post deleted successfully', { 
+      slug,
+      user: session.user.email 
+    });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logger.error('Failed to delete post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      user: session.user.email
+    });
+    return NextResponse.json(
+      { error: 'Failed to delete post' },
+      { status: 500 }
+    );
+  }
+}
+
+================================================================================
+File: src/app/api/blog/preview/route.ts
+================================================================================
+
+
+import { NextRequest, NextResponse } from 'next/server';
+import * as blogOps from '@/lib/blog/operations';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { content } = await request.json();
+    const html = await blogOps.previewPost(content);
+
+    return NextResponse.json({ html });
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to generate preview' },
+      { status: 500 }
+    );
+  }
+}
+
+================================================================================
+File: src/app/api/blog/search/route.ts
+================================================================================
+
+
+import { NextRequest, NextResponse } from 'next/server';
+import * as blogOps from '@/lib/blog/operations';
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  
+  try {
+    const results = await blogOps.searchPosts({
+      query: searchParams.get('q') || undefined,
+      category: searchParams.get('category') || undefined,
+      tag: searchParams.get('tag') || undefined,
+      status: searchParams.get('status') as 'draft' | 'published' | undefined,
+      page: parseInt(searchParams.get('page') || '1'),
+      limit: parseInt(searchParams.get('limit') || '10'),
+    });
+
+    return NextResponse.json(results);
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to search posts' },
       { status: 500 }
     );
   }
@@ -2218,118 +1314,36 @@ export async function GET(request: NextRequest) {
 }
 
 ================================================================================
-File: src/app/api/register/route.ts
-================================================================================
-
-// src/app/api/register/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function POST(request: NextRequest) {
-  try {
-    const data = await request.json();
-
-    // Input validation
-    const errors = [];
-    if (!data.firstName?.trim()) errors.push('First name is required');
-    if (!data.lastName?.trim()) errors.push('Last name is required');
-    if (!data.email?.trim()) errors.push('Email is required');
-    if (!data.phone?.trim()) errors.push('Phone is required');
-    if (!data.courseId?.trim()) errors.push('Course selection is required');
-    if (!data.preferredSchedule?.trim()) errors.push('Preferred schedule is required');
-    if (!data.currentLevel?.trim()) errors.push('Current level is required');
-
-    // Email validation
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    if (data.email && !emailRegex.test(data.email)) {
-      errors.push('Invalid email address');
-    }
-
-    // Phone validation
-    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
-    if (data.phone && !phoneRegex.test(data.phone)) {
-      errors.push('Invalid phone number');
-    }
-
-    if (errors.length > 0) {
-      return NextResponse.json({ errors }, { status: 400 });
-    }
-
-    // Sanitize input
-    const sanitizedData = {
-      firstName: data.firstName.trim().slice(0, 100),
-      lastName: data.lastName.trim().slice(0, 100),
-      email: data.email.trim().slice(0, 100),
-      phone: data.phone.trim().slice(0, 20),
-      courseId: data.courseId.trim(),
-      preferredSchedule: data.preferredSchedule.trim(),
-      currentLevel: data.currentLevel.trim(),
-      goals: (data.goals || '').trim().slice(0, 1000),
-      specialRequirements: (data.specialRequirements || '').trim().slice(0, 1000),
-      heardFrom: (data.heardFrom || '').trim(),
-      marketingConsent: !!data.marketingConsent,
-    };
-
-    // Here you would typically:
-    // 1. Save to database
-    // 2. Send confirmation email
-    // 3. Send notification to staff
-    // 4. Log the registration
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Registration submitted successfully.',
-        data: sanitizedData,
-      },
-      {
-        status: 200,
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-        }
-      }
-    );
-
-  } catch (error) {
-    console.error('Registration error:', error);
-    
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to process registration. Please try again later.',
-      },
-      { status: 500 }
-    );
-  }
-}
-
-================================================================================
 File: src/app/blog/[slug]/page.tsx
 ================================================================================
-
-// src/app/blog/[slug]/page.tsx
 
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getAllPosts } from '@/lib/blog';
 import { generateBlogPostSchema } from '@/lib/schema';
-
 import OptimizedImage from '@/components/OptimizedImage';
 import Script from 'next/script';
 import { Metadata } from 'next';
 
+import type { BlogPost } from '@/lib/blog/operations';
+
 interface Props {
   params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const post = await getPostBySlug(params.slug);
+    if (!post) return { title: 'Post Not Found' };
     
     return {
       title: post.title,
       description: post.excerpt,
       openGraph: {
-        images: [post.coverImage],
+        title: post.title,
+        description: post.excerpt,
+        images: post.coverImage ? [post.coverImage] : undefined,
       },
       keywords: [...post.categories, ...post.tags].join(',')
     };
@@ -2349,10 +1363,13 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogPost({ params }: Props) {
-  let post;
+
+export default async function BlogPostPage({ params }: Props) {
+  let post: BlogPost | null = null;
+  
   try {
     post = await getPostBySlug(params.slug);
+    if (!post) notFound();
   } catch {
     notFound();
   }
@@ -2361,7 +1378,8 @@ export default async function BlogPost({ params }: Props) {
   const structuredData = generateBlogPostSchema({
     title: post.title,
     description: post.excerpt,
-    datePublished: post.date,
+
+    datePublished: post.publishedAt || post.updatedAt || '',
     author: {
       name: post.author,
     },
@@ -2401,9 +1419,16 @@ export default async function BlogPost({ params }: Props) {
             <div className="flex items-center gap-2">
               <span className="font-medium">{post.author}</span>
             </div>
-            <time dateTime={post.date}>
-              {new Date(post.date).toLocaleDateString()}
+
+
+            <time dateTime={post.publishedAt || post.updatedAt || ''}>
+              {new Date(post.publishedAt || post.updatedAt || '').toLocaleDateString()}
             </time>
+            {post.publishedAt !== post.updatedAt && post.updatedAt && (
+              <span className="text-sm">
+                (Updated: {new Date(post.updatedAt).toLocaleDateString()})
+              </span>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2 mb-8">
@@ -2443,6 +1468,16 @@ export default async function BlogPost({ params }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Navigation */}
+        <div className="max-w-4xl mx-auto mt-12 flex justify-between">
+          <Link
+            href="/blog"
+            className="text-accent-primary hover:text-accent-secondary transition-colors"
+          >
+            ← Back to Blog
+          </Link>
+        </div>
       </article>
     </>
   );
@@ -2453,13 +1488,9 @@ File: src/app/blog/page.tsx
 ================================================================================
 
 // src/app/blog/page.tsx
-import Image from 'next/image';
-import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
-import type { Metadata } from 'next';
-import BlogList from '@/components/widgets/BlogList';
-import Layout from '@/components/layout/Layout';
-
+import BlogList from '@/components/blog/BlogList';
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Blog - Oslo Languages',
@@ -2468,70 +1499,20 @@ export const metadata: Metadata = {
 
 export default async function BlogPage() {
   const posts = await getAllPosts();
+  
+  // Extract unique categories and tags from posts
+  const categories = [...new Set(posts.flatMap(post => post.categories))];
+  const tags = [...new Set(posts.flatMap(post => post.tags))];
 
   return (
-    <Layout>
-      <h1 className="text-4xl font-bold mb-8 text-text-primary">Blog</h1>
-      
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {posts.map((post) => (
-          <article key={post.slug} className="bg-bg-secondary rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-            {post.coverImage && (
-              <div className="relative h-48">
-                <Image
-                  src={post.coverImage}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-            
-            <div className="p-6">
-              <div className="flex flex-wrap gap-2 mb-3">
-                {post.categories.map((category) => (
-                  <Link
-                    key={category}
-                    href={`/blog/category/${category.toLowerCase()}`}
-                    className="text-sm bg-accent-primary text-white px-2 py-1 rounded-full hover:bg-accent-secondary transition-colors"
-                  >
-                    {category}
-                  </Link>
-                ))}
-              </div>
-
-              <h2 className="text-xl font-bold mb-2 text-text-primary">
-                <Link href={`/blog/${post.slug}`} className="hover:text-accent-primary">
-                  {post.title}
-                </Link>
-              </h2>
-
-              <p className="text-text-secondary mb-4">{post.excerpt}</p>
-
-              <div className="flex items-center justify-between text-sm text-text-secondary">
-                <span>{post.author}</span>
-                <time dateTime={post.date}>
-                  {new Date(post.date).toLocaleDateString()}
-                </time>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <Link
-                    key={tag}
-                    href={`/blog/tag/${tag.toLowerCase()}`}
-                    className="text-sm text-text-secondary hover:text-accent-primary"
-                  >
-                    #{tag}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-      <BlogList posts={posts} />
-    </Layout>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">Blog</h1>
+      <BlogList 
+        initialPosts={posts} 
+        categories={categories}
+        tags={tags}
+      />
+    </div>
   );
 }
 
@@ -3110,37 +2091,6 @@ export default function CoursesPage({
         </Link>
       </div>
     </PageContainer>
-  );
-}
-
-================================================================================
-File: src/app/courses/register/page.tsx
-================================================================================
-
-// src/app/courses/register/page.tsx
-import { Metadata } from 'next';
-import CourseRegistrationForm from '@/components/widgets/CourseRegistrationForm';
-import Layout from '@/components/layout/Layout';
-
-export const metadata: Metadata = {
-  title: 'Course Registration - Oslo Languages',
-  description: 'Register for language courses at Oslo Languages. Choose from Norwegian, English, Spanish and more.',
-};
-
-export default function RegisterPage() {
-  return (
-    <Layout>
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-bold mb-4">Course Registration</h1>
-        <p className="text-lg text-gray-600 mb-8">
-          Please fill out the form below to register for your chosen course. 
-          We&apos;ll contact you within 1-2 business days to confirm your registration 
-          and provide payment details.
-        </p>
-        
-        <CourseRegistrationForm />
-      </div>
-    </Layout>
   );
 }
 
@@ -4375,82 +3325,6 @@ export default function OptimizedImage({
 }
 
 ================================================================================
-File: src/components/ThemeControls.tsx
-================================================================================
-
-// src/components/ThemeControls.tsx
-import { useTheme } from '@/context/ThemeContext';
-import { useId } from 'react';
-
-export default function ThemeControls() {
-  const { colorScheme, setColorScheme, toggleHighContrast, isHighContrast } = useTheme();
-  const id = useId();
-
-  return (
-    <div className="space-y-4" role="group" aria-label="Theme settings">
-      {/* Color Scheme Controls */}
-      <div role="radiogroup" aria-labelledby={`${id}-color-scheme`}>
-        <h2 id={`${id}-color-scheme`} className="text-sm font-medium mb-2">
-          Color Scheme
-        </h2>
-        <div className="space-y-2">
-          {['light', 'dark', 'system'].map((scheme) => (
-            <label
-              key={scheme}
-              className="flex items-center space-x-2 cursor-pointer"
-            >
-              <input
-                type="radio"
-                name="color-scheme"
-                value={scheme}
-                checked={colorScheme === scheme}
-                onChange={(e) => setColorScheme(e.target.value as never)}
-                className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
-              />
-              <span className="text-sm capitalize">{scheme}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* High Contrast Toggle */}
-      <div>
-        <label className="flex items-center space-x-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={isHighContrast}
-            onChange={toggleHighContrast}
-            className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
-          />
-          <span className="text-sm">High contrast mode</span>
-        </label>
-      </div>
-
-      {/* Theme Preview */}
-      <div className="p-4 rounded-lg border space-y-4">
-        <h3 className="text-lg font-semibold">Theme Preview</h3>
-        <div className="space-y-2">
-          <p className="text-sm">Primary text</p>
-          <p className="text-sm text-gray-600">Secondary text</p>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md">
-            Primary Button
-          </button>
-          <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md">
-            Secondary Button
-          </button>
-          <div className="p-2 bg-green-100 text-green-800 rounded">
-            Success message
-          </div>
-          <div className="p-2 bg-red-100 text-red-800 rounded">
-            Error message
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-================================================================================
 File: src/components/__tests__/ErrorBoundary.test.tsx
 ================================================================================
 
@@ -4826,6 +3700,363 @@ describe('OptimizedImage', () => {
     });
   });
 });
+
+================================================================================
+File: src/components/blog/BlogFilter.tsx
+================================================================================
+
+// src/components/blog/BlogFilter.tsx
+import { useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import debounce from 'lodash/debounce';
+
+interface BlogFilterProps {
+  categories: string[];
+  tags: string[];
+  onFilter: (filters: FilterState) => void;
+}
+
+interface FilterState {
+  search: string;
+  category: string;
+  tag: string;
+  status?: 'all' | 'published' | 'draft';
+  sortBy: 'date' | 'title';
+  sortOrder: 'asc' | 'desc';
+}
+
+export default function BlogFilter({ categories, tags, onFilter }: BlogFilterProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const [filters, setFilters] = useState<FilterState>({
+    search: searchParams.get('search') || '',
+    category: searchParams.get('category') || '',
+    tag: searchParams.get('tag') || '',
+    status: (searchParams.get('status') as FilterState['status']) || 'all',
+    sortBy: (searchParams.get('sortBy') as FilterState['sortBy']) || 'date',
+    sortOrder: (searchParams.get('sortOrder') as FilterState['sortOrder']) || 'desc'
+  });
+
+  // Debounced search handler
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      const newFilters = { ...filters, search: value };
+      setFilters(newFilters);
+      onFilter(newFilters);
+      updateURL(newFilters);
+    }, 300),
+    [filters, onFilter]
+  );
+
+  // Update URL with current filters
+  const updateURL = (newFilters: FilterState) => {
+    const params = new URLSearchParams();
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+    });
+    router.push(`?${params.toString()}`);
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (key: keyof FilterState, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    onFilter(newFilters);
+    updateURL(newFilters);
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow p-6 space-y-6">
+      {/* Search Input */}
+      <div>
+        <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+          Search Posts
+        </label>
+        <input
+          type="search"
+          id="search"
+          value={filters.search}
+          onChange={(e) => debouncedSearch(e.target.value)}
+          placeholder="Search by title or content..."
+          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
+
+      {/* Category Filter */}
+      <div>
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+          Category
+        </label>
+        <select
+          id="category"
+          value={filters.category}
+          onChange={(e) => handleFilterChange('category', e.target.value)}
+          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">All Categories</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tag Filter */}
+      <div>
+        <label htmlFor="tag" className="block text-sm font-medium text-gray-700 mb-2">
+          Tag
+        </label>
+        <select
+          id="tag"
+          value={filters.tag}
+          onChange={(e) => handleFilterChange('tag', e.target.value)}
+          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">All Tags</option>
+          {tags.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Status Filter (Admin only) */}
+      <div>
+        <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+          Status
+        </label>
+        <select
+          id="status"
+          value={filters.status}
+          onChange={(e) => handleFilterChange('status', e.target.value)}
+          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="all">All</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
+
+      {/* Sort Options */}
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="sortBy" className="block text-sm font-medium text-gray-700 mb-2">
+            Sort By
+          </label>
+          <select
+            id="sortBy"
+            value={filters.sortBy}
+            onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="date">Date</option>
+            <option value="title">Title</option>
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="sortOrder" className="block text-sm font-medium text-gray-700 mb-2">
+            Sort Order
+          </label>
+          <select
+            id="sortOrder"
+            value={filters.sortOrder}
+            onChange={(e) => handleFilterChange('sortOrder', e.target.value)}
+            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="desc">Descending</option>
+            <option value="asc">Ascending</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Reset Filters Button */}
+      <button
+        onClick={() => {
+          const defaultFilters: FilterState = {
+            search: '',
+            category: '',
+            tag: '',
+            status: 'all',
+            sortBy: 'date',
+            sortOrder: 'desc'
+          };
+          setFilters(defaultFilters);
+          onFilter(defaultFilters);
+          updateURL(defaultFilters);
+        }}
+        className="w-full px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+      >
+        Reset Filters
+      </button>
+    </div>
+  );
+}
+
+================================================================================
+File: src/components/blog/BlogList.tsx
+================================================================================
+
+// src/components/blog/BlogList.tsx
+import { useState } from 'react';
+import Link from 'next/link';
+import { BlogPost } from '@/lib/blog';
+import BlogFilter from './BlogFilter';
+import OptimizedImage from '@/components/OptimizedImage';
+
+interface BlogListProps {
+  initialPosts: BlogPost[];
+  categories: string[];
+  tags: string[];
+}
+
+export default function BlogList({ initialPosts, categories, tags }: BlogListProps) {
+  const [posts] = useState<BlogPost[]>(initialPosts);
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>(initialPosts);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Handle filter changes
+  const handleFilter = (filters: any) => {
+    setIsLoading(true);
+
+    // Apply filters
+    let filtered = [...posts];
+
+    // Search filter
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      filtered = filtered.filter(post => 
+        post.title.toLowerCase().includes(searchTerm) ||
+        post.excerpt.toLowerCase().includes(searchTerm) ||
+        post.content.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Category filter
+    if (filters.category) {
+      filtered = filtered.filter(post => 
+        post.categories.includes(filters.category)
+      );
+    }
+
+    // Tag filter
+    if (filters.tag) {
+      filtered = filtered.filter(post => 
+        post.tags.includes(filters.tag)
+      );
+    }
+
+    // Status filter (if applicable)
+    if (filters.status && filters.status !== 'all') {
+      filtered = filtered.filter(post => 'status' in post && (post as any).status === filters.status);    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      if (filters.sortBy === 'date') {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return filters.sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      } else {
+        return filters.sortOrder === 'asc' 
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title);
+      }
+    });
+
+    setFilteredPosts(filtered);
+    setIsLoading(false);
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {/* Filters Sidebar */}
+      <aside className="lg:col-span-1">
+        <BlogFilter
+          categories={categories}
+          tags={tags}
+          onFilter={handleFilter}
+        />
+      </aside>
+
+      {/* Posts Grid */}
+      <div className="lg:col-span-3">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : filteredPosts.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-8">
+            {filteredPosts.map((post) => (
+              <article key={post.slug} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                {post.coverImage && (
+                  <div className="relative h-48">
+                    <OptimizedImage
+                      src={post.coverImage}
+                      alt={post.title}
+                      fill
+                      className="object-cover"
+                      aspectRatio={16/9}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
+                )}
+                
+                <div className="p-6">
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {post.categories.map((category) => (
+                      <Link
+                        key={category}
+                        href={`/blog/category/${category.toLowerCase()}`}
+                        className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
+                      >
+                        {category}
+                      </Link>
+                    ))}
+                  </div>
+
+                  <h2 className="text-xl font-bold mb-2">
+                    <Link href={`/blog/${post.slug}`} className="hover:text-blue-600">
+                      {post.title}
+                    </Link>
+                  </h2>
+
+                  <p className="text-gray-600 mb-4">{post.excerpt}</p>
+
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>{post.author}</span>
+                    <time dateTime={post.date}>
+                      {new Date(post.date).toLocaleDateString()}
+                    </time>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {post.tags.map((tag) => (
+                      <Link
+                        key={tag}
+                        href={`/blog/tag/${tag.toLowerCase()}`}
+                        className="text-sm text-gray-600 hover:text-blue-600"
+                      >
+                        #{tag}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900">No posts found</h3>
+            <p className="mt-2 text-gray-500">Try adjusting your filters</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 ================================================================================
 File: src/components/blog/BlogPost.tsx
@@ -6016,17 +5247,187 @@ describe('Header', () => {
 File: src/components/providers/AuthProvider.tsx
 ================================================================================
 
-// src/components/providers/AuthProvider.tsx
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
+import { JSX, ReactNode } from 'react';
 
-export default function AuthProvider({ 
-  children 
-}: { 
-  children: React.ReactNode 
-}) {
-  return <SessionProvider>{children}</SessionProvider>;
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export default function AuthProvider({ children }: AuthProviderProps): JSX.Element {
+  return (
+    <SessionProvider>
+      {children}
+    </SessionProvider>
+  );
+}
+
+================================================================================
+File: src/components/ui/alert.tsx
+================================================================================
+
+// src/components/ui/alert.tsx
+import * as React from 'react';
+
+// Alert Component
+interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'destructive' | 'success';
+  className?: string;
+}
+
+export function Alert({ 
+  children, 
+  variant = 'default', 
+  className = '', 
+  ...props 
+}: AlertProps) {
+  const variantStyles = {
+    default: 'bg-background-secondary text-text-primary',
+    destructive: 'bg-red-100 text-red-700',
+    success: 'bg-green-100 text-green-700'
+  };
+
+  return (
+    <div
+      role="alert"
+      className={`p-4 rounded-lg ${variantStyles[variant]} ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Alert Title Component
+interface AlertTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  className?: string;
+}
+
+export function AlertTitle({ 
+  children, 
+  className = '', 
+  ...props 
+}: AlertTitleProps) {
+  return (
+    <h5
+      className={`font-medium leading-none tracking-tight mb-2 ${className}`}
+      {...props}
+    >
+      {children}
+    </h5>
+  );
+}
+
+// Alert Description Component
+interface AlertDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  className?: string;
+}
+
+export function AlertDescription({ 
+  children, 
+  className = '', 
+  ...props 
+}: AlertDescriptionProps) {
+  return (
+    <div
+      className={`text-sm leading-relaxed ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Alert Dialog Components
+interface AlertDialogProps {
+  open?: boolean;
+  children: React.ReactNode;
+  onClose?: () => void;
+}
+
+export function AlertDialog({ 
+  open = false, 
+  children, 
+  onClose 
+}: AlertDialogProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50">
+      <div 
+        className="fixed inset-0 bg-black/50"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div className="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Alert Dialog Content Component
+interface AlertDialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+export function AlertDialogContent({ 
+  children, 
+  className = '', 
+  ...props 
+}: AlertDialogContentProps) {
+  return (
+    <div
+      className={`bg-background-primary p-6 rounded-lg shadow-lg max-w-md w-full ${className}`}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Alert Dialog Title Component
+interface AlertDialogTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  className?: string;
+}
+
+export function AlertDialogTitle({
+  children,
+  className = '',
+  ...props
+}: AlertDialogTitleProps) {
+  return (
+    <h2
+      className={`text-lg font-semibold mb-4 ${className}`}
+      {...props}
+    >
+      {children}
+    </h2>
+  );
+}
+
+// Alert Dialog Action Component
+interface AlertDialogActionProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  className?: string;
+}
+
+export function AlertDialogAction({
+  children,
+  className = '',
+  ...props
+}: AlertDialogActionProps) {
+  return (
+    <button
+      className={`inline-flex items-center justify-center px-4 py-2 font-medium rounded-md 
+        bg-accent-primary text-white hover:bg-accent-primaryHover 
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-primary ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
 }
 
 ================================================================================
@@ -6227,6 +5628,21 @@ const MyForm = () => {
   );
 };
 */
+
+================================================================================
+File: src/components/ui/index.ts
+================================================================================
+
+// src/components/ui/index.ts
+export {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogAction
+} from './alert';
 
 ================================================================================
 File: src/components/widgets/BlogList.tsx
@@ -6811,319 +6227,6 @@ export default function CourseList({ courses, title = 'Available Courses' }: Pro
 }
 
 ================================================================================
-File: src/components/widgets/CourseRegistrationForm.tsx
-================================================================================
-
-// src/components/widgets/CourseRegistrationForm.tsx
-'use client';
-
-import { useForm } from 'react-hook-form';
-import { useState } from 'react';
-
-type FormData = {
-  // Personal Information
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  // Course Details
-  courseId: string;
-  preferredSchedule: string;
-  startDate: string;
-  // Additional Information
-  currentLevel: string;
-  goals: string;
-  specialRequirements: string;
-  // Marketing
-  heardFrom: string;
-  marketingConsent: boolean;
-};
-
-const SCHEDULE_OPTIONS = [
-  'Morning (09:00-11:00)',
-  'Afternoon (14:00-16:00)',
-  'Evening (18:00-20:00)',
-  'Weekend (10:00-14:00)',
-] as const;
-
-const LEVEL_OPTIONS = [
-  'Complete Beginner',
-  'Basic Knowledge (A1)',
-  'Elementary (A2)',
-  'Intermediate (B1)',
-  'Upper Intermediate (B2)',
-  'Advanced (C1/C2)',
-] as const;
-
-const HEARD_FROM_OPTIONS = [
-  'Google Search',
-  'Social Media',
-  'Friend/Family',
-  'Advertisement',
-  'Other',
-] as const;
-
-const CourseRegistrationForm = ({ courseId = '', courseName = '' }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<FormData>();
-
-  const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit registration');
-      }
-
-      setSubmitSuccess(true);
-      reset();
-    } catch (error) {
-      setSubmitError('Failed to submit registration. Please try again later.');
-      console.error('Registration error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {submitSuccess && (
-        <div className="p-4 bg-green-100 text-green-700 rounded-md">
-          Thank you for your registration! We&apos;ll contact you shortly to confirm your enrollment.
-        </div>
-      )}
-
-      {submitError && (
-        <div className="p-4 bg-red-100 text-red-700 rounded-md">
-          {submitError}
-        </div>
-      )}
-
-      {/* Course Selection */}
-      <div className="bg-blue-50 p-4 rounded-lg mb-6">
-        <h3 className="font-semibold mb-2">Selected Course</h3>
-        <p>{courseName || 'Please select a course'}</p>
-        <input 
-          type="hidden" 
-          {...register('courseId')} 
-          value={courseId} 
-        />
-      </div>
-
-      {/* Personal Information */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="firstName">
-            First Name
-          </label>
-          <input
-            {...register('firstName', { required: 'First name is required' })}
-            type="text"
-            id="firstName"
-            className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-          {errors.firstName && (
-            <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="lastName">
-            Last Name
-          </label>
-          <input
-            {...register('lastName', { required: 'Last name is required' })}
-            type="text"
-            id="lastName"
-            className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-          {errors.lastName && (
-            <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Contact Information */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="email">
-            Email
-          </label>
-          <input
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Invalid email address',
-              },
-            })}
-            type="email"
-            id="email"
-            className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="phone">
-            Phone Number
-          </label>
-          <input
-            {...register('phone', {
-              required: 'Phone number is required',
-              pattern: {
-                value: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
-                message: 'Invalid phone number',
-              },
-            })}
-            type="tel"
-            id="phone"
-            className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-          {errors.phone && (
-            <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Schedule Preferences */}
-      <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="preferredSchedule">
-          Preferred Schedule
-        </label>
-        <select
-          {...register('preferredSchedule', { required: 'Please select a preferred schedule' })}
-          id="preferredSchedule"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Select a schedule</option>
-          {SCHEDULE_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        {errors.preferredSchedule && (
-          <p className="mt-1 text-sm text-red-600">{errors.preferredSchedule.message}</p>
-        )}
-      </div>
-
-      {/* Current Level */}
-      <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="currentLevel">
-          Current Language Level
-        </label>
-        <select
-          {...register('currentLevel', { required: 'Please select your current level' })}
-          id="currentLevel"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Select your level</option>
-          {LEVEL_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        {errors.currentLevel && (
-          <p className="mt-1 text-sm text-red-600">{errors.currentLevel.message}</p>
-        )}
-      </div>
-
-      {/* Learning Goals */}
-      <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="goals">
-          Learning Goals
-        </label>
-        <textarea
-          {...register('goals')}
-          id="goals"
-          rows={3}
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-          placeholder="What do you hope to achieve with this course?"
-        />
-      </div>
-
-      {/* Special Requirements */}
-      <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="specialRequirements">
-          Special Requirements
-        </label>
-        <textarea
-          {...register('specialRequirements')}
-          id="specialRequirements"
-          rows={3}
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Any special requirements or accommodations needed?"
-        />
-      </div>
-
-      {/* Marketing Information */}
-      <div>
-        <label className="block text-sm font-medium mb-1" htmlFor="heardFrom">
-          How did you hear about us?
-        </label>
-        <select
-          {...register('heardFrom')}
-          id="heardFrom"
-          className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Select an option</option>
-          {HEARD_FROM_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Marketing Consent */}
-      <div className="flex items-start">
-        <input
-          {...register('marketingConsent')}
-          type="checkbox"
-          id="marketingConsent"
-          className="mt-1"
-        />
-        <label htmlFor="marketingConsent" className="ml-2 text-sm">
-          I agree to receive marketing communications about special offers and updates. You can unsubscribe at any time.
-        </label>
-      </div>
-
-      {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300"
-      >
-        {isSubmitting ? 'Submitting...' : 'Register for Course'}
-      </button>
-    </form>
-  );
-};
-
-export default CourseRegistrationForm;
-
-================================================================================
 File: src/components/widgets/Testimonials.tsx
 ================================================================================
 
@@ -7345,114 +6448,6 @@ describe('ContactForm', () => {
     expect(screen.getByText(/failed/i)).toBeInTheDocument();
   });
 });
-
-================================================================================
-File: src/context/ThemeContext.tsx
-================================================================================
-
-// src/context/ThemeContext.tsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { tokens } from '@/styles/colors';
-
-type ThemeMode = 'light' | 'dark' | 'highContrast';
-type ColorSchemePreference = 'light' | 'dark' | 'system';
-
-interface ThemeContextType {
-  mode: ThemeMode;
-  colorScheme: ColorSchemePreference;
-  setColorScheme: (scheme: ColorSchemePreference) => void;
-  toggleHighContrast: () => void;
-  isHighContrast: boolean;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [colorScheme, setColorScheme] = useState<ColorSchemePreference>('system');
-  const [isHighContrast, setIsHighContrast] = useState(false);
-
-  // Determine the actual theme mode based on color scheme preference
-  const [mode, setMode] = useState<ThemeMode>('light');
-
-  useEffect(() => {
-    // Load saved preferences from localStorage
-    const savedScheme = localStorage.getItem('color-scheme') as ColorSchemePreference;
-    const savedContrast = localStorage.getItem('high-contrast') === 'true';
-
-    if (savedScheme) setColorScheme(savedScheme);
-    if (savedContrast) setIsHighContrast(true);
-  }, []);
-
-  useEffect(() => {
-    const updateTheme = () => {
-      let newMode: ThemeMode;
-
-      if (isHighContrast) {
-        newMode = 'highContrast';
-      } else if (colorScheme === 'system') {
-        newMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      } else {
-        newMode = colorScheme;
-      }
-
-      setMode(newMode);
-      document.documentElement.setAttribute('data-theme', newMode);
-
-      // Apply theme colors
-      const colors = isHighContrast ? tokens.highContrast : tokens[newMode as keyof typeof tokens];
-      Object.entries(colors).forEach(([category, values]) => {
-        Object.entries(values as Record<string, string>).forEach(([name, value]) => {
-          document.documentElement.style.setProperty(
-            `--color-${category}-${name}`,
-            value
-          );
-        });
-      });
-    };
-
-    updateTheme();
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => updateTheme();
-    mediaQuery.addEventListener('change', handler);
-
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, [colorScheme, isHighContrast]);
-
-  const toggleHighContrast = () => {
-    const newValue = !isHighContrast;
-    setIsHighContrast(newValue);
-    localStorage.setItem('high-contrast', String(newValue));
-  };
-
-  const handleColorSchemeChange = (scheme: ColorSchemePreference) => {
-    setColorScheme(scheme);
-    localStorage.setItem('color-scheme', scheme);
-  };
-
-  return (
-    <ThemeContext.Provider
-      value={{
-        mode,
-        colorScheme,
-        setColorScheme: handleColorSchemeChange,
-        toggleHighContrast,
-        isHighContrast,
-      }}
-    >
-      {children}
-    </ThemeContext.Provider>
-  );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-}
 
 ================================================================================
 File: src/data.ts
@@ -7937,6 +6932,296 @@ export const validators = {
 };
 
 ================================================================================
+File: src/lib/blog/operations.ts
+================================================================================
+
+import matter from 'gray-matter';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import fs from 'fs/promises';
+import DOMPurify from 'isomorphic-dompurify';
+import { remark } from 'remark';
+import html from 'remark-html';
+import { logger } from '@/lib/logger';
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  author: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  status: 'draft' | 'published';
+  categories: string[];
+  tags: string[];
+  coverImage?: string;
+}
+
+interface SearchParams {
+  query?: string;
+  category?: string;
+  tag?: string;
+  status?: 'draft' | 'published';
+  page?: number;
+  limit?: number;
+}
+
+const POSTS_DIR = path.join(process.cwd(), 'content/posts');
+
+// Helper function to ensure posts directory exists
+async function ensurePostsDirectory() {
+  try {
+    await fs.access(POSTS_DIR);
+  } catch {
+    await fs.mkdir(POSTS_DIR, { recursive: true });
+  }
+}
+
+// Create new blog post
+export async function createPost(post: Partial<BlogPost>): Promise<BlogPost> {
+  await ensurePostsDirectory();
+
+  const id = uuidv4();
+  const slug = generateSlug(post.title || '');
+  const now = new Date().toISOString();
+
+  const newPost: BlogPost = {
+    id,
+    slug,
+    title: post.title || 'Untitled',
+    content: post.content || '',
+    excerpt: post.excerpt || '',
+    author: post.author || 'Anonymous',
+    publishedAt: post.status === 'published' ? now : undefined,
+    updatedAt: now,
+    status: post.status || 'draft',
+    categories: post.categories || [],
+    tags: post.tags || [],
+    coverImage: post.coverImage,
+  };
+
+  try {
+    const fileContent = matter.stringify(post.content || '', {
+      ...newPost,
+      content: undefined, // Don't duplicate content in frontmatter
+    });
+
+    await fs.writeFile(
+      path.join(POSTS_DIR, `${slug}.md`),
+      fileContent,
+      'utf8'
+    );
+
+    logger.info('Post created successfully', { slug, id });
+    return newPost;
+  } catch (error) {
+    logger.error('Failed to create post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      slug
+    });
+    throw new Error('Failed to create post');
+  }
+}
+
+// Update existing blog post
+export async function updatePost(slug: string, updates: Partial<BlogPost>): Promise<BlogPost> {
+  try {
+    const existingPost = await getPostBySlug(slug);
+    if (!existingPost) {
+      throw new Error('Post not found');
+    }
+
+    const updatedPost: BlogPost = {
+      ...existingPost,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+      publishedAt: updates.status === 'published' 
+        ? (existingPost.publishedAt || new Date().toISOString())
+        : existingPost.publishedAt,
+    };
+
+    const fileContent = matter.stringify(updatedPost.content, {
+      ...updatedPost,
+      content: undefined,
+    });
+
+    await fs.writeFile(
+      path.join(POSTS_DIR, `${slug}.md`),
+      fileContent,
+      'utf8'
+    );
+
+    logger.info('Post updated successfully', { slug });
+    return updatedPost;
+  } catch (error) {
+    logger.error('Failed to update post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      slug
+    });
+    throw new Error('Failed to update post');
+  }
+}
+
+// Delete blog post
+export async function deletePost(slug: string): Promise<void> {
+  try {
+    const filePath = path.join(POSTS_DIR, `${slug}.md`);
+    await fs.unlink(filePath);
+    logger.info('Post deleted successfully', { slug });
+  } catch (error) {
+    logger.error('Failed to delete post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      slug
+    });
+    throw new Error('Failed to delete post');
+  }
+}
+
+// Get post by slug
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  try {
+    const filePath = path.join(POSTS_DIR, `${slug}.md`);
+    const fileContent = await fs.readFile(filePath, 'utf8');
+    const { data, content } = matter(fileContent);
+
+    return {
+      id: data.id || uuidv4(),
+      title: data.title || 'Untitled',
+      slug,
+      content,
+      excerpt: data.excerpt || '',
+      author: data.author || 'Anonymous',
+      publishedAt: data.publishedAt || null,
+      updatedAt: data.updatedAt || data.publishedAt || null,
+      status: data.status || 'draft',
+      categories: data.categories || [],
+      tags: data.tags || [],
+      coverImage: data.coverImage || '',
+    } as BlogPost;
+  } catch (error) {
+    logger.error('Failed to get post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      slug
+    });
+    return null;
+  }
+}
+
+
+// Get all posts
+export async function getAllPosts(): Promise<BlogPost[]> {
+  try {
+    const files = await fs.readdir(POSTS_DIR);
+    const posts = await Promise.all(
+      files
+        .filter(filename => filename.endsWith('.md'))
+        .map(async filename => {
+          const slug = filename.replace('.md', '');
+          const post = await getPostBySlug(slug);
+          return post;
+        })
+    );
+
+    return posts
+      .filter((post): post is BlogPost => post !== null)
+      .sort((a, b) => {
+        const dateA = new Date(a.publishedAt || a.updatedAt || 0);
+        const dateB = new Date(b.publishedAt || b.updatedAt || 0);
+        return dateB.getTime() - dateA.getTime();
+      });  } catch (error) {
+    logger.error('Failed to get all posts', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    return [];
+  }
+}
+
+// Search and filter posts
+export async function searchPosts(params: SearchParams): Promise<{ posts: BlogPost[]; total: number }> {
+  try {
+    const allPosts = await getAllPosts();
+    let filtered = allPosts;
+
+    // Apply filters
+    if (params.query) {
+      const query = params.query.toLowerCase();
+      filtered = filtered.filter(post =>
+        post.title.toLowerCase().includes(query) ||
+        post.content.toLowerCase().includes(query) ||
+        post.excerpt.toLowerCase().includes(query)
+      );
+    }
+
+    if (params.category) {
+      filtered = filtered.filter(post =>
+        post.categories.some(cat => 
+          cat.toLowerCase() === params.category?.toLowerCase()
+        )
+      );
+    }
+
+    if (params.tag) {
+      filtered = filtered.filter(post =>
+        post.tags.some(tag => 
+          tag.toLowerCase() === params.tag?.toLowerCase()
+        )
+      );
+    }
+
+    if (params.status) {
+      filtered = filtered.filter(post => post.status === params.status);
+    }
+
+    // Pagination
+    const page = params.page || 1;
+    const limit = params.limit || 10;
+    const start = (page - 1) * limit;
+    const paginatedPosts = filtered.slice(start, start + limit);
+
+    return {
+      posts: paginatedPosts,
+      total: filtered.length,
+    };
+  } catch (error) {
+    logger.error('Failed to search posts', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      params
+    });
+    return { posts: [], total: 0 };
+  }
+}
+
+// Preview post content
+export async function previewPost(content: string): Promise<string> {
+  try {
+    // Sanitize and convert markdown to HTML
+    const cleanContent = DOMPurify.sanitize(content);
+    const processed = await remark()
+      .use(html)
+      .process(cleanContent);
+    
+    return processed.toString();
+  } catch (error) {
+    logger.error('Failed to generate preview', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    throw new Error('Failed to generate preview');
+  }
+}
+
+// Helper function to generate URL-friendly slug
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+================================================================================
 File: src/lib/blog.ts
 ================================================================================
 
@@ -8052,74 +7337,6 @@ export function filterCourses(courses: Course[], filters: CourseFilter) {
     if (filters.schedule && course.schedule !== filters.schedule) return false;
     return true;
   });
-}
-
-================================================================================
-File: src/lib/hooks/useCSRFToken.ts
-================================================================================
-
-// src/lib/hooks/useCSRFToken.ts
-
-import { useState, useEffect } from 'react';
-
-export function useCSRFToken() {
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      try {
-        const response = await fetch('/api/csrf', {
-          method: 'GET',
-          credentials: 'include',
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setToken(data.token);
-        }
-      } catch (error) {
-        console.error('Failed to fetch CSRF token:', error);
-      }
-    };
-
-    fetchToken();
-  }, []);
-
-  return token;
-}
-
-// Add this to verify CSRF token on form submissions
-export function useSecureForm() {
-  const csrfToken = useCSRFToken();
-
-  const submitForm = async (
-    url: string,
-    data: FormData | Record<string, unknown>,
-    options: RequestInit = {}
-  ) => {
-    if (!csrfToken) {
-      throw new Error('CSRF token not available');
-    }
-
-    const headers = new Headers(options.headers);
-    headers.set('X-CSRF-Token', csrfToken);
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      credentials: 'include',
-      body: data instanceof FormData ? data : JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => null);
-      throw new Error(error?.message || 'Form submission failed');
-    }
-
-    return response.json();
-  };
-
-  return { submitForm, csrfToken };
 }
 
 ================================================================================
@@ -8717,31 +7934,6 @@ export const tokens = {
 };
 
 ================================================================================
-File: src/types/auth.ts
-================================================================================
-
-// src/types/auth.ts
-import 'next-auth';
-
-declare module 'next-auth' {
-  interface User {
-    id: string;
-    email: string;
-    role: string;
-  }
-
-  interface Session {
-    user: User;
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    role?: string;
-  }
-}
-
-================================================================================
 File: src/types/md-editor.d.ts
 ================================================================================
 
@@ -8768,32 +7960,6 @@ declare module '@uiw/react-md-editor' {
 
   const MDEditor: ComponentType<MDEditorProps>;
   export default MDEditor;
-}
-
-================================================================================
-File: src/types/media.ts
-================================================================================
-
-// src/types/media.ts
-
-export interface MediaFile {
-  id: string;
-  filename: string;
-  path: string;
-  mimeType: string;
-  size: number;
-  width?: number;
-  height?: number;
-  alt?: string;
-  title?: string;
-  uploadedAt: Date;
-  updatedAt: Date;
-}
-
-export interface MediaUploadResponse {
-  success: boolean;
-  file?: MediaFile;
-  error?: string;
 }
 
 ================================================================================
