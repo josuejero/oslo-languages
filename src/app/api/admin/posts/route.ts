@@ -1,109 +1,84 @@
-// src/app/api/admin/posts/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
-import fs from 'fs/promises';
-import path from 'path';
-import matter from 'gray-matter';
-import { User } from 'next-auth';
+import * as blogOps from '@/lib/blog/operations';
+import { logger } from '@/lib/logger';
 
-interface SessionUser extends User {
-  role: string;
-}
-
-const postsDirectory = path.join(process.cwd(), 'content/posts');
-
-export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  const user = session?.user as SessionUser | undefined;
-  
-  if (!user || user.role !== 'admin') {
+export async function POST(request: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const data = await request.json();
-    
-    // Create slug from title
-    const slug = data.title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-');
+    const post = await blogOps.createPost({
+      ...data,
+      author: session.user.email,
+    });
 
-    // Create frontmatter
-    const frontmatter = {
-      title: data.title,
-      date: new Date().toISOString(),
-      excerpt: data.excerpt,
-      author: user.email,
-      categories: data.categories,
-      tags: data.tags,
-      coverImage: data.coverImage,
-    };
-
-    // Create markdown content
-    const fileContent = matter.stringify(data.content, frontmatter);
-
-    // Write to file
-    await fs.writeFile(
-      path.join(postsDirectory, `${slug}.md`),
-      fileContent,
-      'utf8'
-    );
-
-    return NextResponse.json({ success: true, slug });
-  } catch (err) {
-    const error = err as Error;
-    console.error('Error creating post:', error);
+    logger.info('Post created successfully', { postId: post.id });
+    return NextResponse.json({ post });
+  } catch (error) {
+    logger.error('Failed to create post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      user: session.user.email
+    });
     return NextResponse.json(
-      { error: error.message || 'Failed to create post' },
+      { error: 'Failed to create post' },
       { status: 500 }
     );
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { slug: string } }
-) {
-  const session = await getServerSession(authOptions);
-  const user = session?.user as SessionUser | undefined;
-  
-  if (!user || user.role !== 'admin') {
+export async function PUT(request: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const data = await request.json();
-    const slug = params.slug;
+    const { slug, ...updates } = await request.json();
+    const post = await blogOps.updatePost(slug, updates);
 
-    // Create frontmatter
-    const frontmatter = {
-      title: data.title,
-      excerpt: data.excerpt,
-      author: user.email,
-      categories: data.categories,
-      tags: data.tags,
-      coverImage: data.coverImage,
-      date: new Date().toISOString(),
-    };
-
-    // Create markdown content
-    const fileContent = matter.stringify(data.content, frontmatter);
-
-    // Write to file
-    await fs.writeFile(
-      path.join(postsDirectory, `${slug}.md`),
-      fileContent,
-      'utf8'
-    );
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    const error = err as Error;
-    console.error('Error updating post:', error);
+    logger.info('Post updated successfully', { 
+      postId: post.id,
+      slug 
+    });
+    return NextResponse.json({ post });
+  } catch (error) {
+    logger.error('Failed to update post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      user: session.user.email
+    });
     return NextResponse.json(
-      { error: error.message || 'Failed to update post' },
+      { error: 'Failed to update post' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const session = await getServerSession();
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { slug } = await request.json();
+    await blogOps.deletePost(slug);
+
+    logger.info('Post deleted successfully', { 
+      slug,
+      user: session.user.email 
+    });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logger.error('Failed to delete post', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      user: session.user.email
+    });
+    return NextResponse.json(
+      { error: 'Failed to delete post' },
       { status: 500 }
     );
   }

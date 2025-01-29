@@ -1,27 +1,29 @@
-// src/app/blog/[slug]/page.tsx
-
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getAllPosts } from '@/lib/blog';
 import { generateBlogPostSchema } from '@/lib/schema';
-
 import OptimizedImage from '@/components/OptimizedImage';
 import Script from 'next/script';
 import { Metadata } from 'next';
+import type { BlogPost } from '@/lib/blog';
 
 interface Props {
   params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const post = await getPostBySlug(params.slug);
+    if (!post) return { title: 'Post Not Found' };
     
     return {
       title: post.title,
       description: post.excerpt,
       openGraph: {
-        images: [post.coverImage],
+        title: post.title,
+        description: post.excerpt,
+        images: post.coverImage ? [post.coverImage] : undefined,
       },
       keywords: [...post.categories, ...post.tags].join(',')
     };
@@ -41,10 +43,12 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogPost({ params }: Props) {
-  let post;
+export default async function BlogPostPage({ params }: Props) {
+  let post: BlogPost | null;
+  
   try {
     post = await getPostBySlug(params.slug);
+    if (!post) notFound();
   } catch {
     notFound();
   }
@@ -53,7 +57,7 @@ export default async function BlogPost({ params }: Props) {
   const structuredData = generateBlogPostSchema({
     title: post.title,
     description: post.excerpt,
-    datePublished: post.date,
+    datePublished: post.date || '',
     author: {
       name: post.author,
     },
@@ -93,9 +97,15 @@ export default async function BlogPost({ params }: Props) {
             <div className="flex items-center gap-2">
               <span className="font-medium">{post.author}</span>
             </div>
-            <time dateTime={post.date}>
-              {new Date(post.date).toLocaleDateString()}
+
+            <time dateTime={post.date || ''}>
+              {post.date ? new Date(post.date).toLocaleDateString() : ''}
             </time>
+            {post.date && 'lastModified' in post && post.date !== post.lastModified && (
+              <span className="text-sm">
+                (Updated: {new Date(post.lastModified as string).toLocaleDateString()})
+              </span>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2 mb-8">
@@ -134,6 +144,16 @@ export default async function BlogPost({ params }: Props) {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="max-w-4xl mx-auto mt-12 flex justify-between">
+          <Link
+            href="/blog"
+            className="text-accent-primary hover:text-accent-secondary transition-colors"
+          >
+            ← Back to Blog
+          </Link>
         </div>
       </article>
     </>
