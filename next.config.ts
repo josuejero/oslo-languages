@@ -51,6 +51,19 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  trailingSlash: true,
+  
+  // Configure redirects for admin routes
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin/login',
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

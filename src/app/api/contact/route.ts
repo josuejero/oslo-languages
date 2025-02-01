@@ -1,22 +1,31 @@
+// src/app/api/contact/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { handleApiRoute, validators, ApiError } from '@/lib/api-utils';
+import { handleApiRoute, validators } from '@/lib/api-utils';
+import { sendEmail, validateEmailConfig, EmailError } from '@/lib/email';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   return handleApiRoute(request, handleContact, {
     validations: {
-      name: validators.required('Name') as (value: unknown) => string | boolean,
+      name: validators.required('Name'),
       email: validators.email() as (value: unknown) => string | boolean,
-      subject: validators.required('Subject') as (value: unknown) => string | boolean,
-      message: validators.required('Message') as (value: unknown) => string | boolean,
+      subject: validators.required('Subject'),
+      message: validators.required('Message')
     }
   });
 }
 
 async function handleContact(request: NextRequest) {
   try {
-    const data = await request.json();
+    // Validate email configuration first
+    const isConfigValid = await validateEmailConfig();
+    if (!isConfigValid) {
+      throw new EmailError('Email service not properly configured', 'CONFIG_ERROR');
+    }
 
+    // Get form data
+    const data = await request.json();
+    
     // Process form data
     const formData = {
       name: data.name?.toString().trim(),
@@ -25,10 +34,11 @@ async function handleContact(request: NextRequest) {
       message: data.message?.toString().trim(),
     };
 
-    // Here you would typically:
-    // 1. Send notification email
-    // 2. Store in database
-    // 3. Log the submission
+    // Send notification email to admin
+    await sendEmail('contact', formData);
+
+    // Send confirmation email to user
+    await sendEmail('confirmation', formData);
 
     logger.info('Contact form submission processed', {
       email: formData.email,
@@ -52,18 +62,40 @@ async function handleContact(request: NextRequest) {
     logger.error('Contact form submission failed', {
       error: error instanceof Error ? error.message : 'Unknown error'
     });
-    throw new ApiError('Failed to process contact form submission', 500);
+
+    // Handle specific email errors
+    if (error instanceof EmailError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to process your message. Please try again later.',
+          code: error.code
+        },
+        { status: error.code === 'CONFIG_ERROR' ? 500 : 400 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to process your message. Please try again later.'
+      },
+      { status: 500 }
+    );
   }
 }
 
 // Handle preflight requests
 export async function OPTIONS() {
-  return NextResponse.json(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Methods': 'POST',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400'
-    },
-  });
+  return NextResponse.json(
+    {},
+    {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Max-Age': '86400'
+      },
+    }
+  );
 }
