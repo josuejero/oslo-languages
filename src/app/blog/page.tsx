@@ -11,17 +11,22 @@ export const metadata: Metadata = {
 export default async function BlogPage() {
   const posts = await getAllPosts();
   
-  // Extract unique categories and tags from posts
-  const categories = [...new Set(posts.flatMap(post => post.categories))];
-  const tags = [...new Set(posts.flatMap(post => post.tags))];
+  // Convert posts to match the expected Partial<BlogPost> type
+  const convertedPosts = posts.map(post => ({
+    ...post,
+    // Ensure readingTime is a string
+    readingTime: typeof post.readingTime === 'string' 
+      ? post.readingTime 
+      : typeof post.readingTime === 'number'
+        ? `${post.readingTime} min read`
+        : undefined
+  }));
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Blog</h1>
       <BlogList 
-        initialPosts={posts} 
-        categories={categories}
-        tags={tags}
+        initialPosts={convertedPosts}
       />
     </div>
   );
