@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import MDEditor from '@uiw/react-md-editor';
 import { FormField, Input, Select } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useBlog } from '@/lib/hooks/useBlog';
-import { BlogPost } from '@/lib/blog/operations';
+import { useBlog } from '@/utils/hooks/useBlog';
+import { BlogPost } from '@/utils/blog-operations';
 import OptimizedImage from '@/components/OptimizedImage';
 
 interface BlogEditorProps {

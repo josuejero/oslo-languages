@@ -52,7 +52,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   trailingSlash: true,
-  
+  reactStrictMode: true,
+  poweredByHeader: false,
+
   // Configure redirects for admin routes
   async redirects() {
     return [

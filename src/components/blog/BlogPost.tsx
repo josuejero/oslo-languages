@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import OptimizedImage from '@/components/OptimizedImage';
-import { BlogPost } from '@/lib/blog';
+import { BlogPost } from '@/utils/blog';
 import ShareButtons from './ShareButtons';
 import RichContent from './RichContent';
 import TableOfContents from './TableOfContents';
