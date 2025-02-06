@@ -2,9 +2,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BlogPost } from '@/lib/blog/operations';
+import { BlogPost } from '@/utils/blog-operations';
 import OptimizedImage from '@/components/OptimizedImage';
-import { useBlog } from '@/lib/hooks/useBlog';
+import { useBlog } from '@/utils/hooks/useBlog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface BlogPreviewProps {

@@ -1,7 +1,7 @@
 // src/components/widgets/ContactForm.tsx
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { logger } from '@/lib/logger';
+import { logger } from '@/utils/logger';
 import { FormField, Input, Textarea } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 

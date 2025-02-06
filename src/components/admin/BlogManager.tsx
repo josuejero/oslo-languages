@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useBlog } from '@/lib/hooks/useBlog';
-import { BlogPost } from '@/lib/blog/operations';
+import { useBlog } from '@/utils/hooks/useBlog';
+import { BlogPost } from '@/utils/blog-operations';
 
 export default function BlogManager() {
   const [posts, setPosts] = useState<BlogPost[]>([]);

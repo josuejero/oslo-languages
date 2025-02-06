@@ -2,7 +2,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BlogPost from '../BlogPost';
-import { BlogPost as BlogPostType } from '@/lib/blog';
+import { BlogPost as BlogPostType } from '@/utils/blog';
 
 // Mock Next/Image
 jest.mock('next/image', () => ({

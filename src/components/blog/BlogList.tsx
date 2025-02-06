@@ -1,12 +1,12 @@
 // src/components/blog/BlogList.tsx - Enhanced version
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useBlog } from '@/lib/hooks/useBlog';
-import { BlogPost } from '@/lib/blog/operations';
+import { useBlog } from '@/utils/hooks/useBlog';
+import { BlogPost } from '@/utils/blog-operations';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import OptimizedImage from '@/components/OptimizedImage';
 import BlogSearch from '@/components/blog/BlogSearch';
-import { useDebounce } from '@/lib/hooks/useDebounce';
+import { useDebounce } from '@/utils/hooks/useDebounce';
 
 interface BlogListProps {
   initialPosts?: Partial<BlogPost>[];

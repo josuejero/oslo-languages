@@ -1,9 +1,8 @@
-// scripts/blog-manager.ts
 import fs from 'fs/promises';
 import path from 'path';
 import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
-import { BlogPost } from '../src/lib/blog/operations';
+import { BlogPost } from '@/utils/blog-operations';
 
 const POSTS_DIR = path.join(process.cwd(), 'content/posts');
 const DRAFTS_DIR = path.join(process.cwd(), 'content/drafts');
@@ -69,7 +68,6 @@ async function updatePost(slug: string, updates: Partial<PostMetadata>, newConte
 
   const fileContent = matter.stringify(newContent || oldContentBody, updatedData);
   
-  // If status changed, move the file
   if (updates.status) {
     const targetDir = updates.status === 'draft' ? DRAFTS_DIR : POSTS_DIR;
     const newFilePath = path.join(targetDir, `${slug}.md`);
