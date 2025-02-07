@@ -116,7 +116,7 @@ async function main() {
 
     // Define filters based on the project structure.
     const excludeDirs = new Set(['node_modules', '.next', 'coverage']);
-    const excludeFiles = new Set(['package-lock.json', 'problem.js', OUTPUT_FILE_PATH]);
+    const excludeFiles = new Set(['package-lock.json', 'problem.js', OUTPUT_FILE_PATH, "package-lock 2.json"]);
     const allowedExtensions = new Set(['.md', '.mjs', '.ts', '.json', '.js', '.css', '.tsx', '.prisma']);
     const allowedFilenames = new Set(['Dockerfile', '.env', '.env.local']);
 

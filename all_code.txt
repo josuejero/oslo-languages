@@ -20,6 +20,7 @@ Please analyze the project structure, errors, and code carefully:
 ├── next-env.d.ts
 ├── next.config.ts
 ├── output.txt
+├── package-lock 2.json
 ├── package-lock.json
 ├── package.json
 ├── playwright.config.ts
@@ -39,6 +40,12 @@ Please analyze the project structure, errors, and code carefully:
 │   ├── blog-manager.ts
 │   └── generate-password-hash.ts
 ├── src
+│   ├── app
+│   │   └── api
+│   │       └── admin
+│   │           └── content
+│   │               └── [section]
+│   │                   └── route.ts
 │   ├── components
 │   │   ├── ErrorBoundary.tsx
 │   │   ├── LoadingSpinner.tsx
@@ -149,10 +156,11 @@ Please analyze the project structure, errors, and code carefully:
 │       └── types.ts
 ├── tailwind.config.ts
 ├── test-results
+├── timeline.txt
 ├── tsconfig.json
 └── tsconfig.tsbuildinfo
 
-39 directories, 110 files
+44 directories, 113 files
 
 
 ================================================================================
@@ -742,7 +750,7 @@ File: package.json
     "@next/bundle-analyzer": "^14.0.4",
     "@next/env": "^14.0.4",
     "@prisma/client": "^5.7.1",
-    "@sendgrid/mail": "^8.1.0",
+    "@sendgrid/mail": "^8.1.4",
     "@types/next-auth": "^3.15.0",
     "@uiw/react-md-editor": "^4.0.1",
     "bcryptjs": "^2.4.3",
@@ -1135,6 +1143,50 @@ async function generateHash() {
 }
 
 generateHash();
+
+================================================================================
+File: src/app/api/admin/content/[section]/route.ts
+================================================================================
+
+// src/app/api/admin/content/[section]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+
+// Add this function inside the route file
+async function updateContent(section: string, content: any) {
+  // Implement your logic to update content here
+  console.log(`Updating section ${section} with content:`, content);
+  // Example: Save to a database or file system
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { section: string } }
+) {
+  const session = await getServerSession();
+  
+  // Check if user is authenticated and is admin
+  if (session?.user?.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+
+    const content = await request.json();
+    // Here you would update the content in your database or file system
+    // For example:
+
+    await updateContent(params.section, content);
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Failed to update content:', error);
+    return NextResponse.json(
+      { error: 'Failed to update content' },
+      { status: 500 }
+    );
+  }
+}
 
 ================================================================================
 File: src/components/ErrorBoundary.tsx
@@ -6487,106 +6539,107 @@ export async function PUT(request: NextRequest) {
 File: src/pages/api/contact.ts
 ================================================================================
 
-// src/app/api/contact/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { handleApiRoute, validators } from '@/utils/api-utils';
-import { sendEmail, validateEmailConfig, EmailError } from '@/utils/email';
-import { logger } from '@/utils/logger';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { sendContactEmail, EmailError } from '../../utils/email';
+import { logger } from '../../utils/logger';
 
-export async function POST(request: NextRequest) {
-  return handleApiRoute(request, handleContact, {
-    validations: {
-      name: validators.required('Name'),
-      email: validators.email() as (value: unknown) => string | boolean,
-      subject: validators.required('Subject'),
-      message: validators.required('Message')
-    }
-  });
+interface ContactFormData {
+  name: string;
+  email: string;
+  message: string;
 }
 
-async function handleContact(request: NextRequest) {
+// Validate email format
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  return emailRegex.test(email);
+}
+
+// Validate form data
+function validateFormData(data: ContactFormData): string | null {
+  if (!data.name || data.name.trim().length < 2) {
+    return 'Name must be at least 2 characters long';
+  }
+
+  if (!data.email || !isValidEmail(data.email)) {
+    return 'Valid email address is required';
+  }
+
+  if (!data.message || data.message.trim().length < 10) {
+    return 'Message must be at least 10 characters long';
+  }
+
+  return null;
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).json({
+      success: false,
+      error: 'Method not allowed'
+    });
+  }
+
   try {
-    // Validate email configuration first
-    const isConfigValid = await validateEmailConfig();
-    if (!isConfigValid) {
-      throw new EmailError('Email service not properly configured', 'CONFIG_ERROR');
+    const formData: ContactFormData = req.body;
+
+    // Validate form data
+    const validationError = validateFormData(formData);
+    if (validationError) {
+      return res.status(400).json({
+        success: false,
+        error: validationError
+      });
     }
 
-    // Get form data
-    const data = await request.json();
-    
-    // Process form data
-    const formData = {
-      name: data.name?.toString().trim(),
-      email: data.email?.toString().trim(),
-      subject: data.subject?.toString().trim(),
-      message: data.message?.toString().trim(),
-    };
+    // Rate limiting check (implement if needed)
+    // const isRateLimited = await checkRateLimit(req.ip);
+    // if (isRateLimited) {
+    //   return res.status(429).json({
+    //     success: false,
+    //     error: 'Too many requests. Please try again later.'
+    //   });
+    // }
 
-    // Send notification email to admin
-    await sendEmail('contact', formData);
+    // Send email
+    await sendContactEmail(formData);
 
-    // Send confirmation email to user
-    await sendEmail('confirmation', formData);
-
-    logger.info('Contact form submission processed', {
-      email: formData.email,
-      subject: formData.subject
+    // Log successful submission
+    logger.info('Contact form submitted successfully', {
+      name: formData.name,
+      email: formData.email
     });
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Thank you for your message. We will contact you soon.',
-        data: formData
-      },
-      {
-        status: 200,
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate'
-        }
-      }
-    );
+    return res.status(200).json({
+      success: true,
+      message: 'Thank you for your message. We will contact you soon.'
+    });
+
   } catch (error) {
-    logger.error('Contact form submission failed', {
+    // Handle known email errors
+    if (error instanceof EmailError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        error: error.message
+      });
+    }
+
+    // Log unknown errors
+    logger.error('Contact form error', {
       error: error instanceof Error ? error.message : 'Unknown error'
     });
 
-    // Handle specific email errors
-    if (error instanceof EmailError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to process your message. Please try again later.',
-          code: error.code
-        },
-        { status: error.code === 'CONFIG_ERROR' ? 500 : 400 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to process your message. Please try again later.'
-      },
-      { status: 500 }
-    );
+    // Return generic error message to client
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to send message. Please try again later.'
+    });
   }
-}
-
-// Handle preflight requests
-export async function OPTIONS() {
-  return NextResponse.json(
-    {},
-    {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Max-Age': '86400'
-      },
-    }
-  );
 }
 
 ================================================================================
@@ -9672,97 +9725,26 @@ export function filterCourses(courses: Course[], filters: CourseFilter) {
 File: src/utils/email.ts
 ================================================================================
 
-// src/utils/email.ts
+import sgMail from '@sendgrid/mail';
 import { logger } from './logger';
 
-// Type for email data
-interface EmailData {
+// Initialize SendGrid client
+const API_KEY = process.env.SENDGRID_API_KEY;
+if (!API_KEY) {
+  throw new Error('SENDGRID_API_KEY environment variable is not set');
+}
+sgMail.setApiKey(API_KEY);
+
+interface EmailParams {
   name: string;
   email: string;
-  subject: string;
   message: string;
-}
-
-// Email template types
-type EmailTemplate = 'contact' | 'confirmation';
-
-// Template content interface
-interface TemplateContent {
-  subject: string;
-  body: string;
-}
-
-// Email templates with proper HTML structure
-const templates: Record<EmailTemplate, (data: EmailData) => TemplateContent> = {
-  contact: (data) => ({
-    subject: `New Contact Form Submission: ${data.subject}`,
-    body: `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>New Contact Form Submission</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #2563eb;">New Contact Form Submission</h2>
-            <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px;">
-              <p><strong>From:</strong> ${data.name} (${data.email})</p>
-              <p><strong>Subject:</strong> ${data.subject}</p>
-              <p><strong>Message:</strong></p>
-              <p style="background-color: white; padding: 15px; border-radius: 4px;">${data.message.replace(/\n/g, '<br>')}</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `
-  }),
-  confirmation: (data) => ({
-    subject: 'Thank you for contacting Oslo Languages',
-    body: `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Thank You for Contacting Us</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #2563eb;">Thank you for contacting Oslo Languages</h2>
-            <p>Dear ${data.name},</p>
-            <p>We have received your message and will get back to you as soon as possible.</p>
-            <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>Your message details:</strong></p>
-              <p><strong>Subject:</strong> ${data.subject}</p>
-              <p style="background-color: white; padding: 15px; border-radius: 4px;">${data.message.replace(/\n/g, '<br>')}</p>
-            </div>
-            <p>Best regards,<br>Oslo Languages Team</p>
-          </div>
-        </body>
-      </html>
-    `
-  })
-};
-
-// Brevo API types
-interface BrevoRecipient {
-  email: string;
-  name?: string;
-}
-
-interface BrevoEmail {
-  sender: BrevoRecipient;
-  to: BrevoRecipient[];
-  subject: string;
-  htmlContent: string;
 }
 
 export class EmailError extends Error {
   constructor(
-    message: string, 
-    public code: 'CONFIG_ERROR' | 'API_ERROR' | 'VALIDATION_ERROR' | 'RATE_LIMIT_ERROR',
+    message: string,
+    public code: string,
     public statusCode: number = 500
   ) {
     super(message);
@@ -9770,147 +9752,79 @@ export class EmailError extends Error {
   }
 }
 
-export async function sendEmail(template: EmailTemplate, data: EmailData): Promise<void> {
-  try {
-    // Validate email configuration
-    const configValid = await validateEmailConfig();
-    if (!configValid) {
-      throw new EmailError(
-        'Email service not properly configured',
-        'CONFIG_ERROR',
-        500
-      );
-    }
+export async function sendContactEmail({ name, email, message }: EmailParams): Promise<void> {
+  // Validate required environment variables
+  const fromEmail = process.env.EMAIL_FROM;
+  const toEmail = process.env.EMAIL_TO;
 
-    // Validate email data
-    if (!data.email || !data.name || !data.message) {
-      throw new EmailError(
-        'Missing required email data',
-        'VALIDATION_ERROR',
-        400
-      );
-    }
-
-    // Get template content
-    const templateContent = templates[template](data);
-
-    // Prepare email data for Brevo API
-    const emailData: BrevoEmail = {
-      sender: {
-        email: process.env.EMAIL_FROM!,
-        name: 'Oslo Languages'
-      },
-      to: [{
-        email: template === 'contact' ? process.env.EMAIL_TO! : data.email,
-        name: template === 'contact' ? 'Oslo Languages Admin' : data.name
-      }],
-      subject: templateContent.subject,
-      htmlContent: templateContent.body
-    };
-
-    // Send email using Brevo API
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': process.env.BREVO_API_KEY!
-      },
-      body: JSON.stringify(emailData)
-    });
-
-    // Handle rate limiting
-    if (response.status === 429) {
-      throw new EmailError(
-        'Rate limit exceeded. Please try again later.',
-        'RATE_LIMIT_ERROR',
-        429
-      );
-    }
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new EmailError(
-        error.message || 'Failed to send email',
-        'API_ERROR',
-        response.status
-      );
-    }
-
-    logger.info('Email sent successfully', {
-      template,
-      to: emailData.to[0].email,
-      subject: templateContent.subject
-    });
-  } catch (error) {
-    if (error instanceof EmailError) {
-      throw error;
-    }
-
-    logger.error('Failed to send email', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      template,
-      to: template === 'contact' ? process.env.EMAIL_TO : data.email
-    });
-
+  if (!fromEmail || !toEmail) {
+    logger.error('Missing email configuration');
     throw new EmailError(
-      'Failed to send email',
-      'API_ERROR',
+      'Email configuration error',
+      'CONFIG_ERROR',
       500
     );
   }
-}
 
-// Function to validate email configuration
-export async function validateEmailConfig(): Promise<boolean> {
   try {
-    // Check required environment variables
-    const requiredEnvVars = {
-      'BREVO_API_KEY': process.env.BREVO_API_KEY,
-      'EMAIL_FROM': process.env.EMAIL_FROM,
-      'EMAIL_TO': process.env.EMAIL_TO
+    // Construct email content with proper HTML formatting
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">New Contact Form Submission</h2>
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Message:</strong></p>
+          <div style="background: white; padding: 15px; border-radius: 3px;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const msg = {
+      to: toEmail,
+      from: {
+        email: fromEmail,
+        name: 'Oslo Languages Contact Form'
+      },
+      replyTo: {
+        email,
+        name
+      },
+      subject: 'New Contact Form Submission - Oslo Languages',
+      html: htmlContent,
+      mailSettings: {
+        sandboxMode: {
+          enable: process.env.NODE_ENV !== 'production'
+        }
+      }
     };
 
-    const missingVars = Object.entries(requiredEnvVars)
-      .filter(([, value]) => !value)
-      .map(([key]) => key);
-
-    if (missingVars.length > 0) {
-      logger.error('Missing required environment variables', {
-        missingVariables: missingVars
-      });
-      return false;
-    }
-
-    // Test Brevo API key
-    const response = await fetch('https://api.brevo.com/v3/account', {
-      headers: {
-        'Accept': 'application/json',
-        'api-key': process.env.BREVO_API_KEY!
-      }
-    });
-
-    if (!response.ok) {
-      logger.error('Invalid Brevo API key', {
-        status: response.status,
-        statusText: response.statusText
-      });
-      return false;
-    }
-
-    // Validate email format
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    if (!emailRegex.test(process.env.EMAIL_FROM!) || !emailRegex.test(process.env.EMAIL_TO!)) {
-      logger.error('Invalid email format in environment variables');
-      return false;
-    }
-
-    return true;
+    await sgMail.send(msg);
+    logger.info('Contact email sent successfully', { to: toEmail, from: email });
   } catch (error) {
-    logger.error('Failed to validate email configuration', {
-      error: error instanceof Error ? error.message : 'Unknown error'
+    logger.error('Failed to send contact email', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      name,
+      email
     });
-    return false;
+
+    // Determine error type and throw appropriate error
+    if (error instanceof Error) {
+      if (error.message.includes('quota')) {
+        throw new EmailError('Email quota exceeded', 'QUOTA_ERROR', 429);
+      }
+      if (error.message.includes('invalid')) {
+        throw new EmailError('Invalid email configuration', 'VALIDATION_ERROR', 400);
+      }
+    }
+
+    throw new EmailError(
+      'Failed to send email',
+      'SEND_ERROR',
+      500
+    );
   }
 }
 
