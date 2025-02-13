@@ -1,14 +1,13 @@
-// src/app/layout.tsx
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google"; 
+import type { AppProps } from 'next/app';
+import { Inter } from "next/font/google";
 import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/footer/Footer";
-import "./globals.css";
 import ErrorBoundary from '@/components/ErrorBoundary';
-import React from 'react';
 import AuthProvider from '@/components/providers/AuthProvider';
-import type { AppProps } from 'next/app';
+import "@/styles/globals.css";
+
 
 
 

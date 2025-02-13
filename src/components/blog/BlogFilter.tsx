@@ -23,12 +23,12 @@ export default function BlogFilter({ categories, tags, onFilter }: BlogFilterPro
   const searchParams = useSearchParams();
   
   const [filters, setFilters] = useState<FilterState>({
-    search: searchParams.get('search') || '',
-    category: searchParams.get('category') || '',
-    tag: searchParams.get('tag') || '',
-    status: (searchParams.get('status') as FilterState['status']) || 'all',
-    sortBy: (searchParams.get('sortBy') as FilterState['sortBy']) || 'date',
-    sortOrder: (searchParams.get('sortOrder') as FilterState['sortOrder']) || 'desc'
+    search: searchParams?.get('search') ?? '',
+    category: searchParams?.get('category') ?? '',
+    tag: searchParams?.get('tag') ?? '',
+    status: (searchParams?.get('status') as FilterState['status']) ?? 'all',
+    sortBy: (searchParams?.get('sortBy') as FilterState['sortBy']) ?? 'date',
+    sortOrder: (searchParams?.get('sortOrder') as FilterState['sortOrder']) ?? 'desc'
   });
 
   // Debounced search handler
