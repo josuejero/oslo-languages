@@ -1,151 +1,75 @@
 // src/components/blog/BlogSearch.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Search } from 'lucide-react';
 
+/**
+ * Props for the BlogSearch component.
+ * @property {string} search - The current search query.
+ * @property {string} category - The selected category filter.
+ * @property {string} tag - The selected tag filter.
+ * @property {string} sortBy - The sort criteria (format: "field-order", e.g., "date-desc").
+ * @property {(value: string) => void} onSearchChange - Callback fired when the search input changes.
+ * @property {(value: string) => void} onCategoryChange - Callback fired when the category filter changes.
+ * @property {(value: string) => void} onTagChange - Callback fired when the tag filter changes.
+ * @property {(value: string) => void} onSortChange - Callback fired when the sort criteria changes.
+ * @property {string} [className] - Additional CSS classes.
+ */
 interface BlogSearchProps {
   search: string;
   category: string;
   tag: string;
   sortBy: string;
   onSearchChange: (value: string) => void;
-  onCategoryChange: (category: string) => void;
-  onTagChange: (tag: string) => void;
-  onSortChange: (sort: string) => void;
+  onCategoryChange: (value: string) => void;
+  onTagChange: (value: string) => void;
+  onSortChange: (value: string) => void;
+  className?: string;
 }
 
-const CATEGORIES = [
-  'Norwegian Language',
-  'English Language',
-  'Spanish Language',
-  'Learning Tips',
-  'Student Stories',
-  'Oslo Life'
-];
-
-const SORT_OPTIONS = [
-  { value: 'date-desc', label: 'Newest First' },
-  { value: 'date-asc', label: 'Oldest First' },
-  { value: 'title-asc', label: 'Title A-Z' },
-  { value: 'title-desc', label: 'Title Z-A' }
-];
-
+/**
+ * BlogSearch component provides a search input for blog posts.
+ *
+ * This is a controlled component where the search query, category, tag, and sort criteria
+ * are passed as props along with corresponding callback functions.
+ *
+ * @param {BlogSearchProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered search component.
+ */
 export default function BlogSearch({
   search,
-  category,
-  tag,
-  sortBy,
+  category, // currently not rendered as a UI element but available for future use
+  tag,      // currently not rendered as a UI element but available for future use
+  sortBy,   // currently not rendered as a UI element but available for future use
   onSearchChange,
-  onCategoryChange,
-  onTagChange,
-  onSortChange
-}: BlogSearchProps) {
+  onCategoryChange, // placeholder callback (can be hooked to additional UI controls)
+  onTagChange,      // placeholder callback (can be hooked to additional UI controls)
+  onSortChange,     // placeholder callback (can be hooked to additional UI controls)
+  className = ''
+}: BlogSearchProps): JSX.Element {
+  // useEffect can be used for debouncing or side effects if needed in the future.
+  useEffect(() => {
+    // Currently no side effects are necessary.
+  }, [search, category, tag, sortBy]);
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm space-y-4">
-      {/* Search Input */}
-      <div>
-        <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-          Search Posts
-        </label>
-        <input
-          type="search"
-          id="search"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search by title, content, or author..."
-          className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
+    <div className={`relative ${className}`}>
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
       </div>
-
-      <div className="grid md:grid-cols-3 gap-4">
-        {/* Category Filter */}
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-            Category
-          </label>
-          <select
-            id="category"
-            value={category}
-            onChange={(e) => onCategoryChange(e.target.value)}
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">All Categories</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Tag Filter */}
-        <div>
-          <label htmlFor="tag" className="block text-sm font-medium text-gray-700 mb-1">
-            Tag
-          </label>
-          <input
-            type="text"
-            id="tag"
-            value={tag}
-            onChange={(e) => onTagChange(e.target.value)}
-            placeholder="Filter by tag..."
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        {/* Sort Options */}
-        <div>
-          <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">
-            Sort By
-          </label>
-          <select
-            id="sort"
-            value={sortBy}
-            onChange={(e) => onSortChange(e.target.value)}
-            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Active Filters */}
-      {(category || tag || search) && (
-        <div className="flex items-center gap-2 pt-2">
-          <span className="text-sm text-gray-500">Active filters:</span>
-          <div className="flex flex-wrap gap-2">
-            {category && (
-              <button
-                onClick={() => onCategoryChange('')}
-                className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-              >
-                {category}
-                <span className="ml-1" aria-hidden="true">&times;</span>
-              </button>
-            )}
-            {tag && (
-              <button
-                onClick={() => onTagChange('')}
-                className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-              >
-                #{tag}
-                <span className="ml-1" aria-hidden="true">&times;</span>
-              </button>
-            )}
-            {search && (
-              <button
-                onClick={() => onSearchChange('')}
-                className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-              >
-                &quot;{search}&quot;
-                <span className="ml-1" aria-hidden="true">&times;</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+      
+      <input
+        type="search"
+        value={search}
+        onChange={(e) => onSearchChange(e.target.value)} // update parent state on change
+        placeholder="Search blog posts..."
+        className="
+          block w-full pl-10 pr-3 py-2
+          border border-gray-300 rounded-md
+          bg-white text-sm placeholder-gray-500
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+        "
+        aria-label="Search blog posts"
+      />
     </div>
   );
 }

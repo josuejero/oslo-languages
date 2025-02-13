@@ -1,29 +1,43 @@
-// src/app/api/blog/search/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import * as blogOps from '@/utils/blog-operations';
+// src/pages/api/blog/search.ts
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { searchPosts } from '@/utils/blog-operations';
 import { logger } from '@/utils/logger';
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   try {
-    const results = await blogOps.searchPosts({
-      query: searchParams.get('q') || undefined,
-      category: searchParams.get('category') || undefined,
-      tag: searchParams.get('tag') || undefined,
-      status: searchParams.get('status') as 'draft' | 'published' | undefined,
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '10'),
+    const {
+      query = '',
+      category,
+      tag,
+      page = '1',
+      limit = '9',
+      sortBy = 'date',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const result = await searchPosts({
+      query: String(query),
+      category: category ? String(category) : undefined,
+      tag: tag ? String(tag) : undefined,
+      page: Number(page),
+      limit: Number(limit),
+      sortBy: String(sortBy) as 'date' | 'title',
+      sortOrder: String(sortOrder) as 'asc' | 'desc'
     });
 
-    return NextResponse.json(results);
-  } catch (err) {
-    logger.error('Failed to search posts', {
-      error: err instanceof Error ? err.message : 'Unknown error'
+    res.status(200).json(result);
+  } catch (error) {
+    logger.error('Blog search error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      query: req.query
     });
-    return NextResponse.json(
-      { error: 'Failed to search posts' },
-      { status: 500 }
-    );
+    res.status(500).json({ error: 'Failed to search posts' });
   }
 }

@@ -4,20 +4,30 @@ import Link from 'next/link';
 import OptimizedImage from '@/components/OptimizedImage';
 import { Course } from '@/types';
 
-interface Props {
-  courses: Course[];
-  title?: string;
-}
-
-export default function CourseList({ courses, title = 'Available Courses' }: Props) {
+/**
+ * CourseList Component
+ *
+ * Displays a grid of course cards with keyboard navigation support.
+ *
+ * @param {Object} props - Component properties.
+ * @param {Course[]} props.courses - Array of courses to display.
+ * @param {string} [props.title='Available Courses'] - Section title.
+ * @returns {JSX.Element} Rendered CourseList component.
+ */
+export default function CourseList({ courses, title = 'Available Courses' }: { courses: Course[]; title?: string; }) {
   const listRef = useRef<HTMLUListElement>(null);
 
-  // Handle keyboard navigation within the grid
+  /**
+   * Handles keyboard navigation within the grid.
+   *
+   * @param {React.KeyboardEvent<HTMLLIElement>} event - The keyboard event.
+   * @param {number} index - Index of the current list item.
+   */
   const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>, index: number) => {
     const items = listRef.current?.querySelectorAll('li');
     if (!items) return;
 
-    const GRID_COLS = 3; // Matches our grid-cols-3 class
+    const GRID_COLS = 3; // Matches our grid-cols-3 layout
 
     switch (event.key) {
       case 'ArrowRight':
@@ -76,12 +86,13 @@ export default function CourseList({ courses, title = 'Available Courses' }: Pro
                 className="block h-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
               >
                 <div className="relative h-48">
+                  {/* Changed property from course.image to course.imageUrl to match the Course type */}
                   <OptimizedImage
-                    src={course.image}
-                    alt=""  // Decorative image, meaning is conveyed through text
+                    src={course.imageUrl}
+                    alt=""  // Decorative image; meaning conveyed via text below.
                     fill
                     className="object-cover"
-                    aspectRatio={16/9}
+                    aspectRatio={16 / 9}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     background="bg-gray-100"
                   />

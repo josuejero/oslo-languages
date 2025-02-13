@@ -1,3 +1,7 @@
+/* eslint-disable no-var */
+
+import { Course } from './types';
+
 declare interface Category {
   id: string;
   name: string;
@@ -22,3 +26,9 @@ declare interface Post {
 }
 
 declare type NonEmptyArray<T> = [T, ...T[]];
+
+declare global {
+  var courses: Course[];
+}
+  
+export {};

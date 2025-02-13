@@ -11,6 +11,7 @@ import { useDebounce } from '@/utils/hooks/useDebounce';
 interface BlogListProps {
   initialPosts?: Partial<BlogPost>[];
   showFilters?: boolean;
+  posts: any[]; // Ensure this matches the expected type
 }
 
 export default function BlogList({ initialPosts, showFilters = true }: BlogListProps) {

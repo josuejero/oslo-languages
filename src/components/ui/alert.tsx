@@ -3,7 +3,7 @@ import * as React from 'react';
 
 // Alert Component
 interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'destructive' | 'success';
+  variant?: 'default' | 'destructive' | 'success' | 'warning';
   className?: string;
 }
 
@@ -13,10 +13,12 @@ export function Alert({
   className = '', 
   ...props 
 }: AlertProps) {
+
   const variantStyles = {
     default: 'bg-background-secondary text-text-primary',
     destructive: 'bg-red-100 text-red-700',
-    success: 'bg-green-100 text-green-700'
+    success: 'bg-green-100 text-green-700',
+    warning: 'bg-yellow-100 text-yellow-800', // add a style for warning
   };
 
   return (

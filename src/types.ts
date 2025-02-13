@@ -9,13 +9,18 @@ export interface Teacher {
 }
 
 export interface Course {
-  schedule: string;
-  level: string;
-  language: string;
   id: string;
   title: string;
-  image: string;
-  // Add other course-related fields as needed
+  language: string;
+  level: string;
+  schedule: string;
+  imageUrl: string; // changed from image
+  startDate: string;
+  duration: string;
+  maxStudents: number;
+  price: number;
+  description: string;
+  // Add any additional fields as needed
 }
 
 export interface Feature {
