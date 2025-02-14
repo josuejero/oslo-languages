@@ -1,5 +1,6 @@
 // src/components/blog/BlogPost.tsx
-import { useRef } from 'react';
+import { useState, useRef } from 'react';
+import Head from 'next/head';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import OptimizedImage from '@/components/OptimizedImage';
@@ -8,6 +9,7 @@ import ShareButtons from './ShareButtons';
 import RichContent from './RichContent';
 import TableOfContents from './TableOfContents';
 
+
 interface Props {
   post: BlogPost;
   relatedPosts?: BlogPost[];
@@ -15,12 +17,40 @@ interface Props {
 
 export default function BlogPostLayout({ post, relatedPosts }: Props) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [copyStatus, setCopyStatus] = useState('');
 
+    // Handler for copying the post URL to clipboard
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/blog/${post.slug}`);
+      setCopyStatus('Copied!');
+    } catch (error) {
+      setCopyStatus('Failed to copy');
+    }
+    setTimeout(() => setCopyStatus(''), 3000);
+  };
   return (
-    <article
-      className="max-w-4xl mx-auto px-4 py-8"
-      aria-labelledby="blog-post-title"
-    >
+        <>
+          <Head>
+            <title>{post.title}</title>
+            <meta property="og:title" content={post.title} />
+            <meta property="og:description" content={post.excerpt} />
+            <meta property="og:image" content={post.coverImage} />
+            <link rel="canonical" href={`${typeof window !== 'undefined' ? window.location.origin : ''}/blog/${post.slug}`} />
+            <script type="application/ld+json">{JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              "headline": post.title,
+              "description": post.excerpt,
+              "image": post.coverImage,
+              "author": { "@type": "Person", "name": post.author },
+              "datePublished": post.date
+            })}</script>
+          </Head>
+          <article
+            className="max-w-4xl mx-auto px-4 py-8"
+            aria-labelledby="blog-post-title"
+          >
       {/* Skip to main content link */}
       <a
         href="#post-content"
@@ -78,11 +108,23 @@ export default function BlogPostLayout({ post, relatedPosts }: Props) {
         </div>
 
         {/* Share buttons */}
-        <ShareButtons
-          title={post.title}
-          url={`/blog/${post.slug}`}
-          description={post.excerpt}
-        />
+                {/* Share Buttons wrapped in a complementary region */}
+        <div role="complementary" aria-label="Share options" className="flex items-center">
+          <ShareButtons
+            title={post.title}
+            url={`/blog/${post.slug}`}
+            description={post.excerpt}
+          />
+          <button
+            type="button"
+            onClick={handleCopy}
+            aria-label="Copy link"
+            className="ml-4 px-3 py-1 border rounded"
+          >
+            Copy Link
+          </button>
+          {copyStatus && <span className="ml-2 text-sm text-green-600">{copyStatus}</span>}
+        </div>
       </header>
 
       {/* Table of Contents */}
@@ -129,5 +171,6 @@ export default function BlogPostLayout({ post, relatedPosts }: Props) {
         </section>
       )}
     </article>
+    </>
   );
 }

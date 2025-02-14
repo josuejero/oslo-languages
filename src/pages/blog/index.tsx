@@ -4,9 +4,7 @@ import { GetServerSideProps } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BlogList from '@/components/blog/BlogList';
 import BlogCategories from '@/components/blog/BlogCategories';
-import BlogTags from '@/components/blog/BlogTags';
-import BlogPagination from '@/components/blog/BlogPagination';
-import BlogSearch from '@/components/blog/BlogSearch';
+import BlogManager from '@/components/blog/BlogManager';
 import { useBlog } from '@/utils/hooks/useBlog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import LoadingSpinner from '@/components/LoadingSpinner'; // Import LoadingSpinner to fix undefined error
@@ -93,36 +91,14 @@ export default function BlogPage({
       
       <div className="grid grid-cols-12 gap-8">
         {/* Sidebar */}
-        <aside className="col-span-12 md:col-span-3 space-y-8">
-          <BlogCategories
-            categories={initialCategories}
-            activeCategory={currentCategory}
-          />
-          
-          <BlogTags
-            tags={initialTags}
-            activeTag={currentTag}
-            layout="cloud"
-          />
-        </aside>
-
-        {/* Main Content */}
-        <main className="col-span-12 md:col-span-9">
+                <main className="col-span-12">
           {loading ? (
             <div className="flex justify-center py-12">
               <LoadingSpinner />
             </div>
           ) : (
-            <>
-              <BlogList posts={posts} />
-              
-              <BlogPagination
-                currentPage={currentPage}
-                totalItems={totalPosts}
-                itemsPerPage={POSTS_PER_PAGE}
-                baseUrl="/blog/page/"
-              />
-            </>
+            // Render the unified blog manager component to handle search, filtering, and pagination
+            <BlogManager posts={posts} />
           )}
         </main>
       </div>

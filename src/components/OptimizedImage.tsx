@@ -47,15 +47,15 @@ export default function OptimizedImage({
       ref={ref}
       className={`relative overflow-hidden ${background} ${className}`}
       style={paddingStyle}
+      data-testid="image-container"
     >
       {inView && (
         <Image
           {...props}
           src={error ? fallbackSrc : imgSrc}
           alt={alt}
-          className={`transition-opacity duration-300 ${
-            loading ? 'opacity-0' : 'opacity-100'
-          }`}
+          quality={props.quality ?? 75}
+          className={`transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
           onLoad={() => setLoading(false)}
           onError={() => {
             setError(true);
@@ -64,12 +64,23 @@ export default function OptimizedImage({
           placeholder={lowQualityPlaceholder ? 'blur' : 'empty'}
           blurDataURL={lowQualityPlaceholder}
           sizes={props.sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
+          data-testid="optimized-image"
         />
       )}
       
       {/* Loading Skeleton */}
       {loading && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        <div className="absolute inset-0 bg-gray-200 animate-pulse" data-testid="image-skeleton" />
+      )}
+
+      {/* Accessibility Announcements */}
+      <div data-testid="loading-status" aria-live="polite" className="sr-only">
+        {loading ? 'loading' : ''}
+      </div>
+      {error && (
+        <div data-testid="error-status" aria-live="assertive" className="sr-only">
+          Failed to load image
+        </div>
       )}
     </div>
   );

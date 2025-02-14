@@ -1,5 +1,7 @@
 // src/components/blog/ShareButtons.tsx
 import { Twitter, Linkedin, Mail } from 'lucide-react';
+import { useState } from 'react';
+
 
 interface ShareButtonsProps {
   title: string;
@@ -37,35 +39,47 @@ export default function ShareButtons({ title, url, description }: ShareButtonsPr
     }
   ];
 
-  return (
-    <div 
-      role="region" 
-      aria-label="Share this post" 
-      className="flex items-center gap-4"
-    >
-      <span className="text-sm font-medium text-gray-700">Share:</span>
-      <ul className="flex gap-4" role="list">
-        {shareLinks.map((link) => {
-          const Icon = link.icon;
-          return (
-            <li key={link.name}>
-              <a
-                href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`
-                  inline-flex items-center justify-center w-8 h-8
-                  ${link.color} hover:opacity-80 transition-opacity
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full
-                `}
-                aria-label={`Share on ${link.name}`}
-              >
-                <Icon className="w-5 h-5" aria-hidden="true" />
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
+// Define a ShareButton component to handle aria-pressed state
+  function ShareButton({ link }: { link: typeof shareLinks[0] }) {
+      const [pressed, setPressed] = useState(false);
+      const handleClick = () => {
+        setPressed(true);
+        if(link.name === 'Email') {
+          window.location.href = link.href;
+        } else {
+          window.open(link.href, '_blank', 'noopener,noreferrer');
+        }
+        setTimeout(() => setPressed(false), 1000);
+      };
+  
+      const Icon = link.icon;
+      return (
+        <li key={link.name}>
+          <button
+            type="button"
+            onClick={handleClick}
+            aria-label={`Share on ${link.name}`}
+            aria-pressed={pressed}
+            className={`
+              inline-flex items-center justify-center w-8 h-8
+              ${link.color} hover:opacity-80 transition-opacity
+              focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full
+            `}
+          >
+            <Icon className="w-5 h-5" aria-hidden="true" />
+          </button>
+        </li>
+      );
+    }
+  
+    return (
+      <div role="region" aria-label="Share this post" className="flex items-center gap-4">
+        <span className="text-sm font-medium text-gray-700">Share:</span>
+        <ul className="flex gap-4" role="list">
+          {shareLinks.map((link) => (
+            <ShareButton key={link.name} link={link} />
+          ))}
+        </ul>
+      </div>
+    );
 }
