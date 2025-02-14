@@ -5,14 +5,22 @@ import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
+/**
+ * GET handler for generating an Open Graph image.
+ *
+ * @param request - The incoming NextRequest.
+ * @returns An ImageResponse with the generated OG image or an error response.
+ */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
+    // Retrieve query parameters with fallback defaults.
     const title = searchParams.get('title') || 'Oslo Languages';
     const description = searchParams.get('description') || '';
     const siteName = searchParams.get('siteName') || 'Oslo Languages';
 
+    // Return an ImageResponse with a custom OG image layout.
     return new ImageResponse(
       (
         <div
@@ -86,3 +94,8 @@ export async function GET(request: NextRequest) {
     });
   }
 }
+
+// Added default export to satisfy module expectations in legacy contexts.
+// This ensures that if any part of the system attempts to import a default export,
+// it will receive the GET handler.
+export default GET;

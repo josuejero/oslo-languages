@@ -1,74 +1,94 @@
-// src/app/blog/[slug]/page.tsx
-import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
-import Script from 'next/script';
-import { getPostBySlug } from '@/utils/blog-operations';
-import BlogPreview from '@/components/blog/BlogPreview';
-import { generateBlogPostSchema } from '@/utils/schema';
+// src/pages/blog/[slug].tsx
+import { GetStaticProps, GetStaticPaths } from 'next';
+// Import necessary functions and types from blog-operations
+import { getPostBySlug, getAllPosts, BlogPost as BlogPostOperations } from '@/utils/blog-operations';
+// Import BlogPost type from the blog module for display purposes
+import { BlogPost as BlogPostComponentType } from '@/utils/blog';
 
-interface Props {
-  params: { slug: string };
+// Combined type to satisfy both BlogSEO (which expects the operations type)
+// and BlogPostComponent (which expects the display type) requirements.
+type CombinedBlogPost = BlogPostOperations & { date: string };
+import BlogPostComponent from '@/components/blog/BlogPost';
+import BlogSEO from '@/components/seo/BlogSEO';
+import { logger } from '@/utils/logger';
+
+interface BlogPostPageProps {
+    // Combined blog post type including fields required by both BlogSEO and BlogPostComponent.
+    post: CombinedBlogPost;
+  }
+
+/**
+ * BlogPostPage component renders a single blog post page.
+ *
+ * @param {BlogPostPageProps} props - The props for the page.
+ * @returns {JSX.Element} The rendered blog post page.
+ */
+export default function BlogPostPage({ post }: BlogPostPageProps) {
+    return (
+        <>
+          <BlogSEO post={post} />
+          {/* Cast to BlogPostComponentType to satisfy the BlogPostComponent's expected type */}
+          <BlogPostComponent post={post as unknown as BlogPostComponentType} />
+        </>
+      );
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const post = await getPostBySlug(params.slug);
-    if (!post) return { title: 'Post Not Found' };
+    const posts = await getAllPosts();
+    const paths = posts.map((post) => ({
+      params: { slug: post.slug }
+    }));
+
+    return {
+      paths,
+      fallback: 'blocking'
+    };
+  } catch (error) {
+    logger.error('Failed to generate blog post paths:', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
     
     return {
-      title: post.title,
-      description: post.excerpt,
-      openGraph: {
-        title: post.title,
-        description: post.excerpt,
-        type: 'article',
-        publishedTime: post.publishedAt,
-        modifiedTime: post.updatedAt,
-        authors: [post.author],
-        tags: [...post.categories, ...post.tags],
-        images: post.coverImage ? [post.coverImage] : undefined,
-      },
-    };
-  } catch {
-    return {
-      title: 'Post Not Found',
-      description: 'The requested blog post could not be found.',
+      paths: [],
+      fallback: 'blocking'
     };
   }
-}
+};
 
-export default async function BlogPostPage({ params }: Props) {
-  let post;
-  
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   try {
-    post = await getPostBySlug(params.slug);
-    if (!post) notFound();
-  } catch {
-    notFound();
+    const slug = params?.slug as string;
+    // Fetch the post using the blog-operations module
+    const postOperations = await getPostBySlug(slug);
+
+    if (!postOperations) {
+      return {
+        notFound: true
+      };
+    }
+
+        // Combine fields from the operations post and add a 'date' field required by the BlogPost component.
+        const post: CombinedBlogPost = {
+          ...postOperations,
+          date: postOperations.publishedAt || postOperations.updatedAt || new Date().toISOString(),
+          readingTime: postOperations.readingTime || '1 min read'
+        };
+
+    return {
+      props: {
+        post
+      },
+      revalidate: 3600 // Revalidate every hour
+    };
+  } catch (error) {
+    logger.error('Failed to fetch blog post:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      slug: params?.slug
+    });
+    
+    return {
+      notFound: true
+    };
   }
-
-  // Generate structured data
-  const structuredData = generateBlogPostSchema({
-    title: post.title,
-    description: post.excerpt,
-    datePublished: post.publishedAt || '',
-    author: {
-      name: post.author,
-    },
-    image: post.coverImage,
-  });
-
-  return (
-    <>
-      <Script
-        id="blog-post-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      
-      <div className="container mx-auto px-4 py-12">
-        <BlogPreview post={post} />
-      </div>
-    </>
-  );
-}
+};
