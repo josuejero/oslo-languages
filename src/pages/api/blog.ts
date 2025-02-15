@@ -1,6 +1,6 @@
 // src/app/api/blog/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import * as blogOps from '@/utils/blog-operations';
+import * as blogOps from '@/utils/blog';
 import { getServerSession } from 'next-auth';
 import { logger } from '@/utils/logger';
 

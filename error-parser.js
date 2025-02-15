@@ -9,32 +9,6 @@ const OUTPUT_FILE_PATH = 'error_analysis.txt';
 const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500 MB
 const SEPARATOR = '='.repeat(80);
 
-// ─── Helper: Create an async multiline prompt ─────────────────────────────
-function getMultilineInput(promptText) {
-  return new Promise((resolve, reject) => {
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-    console.log(promptText);
-    console.log("Type 'END' on a new line to finish.");
-    const lines = [];
-    rl.on('line', (input) => {
-      if (input.trim().toUpperCase() === 'END') {
-        rl.close();
-      } else {
-        lines.push(input);
-      }
-    });
-    rl.on('close', () => resolve(lines.join('\n')));
-    rl.on('SIGINT', () => {
-      console.error("\nInput interrupted by user.");
-      process.exit(1);
-    });
-    rl.on('error', reject);
-  });
-}
-
 // ─── Helper: Ask a single question ───────────────────────────────────────────
 function askQuestion(query) {
   return new Promise((resolve) => {
@@ -59,7 +33,7 @@ function isCommandAvailable(cmd) {
   return which.status === 0;
 }
 
-// ─── Updated Helper: Extract file paths from a text block using regex ──────
+// ─── Helper: Extract file paths from a text block using regex ───────────────
 function extractFilePaths(text) {
   const regex = /(?:at\s+)?((?:\/|\.\/|[\w-]+\/)[\w\-.\\/]+(?:\.(?:tsx|jsx|json|html|css|ts|js)))(?::\d+:\d+)?/g;
   const matches = text.matchAll(regex);
@@ -70,7 +44,7 @@ function extractFilePaths(text) {
   return Array.from(paths);
 }
 
-// ─── New Helper: Extract import paths from file content ─────────────────────
+// ─── Helper: Extract import paths from file content ─────────────────────
 function extractImportPaths(fileContent) {
   const importRegex = /import\s+(?:[\w*\s{},]*\s+from\s+)?['"]([^'"]+)['"]/g;
   const paths = new Set();
@@ -83,7 +57,7 @@ function extractImportPaths(fileContent) {
   return Array.from(paths);
 }
 
-// ─── New Helper: Check if a file exists ──────────────────────────────────────
+// ─── Helper: Check if a file exists ──────────────────────────────────────
 async function fileExists(path) {
   try {
     await access(path);
@@ -93,7 +67,7 @@ async function fileExists(path) {
   }
 }
 
-// ─── Updated Helper: Resolve an imported module from a given base directory ──
+// ─── Helper: Resolve an imported module from a given base directory ──
 async function resolveModule(importPath, baseDir) {
   let resolvedPath = null;
   if (importPath.startsWith('./') || importPath.startsWith('../')) {
@@ -142,7 +116,7 @@ async function resolveModule(importPath, baseDir) {
   return null;
 }
 
-// ─── Top-Level: Recursive function to process a file and its local imports ─────────────────────────
+// ─── Recursive function to process a file and its local imports ─────────────────────────
 async function processFile(filePath, processedFiles, outputStream) {
   try {
     const resolvedPath = filePath.startsWith('/') ? filePath : join(process.cwd(), filePath);
@@ -177,23 +151,46 @@ async function processFile(filePath, processedFiles, outputStream) {
 
 async function main() {
   try {
-    // Overwrite (or create) the output file and open a write stream.
+    // ─── Run 'npm run check' ─────────────────────────────────────────────
+    console.log("Running 'npm run check'...");
+    const checkProc = spawnSync('npm', ['run', 'check'], { encoding: 'utf-8' });
+    console.log(checkProc.stdout);
+    console.error(checkProc.stderr);
+    
+    // ─── Run 'npm test' ─────────────────────────────────────────────
+    console.log("Running 'npm test'...");
+    const testProc = spawnSync('npm', ['test'], { encoding: 'utf-8' });
+    console.log(testProc.stdout);
+    console.error(testProc.stderr);
+    
+    // ─── Combine outputs and detect errors ─────────────────────────────
+    const combinedOutput = checkProc.stdout + "\n" + checkProc.stderr + "\n" + testProc.stdout + "\n" + testProc.stderr;
+    let errorDetected = false;
+    if (checkProc.status !== 0 || testProc.status !== 0) {
+      errorDetected = true;
+    } else if (/error/i.test(combinedOutput)) {
+      errorDetected = true;
+    }
+    
+    if (!errorDetected) {
+      console.log("There are no errors.");
+      process.exit(0);
+    }
+    
+    // ─── Create (or overwrite) the output file and open a write stream ─────────
     await writeFile(OUTPUT_FILE_PATH, '');
     const outputStream = createWriteStream(OUTPUT_FILE_PATH, { flags: 'a' });
-
-    // Get the error log / problem description from the user.
-    const problemMessage = await getMultilineInput("Enter the problem with the code (paste the error log):");
-
-    // Write the error message section.
+    
+    // Write the error message section with the combined output.
     outputStream.write("ERROR MESSAGE:\n");
-    outputStream.write(problemMessage + "\n\n");
+    outputStream.write(combinedOutput + "\n\n");
     outputStream.write("Please analyze the project structure, errors, and code carefully:\n\n");
-
+    
     // Extract error file paths.
-    const errorFiles = extractFilePaths(problemMessage);
+    const errorFiles = extractFilePaths(combinedOutput);
     outputStream.write("Found error files:\n" + JSON.stringify(errorFiles, null, 2) + "\n\n");
-
-    // Get and write the directory structure before the extracted code.
+    
+    // ─── Get and write the directory structure using the 'tree' command ─────────
     if (!isCommandAvailable('tree')) {
       throw new Error("Error: 'tree' command is not available. Please install it and try again.");
     }
@@ -204,19 +201,17 @@ async function main() {
     }
     outputStream.write("DIRECTORY STRUCTURE:\n");
     outputStream.write(treeProcess.stdout + "\n");
-
+    
     // Write a header for the extracted code.
     outputStream.write("EXTRACTED CODE:\n");
-
-    // Use a set to avoid processing the same file twice.
+    
+    // Process each error file (and its local imports) recursively.
     const processedFiles = new Set();
-
-    // Process each error file (and its imports).
     for (const filePath of errorFiles) {
       await processFile(filePath, processedFiles, outputStream);
     }
-
-    // Close the stream and check file size.
+    
+    // ─── Close the stream and check file size ─────────────────────────────
     await new Promise((resolve, reject) => {
       outputStream.end(resolve);
       outputStream.on('error', reject);
@@ -237,7 +232,7 @@ async function main() {
     } else {
       console.log(`The file size of '${OUTPUT_FILE_PATH}' is ${mbSize} MB.`);
     }
-
+    
     // Read the output file and copy its contents to the clipboard.
     const fileContent = await readFile(OUTPUT_FILE_PATH, 'utf-8');
     try {

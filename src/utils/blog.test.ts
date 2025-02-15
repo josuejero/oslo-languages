@@ -1,6 +1,8 @@
 // src/lib/__tests__/blog.test.ts
 import fs from 'fs/promises';
 import path from 'path';
+import { BlogPost } from '@/types/blog'; // Import BlogPost type for proper annotations
+
 import { 
   getPostBySlug, 
   getAllPosts, 
@@ -89,6 +91,12 @@ ${post.content}`;
 });
 
 describe('Blog Functions', () => {
+
+  beforeAll(async () => {
+    // Add slight delay for FS operations
+    await new Promise(resolve => setTimeout(resolve, 100));
+  });
+
   describe('Post Retrieval', () => {
     it('should retrieve a single post by slug', async () => {
       const post = await getPostBySlug('first-post');
@@ -125,7 +133,7 @@ describe('Blog Functions', () => {
       const norwegianPosts = await getPostsByCategory('Norwegian');
       
       expect(norwegianPosts).toHaveLength(2);
-      expect(norwegianPosts.every(post => 
+      expect(norwegianPosts.every((post: BlogPost) => 
         post.categories.includes('Norwegian')
       )).toBe(true);
     });
@@ -156,7 +164,7 @@ describe('Blog Functions', () => {
       const learningPosts = await getPostsByTag('learning');
       
       expect(learningPosts).toHaveLength(2);
-      expect(learningPosts.every(post => 
+      expect(learningPosts.every((post: BlogPost) => 
         post.tags.includes('learning')
       )).toBe(true);
     });

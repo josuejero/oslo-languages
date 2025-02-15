@@ -1,9 +1,9 @@
 // src/app/api/blog/preview/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import * as blogOps from '@/utils/blog-operations';
+import * as blogOps from '@/utils/blog';
 import { logger } from '@/utils/logger';
-import { BlogError } from '@/utils/blog-operations';
+import { BlogError } from '@/utils/blog';
 
 // POST /api/blog/preview - Preview post content
 export async function POST(request: NextRequest) {

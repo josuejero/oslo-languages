@@ -1,6 +1,6 @@
 // src/pages/api/blog/search.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { searchPosts } from '@/utils/blog-operations';
+import { searchPosts } from '@/utils/blog';
 import { logger } from '@/utils/logger';
 
 export default async function handler(

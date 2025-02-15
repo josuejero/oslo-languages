@@ -1,6 +1,6 @@
 // src/pages/rss.xml.ts
 import { GetServerSideProps } from 'next';
-import { getAllPosts } from '@/utils/blog-operations';
+import { getAllPosts } from '@/utils/blog';
 
 /**
  * Server-side rendering function for generating the RSS feed.

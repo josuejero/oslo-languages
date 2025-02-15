@@ -1,102 +1,50 @@
-// src/app/api/blog/[slug]/route.ts
+// src/pages/api/blog/[slug].ts
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import * as blogOps from '@/utils/blog-operations';
-import { logger } from '@/utils/logger';
+import { handleApiRoute, validators } from '@/utils/api-utils';
+import { getPostBySlug, updatePost, deletePost } from '@/utils/blog';
+import { ApiError } from '../../../utils/api-utils';
 
-interface RouteParams {
-  params: { slug: string }
-}
+const validations = {
+  title: validators.required('title'),
+  content: validators.minLength(10)
+};
 
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  try {
-    const post = await blogOps.getPostBySlug(params.slug);
-    
-    if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
+/**
+ * API route handler for fetching, updating, or deleting a blog post by slug.
+ * @param req - The NextRequest object.
+ * @param context - The context containing route parameters.
+ * @returns A NextResponse with the appropriate blog post data or status in JSON format.
+ */
+export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+  // Use handleApiRoute to wrap API logic with error handling and validations.
+  return handleApiRoute(req, async () => {
+    const { slug } = params; // Extract slug from the provided params.
+
+    // Process the request based on the HTTP method.
+    switch (req.method) {
+      case 'GET': {
+        // Retrieve the blog post by slug.
+        const blogPost = await getPostBySlug(slug);
+        // Wrap response in NextResponse.json to ensure a valid NextResponse.
+        return NextResponse.json({ post: blogPost });
+      }
+      case 'PUT': {
+        // Parse request body for updates.
+        const updates = await req.json();
+        const updatedPost = await updatePost(slug, updates);
+        // Wrap updated post response in NextResponse.json for proper typing.
+        return NextResponse.json({ post: updatedPost });
+      }
+      case 'DELETE': {
+        // Delete the blog post.
+        await deletePost(slug);
+        // Wrap success response in NextResponse.json for consistency.
+        return NextResponse.json({ success: true });
+      }
+      default:
+        // Throw an error for unsupported HTTP methods.
+        throw new ApiError('Method not allowed', 405);
     }
-
-    return NextResponse.json({ post });
-  } catch (error) {
-    logger.error('Failed to get post', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      slug: params.slug
-    });
-
-    return NextResponse.json(
-      { error: 'Failed to get post' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const session = await getServerSession();
-  if (!session?.user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
-  }
-
-  try {
-    const updates = await request.json();
-    const post = await blogOps.updatePost(params.slug, updates);
-
-    logger.info('Post updated successfully', {
-      slug: params.slug
-    });
-    return NextResponse.json({ post });
-  } catch (error) {
-    logger.error('Failed to update post', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      slug: params.slug
-    });
-
-    return NextResponse.json(
-      { error: 'Failed to update post' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const session = await getServerSession();
-  if (!session?.user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
-  }
-
-  try {
-    await blogOps.deletePost(params.slug);
-
-    logger.info('Post deleted successfully', {
-      slug: params.slug
-    });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    logger.error('Failed to delete post', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      slug: params.slug
-    });
-
-    return NextResponse.json(
-      { error: 'Failed to delete post' },
-      { status: 500 }
-    );
-  }
+  }, { validations });
 }

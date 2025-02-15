@@ -60,7 +60,6 @@ export default function CoursePage({ params }: PageProps) {
             alt={course.title}
             fill
             className="object-cover"
-            priority
             aspectRatio={16/9}
             sizes="(max-width: 768px) 100vw, 600px"
             background="bg-gray-100"

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import * as blogOps from '@/utils/blog-operations';
+import * as blogOps from '@/utils/blog';
 import { logger } from '@/utils/logger';
 
 export async function POST(request: NextRequest) {

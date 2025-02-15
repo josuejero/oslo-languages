@@ -2,7 +2,7 @@
 import Head from 'next/head';
 // Use the usePathname hook from next/navigation to get the current path
 import { usePathname } from 'next/navigation';
-import { BlogPost } from '@/utils/blog-operations';
+import { BlogPost } from '@/utils/blog';
 
 interface BlogSEOProps {
   post: BlogPost;
@@ -78,10 +78,10 @@ export default function BlogSEO({ post, canonicalUrl }: BlogSEOProps) {
       {modifiedDate && (
         <meta property="article:modified_time" content={modifiedDate} />
       )}
-      {post.categories.map(category => (
+      {post.categories.map((category: string) => (
         <meta key={category} property="article:section" content={category} />
       ))}
-      {post.tags.map(tag => (
+      {post.tags.map((tag: string) => (
         <meta key={tag} property="article:tag" content={tag} />
       ))}
       

@@ -4,10 +4,25 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useBlog } from '@/utils/hooks/useBlog';
-import { BlogPost } from '@/utils/blog-operations';
+import { BlogPost } from '@/utils/blog';
 
-export default function BlogManager() {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+/**
+ * Props for BlogManager component.
+ */
+interface BlogManagerProps {
+  /** Optional initial list of blog posts */
+  posts?: BlogPost[];
+}
+
+/**
+ * BlogManager component for managing blog posts.
+ * 
+ * @param {BlogManagerProps} props - The initial posts passed from the parent.
+ * @returns {JSX.Element} The rendered BlogManager component.
+ */
+export default function BlogManager({ posts: initialPosts = [] }: BlogManagerProps) {
+  // Initialize posts state with passed initial posts or an empty array.
+  const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'draft' | 'published'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +33,9 @@ export default function BlogManager() {
     loadPosts();
   }, [selectedStatus]);
 
+  /**
+   * Loads posts based on the selected status.
+   */
   const loadPosts = async () => {
     try {
       setLoading(true);
@@ -30,13 +48,17 @@ export default function BlogManager() {
       if (result) {
         setPosts(result.posts);
       }
-    } catch  {
+    } catch {
       setError('Failed to load posts');
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * Handles deleting a post.
+   * @param slug - The slug of the post to delete.
+   */
   const handleDeletePost = async (slug: string) => {
     if (!window.confirm('Are you sure you want to delete this post?')) {
       return;
@@ -44,12 +66,15 @@ export default function BlogManager() {
 
     try {
       await deletePost(slug);
-      loadPosts(); // Reload posts after deletion
+      loadPosts(); // Reload posts after deletion.
     } catch {
       setError('Failed to delete post');
     }
   };
 
+  /**
+   * Navigates to the create new post page.
+   */
   const handleCreatePost = () => {
     router.push('/blog/edit/new');
   };

@@ -11,6 +11,12 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: [
     '/node_modules/(?!(lucide-react|just-performance|limiter))',
+    "/node_modules/(?!(remark|unified|remark-parse|remark-html)/)",
+    "/node_modules/(?!remark-parse|remark-html|unified)/",
+    "/node_modules/(?!(remark|unified|rehype)/)",
+    '/node_modules/(?!(remark|unified|bail|is-plain-obj|trough|vfile)/)'
+    
+
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

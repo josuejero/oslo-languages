@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BlogPost } from '@/utils/blog-operations';
+import { BlogPost } from '@/utils/blog';
 import OptimizedImage from '@/components/OptimizedImage';
 import { useBlog } from '@/utils/hooks/useBlog';
 import { Alert, AlertDescription } from '@/components/ui/alert';

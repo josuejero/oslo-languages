@@ -79,28 +79,7 @@ Object.defineProperty(HTMLElement.prototype, 'focus', {
  value: jest.fn(),
 });
 
-// Mock react-hook-form
-jest.mock('react-hook-form', () => {
-  const original = jest.requireActual('react-hook-form');
-  return {
-    ...original,
-    useForm: () => ({
-      register: (name: string) => ({ 
-        name,
-        onChange: jest.fn(),
-        onBlur: jest.fn(),
-        ref: jest.fn()
-      }),
-      handleSubmit: (cb: (data: Record<string, unknown>) => Promise<void> | void) => async (e: React.FormEvent<HTMLFormElement>) => {
-        e?.preventDefault?.();
-        await cb({});
-      },      formState: { errors: {} },
-      watch: () => ({}),
-      setValue: jest.fn(),
-      reset: jest.fn()
-    })
-  };
-});
+
 
 // Mock document head & meta tags
 document.head.innerHTML = '<head></head>';

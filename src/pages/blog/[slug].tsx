@@ -1,7 +1,7 @@
 // src/pages/blog/[slug].tsx
 import { GetStaticProps, GetStaticPaths } from 'next';
 // Import necessary functions and types from blog-operations
-import { getPostBySlug, getAllPosts, BlogPost as BlogPostOperations } from '@/utils/blog-operations';
+import { getPostBySlug, getAllPosts, BlogPost as BlogPostOperations } from '@/utils/blog';
 // Import BlogPost type from the blog module for display purposes
 import { BlogPost as BlogPostComponentType } from '@/utils/blog';
 

@@ -1,6 +1,6 @@
 // src/pages/blog-sitemap.xml.ts
 import { GetServerSideProps } from 'next';
-import { getAllPosts } from '@/utils/blog-operations';
+import { getAllPosts } from '@/utils/blog';
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;

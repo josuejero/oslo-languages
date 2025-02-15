@@ -3,12 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BlogList from '@/components/blog/BlogList';
-import BlogCategories from '@/components/blog/BlogCategories';
-import BlogManager from '@/components/blog/BlogManager';
+// Updated import: BlogManager is now imported from the admin folder
+import BlogManager from '@/components/admin/BlogManager';
+import BlogSearch from '@/components/blog/BlogSearch'; // New component import
 import { useBlog } from '@/utils/hooks/useBlog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import LoadingSpinner from '@/components/LoadingSpinner'; // Import LoadingSpinner to fix undefined error
-import { logger } from '@/utils/logger'; // Import logger to fix undefined error
+import LoadingSpinner from '@/components/LoadingSpinner';
+import { logger } from '@/utils/logger';
 
 const POSTS_PER_PAGE = 9;
 
@@ -69,16 +70,16 @@ export default function BlogPage({
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Blog</h1>
-        {/* Pass controlled props to BlogSearch */}
+        {/* Render BlogSearch with proper type annotations for callback parameters */}
         <BlogSearch
           search={currentQuery}
           category={currentCategory}
           tag={currentTag}
           sortBy="date-desc" // Default sort value; adjust as needed
-          onSearchChange={(value) => router.push(`/blog?q=${value}`)}
-          onCategoryChange={(value) => router.push(`/blog?category=${value}`)}
-          onTagChange={(value) => router.push(`/blog?tag=${value}`)}
-          onSortChange={(value) => router.push(`/blog?sortBy=${value}`)}
+          onSearchChange={(value: string) => router.push(`/blog?q=${value}`)}
+          onCategoryChange={(value: string) => router.push(`/blog?category=${value}`)}
+          onTagChange={(value: string) => router.push(`/blog?tag=${value}`)}
+          onSortChange={(value: string) => router.push(`/blog?sortBy=${value}`)}
           className="w-64"
         />
       </div>
@@ -90,8 +91,7 @@ export default function BlogPage({
       )}
       
       <div className="grid grid-cols-12 gap-8">
-        {/* Sidebar */}
-                <main className="col-span-12">
+        <main className="col-span-12">
           {loading ? (
             <div className="flex justify-center py-12">
               <LoadingSpinner />

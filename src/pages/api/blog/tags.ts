@@ -1,6 +1,6 @@
 // src/pages/api/blog/tags.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getAllPosts } from '@/utils/blog-operations';
+import { getAllPosts } from '@/utils/blog';
 import { logger } from '@/utils/logger';
 
 export default async function handler(

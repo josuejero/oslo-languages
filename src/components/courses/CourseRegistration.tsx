@@ -1,3 +1,4 @@
+// src/components/courses/CourseRegistration.tsx
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -20,6 +21,10 @@ interface CourseRegistrationProps {
   onSubmit: (data: RegistrationFormData) => Promise<void>;
 }
 
+/**
+ * CourseRegistration component renders a registration form for courses.
+ * It uses react-hook-form for managing form state and validation.
+ */
 export default function CourseRegistration({
   courseId,
   sessionId,
@@ -31,20 +36,31 @@ export default function CourseRegistration({
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Added defaultValues for optional fields to ensure they are set to empty strings if not provided.
   const {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<RegistrationFormData>();
+  } = useForm<RegistrationFormData>({
+    defaultValues: { languageLevel: '', specialRequirements: '' },
+    mode: 'onChange'
+  });
 
   const handleRegistration = async (data: RegistrationFormData) => {
+    console.debug('handleRegistration called with data:', data);
     setSubmitStatus('loading');
     try {
       await onSubmit(data);
+      console.debug('Registration submitted successfully');
       setSubmitStatus('success');
     } catch (error) {
+      console.error('Error in registration submission:', error);
       setSubmitStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Registration failed');
+      if (error instanceof Error) {
+              setErrorMessage(error.message);
+            } else {
+              setErrorMessage('An unexpected error occurred');
+            }
     }
   };
 
@@ -85,10 +101,11 @@ export default function CourseRegistration({
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
             First Name
           </label>
           <input
+            id="firstName"
             {...register('firstName', { required: 'First name is required' })}
             className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
           />
@@ -98,10 +115,11 @@ export default function CourseRegistration({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
             Last Name
           </label>
           <input
+            id="lastName"
             {...register('lastName', { required: 'Last name is required' })}
             className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
           />
@@ -111,10 +129,11 @@ export default function CourseRegistration({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
             Email
           </label>
           <input
+            id="email"
             type="email"
             {...register('email', {
               required: 'Email is required',
@@ -131,10 +150,11 @@ export default function CourseRegistration({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
             Phone Number
           </label>
           <input
+            id="phone"
             type="tel"
             {...register('phone', { required: 'Phone number is required' })}
             className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
@@ -146,10 +166,11 @@ export default function CourseRegistration({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="languageLevel" className="block text-sm font-medium text-gray-700 mb-1">
           Current Language Level (Optional)
         </label>
         <select
+          id="languageLevel"
           {...register('languageLevel')}
           className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
         >
@@ -164,10 +185,11 @@ export default function CourseRegistration({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="specialRequirements" className="block text-sm font-medium text-gray-700 mb-1">
           Special Requirements or Comments (Optional)
         </label>
         <textarea
+          id="specialRequirements"
           {...register('specialRequirements')}
           rows={3}
           className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"

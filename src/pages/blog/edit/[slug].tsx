@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useBlog } from '@/utils/hooks/useBlog';
 import BlogEditor from '@/components/blog/BlogEditor';
 import BlogPreview from '@/components/blog/BlogPreview';
-import { BlogPost } from '@/utils/blog-operations';
+import { BlogPost } from '@/utils/blog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Props {

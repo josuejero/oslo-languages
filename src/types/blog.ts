@@ -42,6 +42,10 @@ export interface BlogPost {
   
   /** Estimated reading time (e.g., "5 min read") */
   readingTime?: string;
+
+  publishedAt?: string;
+
+  searchableContent?: string;
 }
 
 /**

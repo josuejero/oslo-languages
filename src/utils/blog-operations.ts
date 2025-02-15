@@ -7,6 +7,14 @@ import DOMPurify from 'isomorphic-dompurify';
 import { remark } from 'remark';
 import html from 'remark-html';
 import { logger } from '@/utils/logger';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkHtml from 'remark-html';
+import type { BlogPost } from '@/types/blog';
+
+const POSTS_DIRECTORY = path.join(process.cwd(), 'content', 'posts');
+const POSTS_DIR = path.join(process.cwd(), 'content/posts');
+const BACKUP_DIR = path.join(process.cwd(), 'content/backups');
 
 // Enhanced error handling
 export class BlogError extends Error {
@@ -21,22 +29,7 @@ export class BlogError extends Error {
   }
 }
 
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string;
-  author: string;
-  publishedAt?: string;
-  updatedAt?: string;
-  status: 'draft' | 'published';
-  categories: string[];
-  tags: string[];
-  coverImage?: string;
-  readingTime?: string;
-  searchableContent?: string; // For full-text search
-}
+
 
 interface SearchParams {
   query?: string;
@@ -49,38 +42,51 @@ interface SearchParams {
   sortOrder?: 'asc' | 'desc';
 }
 
-const POSTS_DIR = path.join(process.cwd(), 'content/posts');
-const BACKUP_DIR = path.join(process.cwd(), 'content/backups');
 
 // Helper function to ensure directories exist
+
 async function ensureDirectories() {
+  console.debug('Ensuring directories exist in blog-operations:', { POSTS_DIR, BACKUP_DIR });
   try {
     await fs.access(POSTS_DIR);
+    console.debug('Accessed POSTS_DIR in blog-operations:', POSTS_DIR);
     await fs.access(BACKUP_DIR);
-  } catch {
+    console.debug('Accessed BACKUP_DIR in blog-operations:', BACKUP_DIR);
+  } catch (error) {
+    console.error('Error accessing directories in blog-operations:', error);
     await fs.mkdir(POSTS_DIR, { recursive: true });
+    console.debug('Created POSTS_DIR in blog-operations:', POSTS_DIR);
     await fs.mkdir(BACKUP_DIR, { recursive: true });
+    console.debug('Created BACKUP_DIR in blog-operations:', BACKUP_DIR);
   }
 }
 
 // Helper function to create backup
 async function createBackup(slug: string) {
+  console.debug(`Creating backup for post: ${slug}`);
   try {
     const sourceFile = path.join(POSTS_DIR, `${slug}.md`);
     const backupFile = path.join(BACKUP_DIR, `${slug}_${Date.now()}.md`);
     await fs.copyFile(sourceFile, backupFile);
+    console.debug(`Backup created: ${backupFile}`);
     
-    // Clean old backups (keep last 5)
     const backups = await fs.readdir(BACKUP_DIR);
+    console.debug('Existing backups:', backups);
     const oldBackups = backups
       .filter(f => f.startsWith(slug))
       .sort()
       .slice(0, -5);
     
+    console.debug('Old backups to delete:', oldBackups);
     await Promise.all(
-      oldBackups.map(f => fs.unlink(path.join(BACKUP_DIR, f)))
+      oldBackups.map(f => {
+        const deletePath = path.join(BACKUP_DIR, f);
+        console.debug('Deleting backup file:', deletePath);
+        return fs.unlink(deletePath);
+      })
     );
   } catch (error) {
+    console.error('Error during backup creation for slug:', slug, error);
     logger.warn('Failed to create backup', { 
       error: error instanceof Error ? error.message : 'Unknown error',
       slug 
@@ -135,6 +141,7 @@ export async function createPost(post: Partial<BlogPost>): Promise<BlogPost> {
       author: post.author || 'Anonymous',
       publishedAt: post.status === 'published' ? now : undefined,
       updatedAt: now,
+      date: now,
       status: post.status || 'draft',
       categories: post.categories || [],
       tags: post.tags || [],
@@ -263,52 +270,46 @@ export async function deletePost(slug: string): Promise<void> {
   }
 }
 
-// Get post by slug
 export async function getPostBySlug(slug: string): Promise<BlogPost> {
+  const filePath = path.join(POSTS_DIR, `${slug}.md`);
+  console.debug('Fetching post from file:', filePath);
   try {
-    const filePath = path.join(POSTS_DIR, `${slug}.md`);
     const fileContent = await fs.readFile(filePath, 'utf8');
+    console.debug('File read successfully for slug:', slug);
     const { data, content } = matter(fileContent);
+    console.debug('Front matter data:', data);
 
-    // Convert markdown to HTML
     const processedContent = await remark()
       .use(html)
       .process(content);
+    const htmlContent = processedContent.toString();
 
-    const post: BlogPost = {
-      id: data.id || uuidv4(),
-      title: data.title || 'Untitled',
+    const words = content.trim().split(/\s+/).length;
+    const minutes = Math.ceil(words / 200);
+    const readingTime = `${minutes} min read`;
+
+    return {
+      id: data.id || slug,
       slug,
-      content: processedContent.toString(),
-      excerpt: data.excerpt || '',
-      author: data.author || 'Anonymous',
-      publishedAt: data.publishedAt || null,
-      updatedAt: data.updatedAt || data.publishedAt || null,
+      title: data.title,
+      content: htmlContent,
+      excerpt: data.excerpt,
+      author: data.author,
+      date: data.date,
+      updatedAt: data.updatedAt,
       status: data.status || 'draft',
       categories: data.categories || [],
       tags: data.tags || [],
-      coverImage: data.coverImage || '',
-      readingTime: calculateReadingTime(content),
-      searchableContent: `${data.title} ${data.excerpt} ${content}`.toLowerCase()
+      coverImage: data.coverImage,
+      readingTime,
+      publishedAt: data.publishedAt,
     };
-
-    return post;
   } catch (error) {
-    if (error instanceof BlogError) throw error;
-    
-    logger.error('Failed to get post', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      slug
-    });
-    
-    throw new BlogError(
-      'Post not found',
-      'NOT_FOUND',
-      404,
-      error
-    );
+    console.error(`Error fetching post with slug "${slug}":`, error);
+    throw new Error(`Error fetching post with slug "${slug}": ${(error as Error).message}`);
   }
 }
+
 
 // Preview post content
 export async function previewPost(content: string): Promise<string> {
@@ -414,32 +415,36 @@ export async function searchPosts(params: SearchParams): Promise<{ posts: BlogPo
 // Get all posts
 export async function getAllPosts(): Promise<BlogPost[]> {
   try {
-    await ensureDirectories();
-    
-    const files = await fs.readdir(POSTS_DIR);
-    const posts = await Promise.all(
-      files
-        .filter(filename => filename.endsWith('.md'))
-        .map(async filename => {
-          const slug = filename.replace('.md', '');
-          return await getPostBySlug(slug);
-        })
-    );
-
-    return posts.sort((a, b) => {
-      const dateA = new Date(a.publishedAt || a.updatedAt || 0);
-      const dateB = new Date(b.publishedAt || b.updatedAt || 0);
-      return dateB.getTime() - dateA.getTime();
+    const fileNames = await fs.readdir(POSTS_DIRECTORY);
+    const postsPromises = fileNames.map(fileName => {
+      const slug = fileName.replace(/\.md$/, '');
+      return getPostBySlug(slug);
     });
+    const posts = await Promise.all(postsPromises);
+    // Sort posts by date descending
+    return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
-    logger.error('Failed to get all posts', {
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
-    throw new BlogError(
-      'Failed to get posts',
-      'FILE_SYSTEM',
-      500,
-      error
-    );
+    throw new Error(`Error fetching all posts: ${(error as Error).message}`);
   }
 }
+
+export async function getPostsByCategory(category: string): Promise<BlogPost[]> {
+  const allPosts = await getAllPosts();
+  return allPosts.filter(post =>
+    post.categories.some(cat => cat.toLowerCase() === category.toLowerCase())
+  );
+}
+
+export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
+  const allPosts = await getAllPosts();
+  return allPosts.filter(post =>
+    post.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+  );
+}
+
+export function generatePostPath(slug: string): string {
+  // Simple generation of the post path; adjust if needed
+  return `/blog/${slug}`;
+}
+
+export type { BlogPost };

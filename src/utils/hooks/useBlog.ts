@@ -1,6 +1,6 @@
 // src/lib/hooks/useBlog.ts
 import { useState, useCallback } from 'react';
-import { BlogPost } from '@/utils/blog-operations';
+import type { BlogPost } from '@/utils/blog';
 import { logger } from '@/utils/logger';
 
 interface SearchParams {

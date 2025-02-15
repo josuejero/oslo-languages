@@ -1,14 +1,15 @@
-
 // src/components/courses/__tests__/CourseRegistration.test.tsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CourseRegistration from '../CourseRegistration';
+import userEvent from '@testing-library/user-event';
+import { act } from '@testing-library/react';
 
 const mockProps = {
   courseId: 'course1',
   sessionId: 'session1',
   courseName: 'Norwegian for Beginners',
   sessionDate: 'March 1, 2025',
-  onSubmit: jest.fn()
+  onSubmit: jest.fn().mockResolvedValue(undefined)
 };
 
 describe('CourseRegistration', () => {
@@ -28,8 +29,10 @@ describe('CourseRegistration', () => {
   it('shows validation errors for required fields', async () => {
     render(<CourseRegistration {...mockProps} />);
     
-    const submitButton = screen.getByRole('button', { name: /Complete Registration/i });
-    fireEvent.click(submitButton);
+    await act(async () => {
+      const submitButton = screen.getByRole('button', { name: /Complete Registration/i });
+      await userEvent.click(submitButton);
+    });
     
     await waitFor(() => {
       expect(screen.getByText(/First name is required/)).toBeInTheDocument();
@@ -40,27 +43,30 @@ describe('CourseRegistration', () => {
   it('validates email format', async () => {
     render(<CourseRegistration {...mockProps} />);
     
-    const emailInput = screen.getByLabelText(/Email/);
-    fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-    
-    const submitButton = screen.getByRole('button', { name: /Complete Registration/i });
-    fireEvent.click(submitButton);
+    await act(async () => {
+      const emailInput = screen.getByLabelText(/email/i); // Case-insensitive regex
+      // Skipping clear as the input is initially empty to avoid focus error
+      await userEvent.type(emailInput, 'invalid-email');
+      const submitButton = screen.getByRole('button', { name: /Complete Registration/i });
+      await userEvent.click(submitButton);
+    });
     
     await waitFor(() => {
-      expect(screen.getByText(/Invalid email address/)).toBeInTheDocument();
+      expect(screen.getByText(/Invalid email address/i)).toBeInTheDocument();
     });
   });
 
   it('submits form with valid data', async () => {
     render(<CourseRegistration {...mockProps} />);
     
-    fireEvent.change(screen.getByLabelText(/First Name/), { target: { value: 'John' } });
-    fireEvent.change(screen.getByLabelText(/Last Name/), { target: { value: 'Doe' } });
-    fireEvent.change(screen.getByLabelText(/Email/), { target: { value: 'john@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Phone/), { target: { value: '12345678' } });
-    
-    const submitButton = screen.getByRole('button', { name: /Complete Registration/i });
-    fireEvent.click(submitButton);
+    await act(async () => {
+      await userEvent.type(screen.getByLabelText(/First Name/i), 'John');
+      await userEvent.type(screen.getByLabelText(/Last Name/i), 'Doe');
+      await userEvent.type(screen.getByLabelText(/Email/i), 'john@example.com');
+      await userEvent.type(screen.getByLabelText(/Phone Number/i), '12345678');
+      const submitButton = screen.getByRole('button', { name: /Complete Registration/i });
+      await userEvent.click(submitButton);
+    });
     
     await waitFor(() => {
       expect(mockProps.onSubmit).toHaveBeenCalledWith({
@@ -80,7 +86,7 @@ describe('CourseRegistration', () => {
     fireEvent.change(screen.getByLabelText(/First Name/), { target: { value: 'John' } });
     fireEvent.change(screen.getByLabelText(/Last Name/), { target: { value: 'Doe' } });
     fireEvent.change(screen.getByLabelText(/Email/), { target: { value: 'john@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Phone/), { target: { value: '12345678' } });
+    fireEvent.change(screen.getByLabelText(/Phone Number/i), { target: { value: '12345678' } });
     
     const submitButton = screen.getByRole('button', { name: /Complete Registration/i });
     fireEvent.click(submitButton);
@@ -97,7 +103,7 @@ describe('CourseRegistration', () => {
     fireEvent.change(screen.getByLabelText(/First Name/), { target: { value: 'John' } });
     fireEvent.change(screen.getByLabelText(/Last Name/), { target: { value: 'Doe' } });
     fireEvent.change(screen.getByLabelText(/Email/), { target: { value: 'john@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Phone/), { target: { value: '12345678' } });
+    fireEvent.change(screen.getByLabelText(/Phone Number/i), { target: { value: '12345678' } });
     
     const submitButton = screen.getByRole('button', { name: /Complete Registration/i });
     fireEvent.click(submitButton);
@@ -119,7 +125,7 @@ describe('CourseRegistration', () => {
     fireEvent.change(screen.getByLabelText(/First Name/), { target: { value: 'John' } });
     fireEvent.change(screen.getByLabelText(/Last Name/), { target: { value: 'Doe' } });
     fireEvent.change(screen.getByLabelText(/Email/), { target: { value: 'john@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Phone/), { target: { value: '12345678' } });
+    fireEvent.change(screen.getByLabelText(/Phone Number/i), { target: { value: '12345678' } });
     
     const submitButton = screen.getByRole('button', { name: /Join Waitlist/i });
     fireEvent.click(submitButton);

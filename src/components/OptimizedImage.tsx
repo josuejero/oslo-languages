@@ -1,7 +1,12 @@
+// src/components/OptimizedImage.tsx
 import { useState, useEffect } from 'react';
 import Image, { ImageProps } from 'next/image';
 import { useInView } from 'react-intersection-observer';
 
+/**
+ * Extended interface for the optimized image component.
+ * Note: The "priority" prop is now allowed by no longer omitting it.
+ */
 interface OptimizedImageProps extends Omit<ImageProps, 'placeholder' | 'blurDataURL'> {
   fallbackSrc?: string;
   lowQualityPlaceholder?: string;
@@ -25,19 +30,21 @@ export default function OptimizedImage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   
-  // Use intersection observer for better lazy loading
   const { ref, inView } = useInView({
     triggerOnce: true,
     rootMargin: lazyBoundary
   });
 
   useEffect(() => {
-    setImgSrc(src);
-    setError(false);
-    setLoading(true);
+    try {
+      setImgSrc(src);
+      setError(false);
+      setLoading(true);
+    } catch (e) {
+      console.error("Error in useEffect updating image state:", e, { src });
+    }
   }, [src]);
 
-  // Calculate padding based on aspect ratio
   const paddingStyle = aspectRatio 
     ? { paddingTop: `${(1 / aspectRatio) * 100}%` }
     : undefined;
@@ -56,10 +63,20 @@ export default function OptimizedImage({
           alt={alt}
           quality={props.quality ?? 75}
           className={`transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
-          onLoad={() => setLoading(false)}
+          onLoad={() => {
+            try {
+              setLoading(false);
+            } catch (err) {
+              console.error("Error in onLoad handler:", err);
+            }
+          }}
           onError={() => {
-            setError(true);
-            setLoading(false);
+            try {
+              setError(true);
+              setLoading(false);
+            } catch (err) {
+              console.error("Error in onError handler:", err);
+            }
           }}
           placeholder={lowQualityPlaceholder ? 'blur' : 'empty'}
           blurDataURL={lowQualityPlaceholder}
@@ -68,12 +85,10 @@ export default function OptimizedImage({
         />
       )}
       
-      {/* Loading Skeleton */}
       {loading && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse" data-testid="image-skeleton" />
       )}
 
-      {/* Accessibility Announcements */}
       <div data-testid="loading-status" aria-live="polite" className="sr-only">
         {loading ? 'loading' : ''}
       </div>

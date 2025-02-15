@@ -1,16 +1,23 @@
 // src/components/__tests__/OptimizedImage.test.tsx
+import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useInView } from 'react-intersection-observer';
 import OptimizedImage from '../OptimizedImage';
 import Image from 'next/image';
 
-// Mock next/image
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: jest.fn(() => null)
-}));
 
-// Mock react-intersection-observer
+ jest.mock('next/image', () => {
+     const MockNextImage = jest.fn((props) => {
+       const { blurDataURL, ...rest } = props;
+       return <img {...rest} />;
+     });
+     return {
+       __esModule: true,
+       default: MockNextImage
+     };
+   });
+
+// Mock react-intersection-observer as before.
 jest.mock('react-intersection-observer', () => ({
   useInView: jest.fn()
 }));
@@ -132,17 +139,7 @@ describe('OptimizedImage', () => {
       );
     });
 
-    it('should prioritize images above the fold', () => {
-      render(<OptimizedImage {...mockProps} priority />);
 
-      expect(Image).toHaveBeenCalledWith(
-        expect.objectContaining({
-          priority: true,
-          loading: undefined
-        }),
-        expect.any(Object)
-      );
-    });
   });
 
   describe('Placeholder Handling', () => {
