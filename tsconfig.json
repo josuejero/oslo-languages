@@ -28,7 +28,6 @@
     "baseUrl": ".",
     "types": [
       "node",
-      "jest"
     ]
   },
   "include": [

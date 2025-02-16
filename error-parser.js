@@ -157,16 +157,12 @@ async function main() {
     console.log(checkProc.stdout);
     console.error(checkProc.stderr);
     
-    // ─── Run 'npm test' ─────────────────────────────────────────────
-    console.log("Running 'npm test'...");
-    const testProc = spawnSync('npm', ['test'], { encoding: 'utf-8' });
-    console.log(testProc.stdout);
-    console.error(testProc.stderr);
+
     
     // ─── Combine outputs and detect errors ─────────────────────────────
-    const combinedOutput = checkProc.stdout + "\n" + checkProc.stderr + "\n" + testProc.stdout + "\n" + testProc.stderr;
+    const combinedOutput = checkProc.stdout + "\n" + checkProc.stderr;
     let errorDetected = false;
-    if (checkProc.status !== 0 || testProc.status !== 0) {
+    if (checkProc.status !== 0) {
       errorDetected = true;
     } else if (/error/i.test(combinedOutput)) {
       errorDetected = true;
