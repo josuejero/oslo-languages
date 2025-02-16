@@ -36,7 +36,7 @@
     "**/*.ts",
     "**/*.tsx",
     "src/types/**/*.d.ts"
-  ],
+, "jest.esm.config.cjs"  ],
   "exclude": [
     "node_modules"
   ]

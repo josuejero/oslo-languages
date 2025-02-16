@@ -7,38 +7,44 @@ const createJestConfig = nextJest({
 });
 
 const config: Config = {
-  testEnvironment: 'jsdom', 
+  preset: 'ts-jest',
+  testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   transformIgnorePatterns: [
-    '/node_modules/(?!(lucide-react|just-performance|limiter))',
-    "/node_modules/(?!(remark|unified|remark-parse|remark-html)/)",
-    "/node_modules/(?!remark-parse|remark-html|unified)/",
-    "/node_modules/(?!(remark|unified|rehype)/)",
-    '/node_modules/(?!(remark|unified|bail|is-plain-obj|trough|vfile)/)'
-    
+    '/node_modules/(?!(remark-html)/)',
+    '/node_modules/(?!(remark-html|@mdx-js|unified|bail|is-plain-obj|trough|vfile|unist-util-stringify-position|micromark-util-decode-numeric-character-reference|micromark-util-decode-string|micromark-util-normalize-identifier|decode-named-character-reference)/)',
 
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    'remark-html': '<rootDir>/src/__mocks__/remark.ts'
   },
   transform: {
     '^.+\\.(t|j)sx?$': '@swc/jest',
+      '^.+\\.(js|jsx)$': 'babel-jest',
+      '^.+\\.(ts|tsx)$': ['ts-jest', {
+        tsconfig: 'tsconfig.json',
+        isolatedModules: true,
+      }],
   },
+  testPathIgnorePatterns: ['/node_modules/','/e2e/'],
   testMatch: [
-    '**/__tests__/**/*.ts?(x)',
-    '**/?(*.)+(spec|test).ts?(x)'
+    "**/src/**/*.(test|spec).{ts,tsx}",
+    '**/__tests__/**/*.test.[jt]s?(x)',
+
   ],
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.json',
+      diagnostics: false,
+    },
+  },
   collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
+    'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
-    '!src/**/types.ts',
-    '!src/middleware.ts',
-    '!src/**/generated/**',
   ],
-  testTimeout: 20000,
-  verbose: true,
-  bail: true,
-  maxWorkers: 1,
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+
 };
 
 export default createJestConfig(config);

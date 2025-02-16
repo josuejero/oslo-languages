@@ -1,10 +1,16 @@
 // jest.setup.ts
 import '@testing-library/jest-dom';
 import { TextEncoder, TextDecoder } from 'util';
+import 'whatwg-fetch';
+
 
 // Set up test environment
 (window as any).IS_REACT_ACT_ENVIRONMENT = true;
 (global as any).IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
+
+import '@testing-library/jest-dom/extend-expect';
+
 
 const mockModule = {
  error: console.error,
@@ -42,6 +48,10 @@ jest.mock('next/navigation', () => ({
  },
  usePathname: () => '/',
 }));
+
+jest.mock('next-auth', () => {
+  return jest.fn();
+});
 
 // Mock icons
 jest.mock('lucide-react', () => ({

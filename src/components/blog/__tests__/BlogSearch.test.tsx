@@ -1,6 +1,6 @@
 // src/components/blog/__tests__/BlogSearch.test.tsx
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import BlogSearch from '../BlogSearch';
 
 describe('BlogSearch Component', () => {
@@ -26,17 +26,20 @@ describe('BlogSearch Component', () => {
 
   it('renders input and select elements', () => {
     expect(screen.getByPlaceholderText('Search posts...')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('date-desc')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Sort posts by' })).toBeInTheDocument();
   });
 
-  it('calls onSearchChange when typing in the search input', () => {
+  it('calls onSearchChange when typing in the search input', async () => {
     const input = screen.getByPlaceholderText('Search posts...');
     fireEvent.change(input, { target: { value: 'react' } });
-    expect(mockOnSearchChange).toHaveBeenCalledWith('react');
+    
+    await waitFor(() => {
+      expect(mockOnSearchChange).toHaveBeenCalledWith('react');
+    }, { timeout: 400 });
   });
 
   it('calls onCategoryChange when changing the category', () => {
-    const select = screen.getByRole('combobox', { name: '' });
+    const select = screen.getByRole('combobox', { name: 'Filter by category' });
     fireEvent.change(select, { target: { value: 'tech' } });
     expect(mockOnCategoryChange).toHaveBeenCalledWith('tech');
   });

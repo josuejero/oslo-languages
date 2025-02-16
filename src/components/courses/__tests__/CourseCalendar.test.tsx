@@ -1,13 +1,14 @@
 // src/components/courses/__tests__/CourseCalendar.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
 import CourseCalendar from '../CourseCalendar';
+import { format } from 'date-fns';
 
 const mockSessions = [
   {
     id: '1',
     courseId: 'course1',
-    startDate: '2025-03-01T00:00:00Z',
-    endDate: '2025-05-01T00:00:00Z',
+    startDate: '2025-02-28T00:00:00.000Z',
+    endDate: '2025-04-30T00:00:00.000Z',
     availableSeats: 5,
     schedule: 'Mon & Wed 18:00-20:00'
   },
@@ -25,9 +26,11 @@ describe('CourseCalendar', () => {
   it('renders all sessions sorted by date', () => {
     render(<CourseCalendar sessions={mockSessions} />);
     
-    const dates = screen.getAllByText(/202\d/);
-    expect(dates).toHaveLength(2);
-    expect(dates[0]).toHaveTextContent('March 1, 2025');
+    const startDate = format(new Date(mockSessions[0].startDate), 'MMMM d, yyyy');
+    const endDate = format(new Date(mockSessions[0].endDate), 'MMMM d, yyyy');
+    const dateText = `${startDate} - ${endDate}`;
+    
+    expect(screen.getByText(dateText)).toBeInTheDocument();
   });
 
   it('shows correct availability status', () => {

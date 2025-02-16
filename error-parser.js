@@ -123,7 +123,7 @@ async function processFile(filePath, processedFiles, outputStream) {
     const relativePath = relative(process.cwd(), resolvedPath);
     
     // Skip files that are in "node_modules" or "coverage" directories.
-    if (relativePath.startsWith("node_modules") || relativePath.startsWith("coverage")) {
+    if (relativePath.startsWith("node_modules") || relativePath.startsWith("coverage") || relativePath.startsWith("testing-library")) {
       console.log(`Skipping file in ignored directory: ${relativePath}`);
       return;
     }

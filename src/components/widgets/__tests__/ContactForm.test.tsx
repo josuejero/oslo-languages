@@ -1,5 +1,5 @@
 // src/components/widgets/__tests__/ContactForm.test.tsx
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
 import ContactForm from '../ContactForm';
 
 class MockXMLHttpRequest {
@@ -30,32 +30,61 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
+
 describe('ContactForm', () => {
-  it('renders form fields', async () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+  it('renders form fields', () => {
     render(<ContactForm />);
     
     expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/subject/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
-  }, 30000);
+  });
+
+  beforeEach(() => {
+    mockFetch.mockClear();
+  });
 
   it('handles form submission error', async () => {
-    const mockXHR = new MockXMLHttpRequest();
-    mockXHR.send.mockImplementation(function(this: any) {
-      this.status = 500;
-      this.onerror?.();
-    });
-    global.XMLHttpRequest = jest.fn(() => mockXHR) as any;
-
+    // Mock fetch to simulate error
+    global.fetch = jest.fn().mockImplementationOnce(() => 
+      Promise.resolve({
+        ok: false,
+        json: () => Promise.resolve({ error: 'Failed to submit the form. Please try again later.' })
+      })
+    );
+  
     render(<ContactForm />);
-    const submitButton = screen.getByRole('button', { name: /send message/i });
-
+    
     await act(async () => {
-      fireEvent.click(submitButton);
-      jest.runAllTimers();
+      // Fill form with valid data
+      fireEvent.change(screen.getByLabelText(/name/i), { 
+        target: { value: 'Test User' } 
+      });
+      fireEvent.change(screen.getByLabelText(/email/i), { 
+        target: { value: 'test@example.com' } 
+      });
+      fireEvent.change(screen.getByLabelText(/subject/i), { 
+        target: { value: 'Test Subject' } 
+      });
+      fireEvent.change(screen.getByLabelText(/message/i), { 
+        target: { value: 'Test message' } 
+      });
+  
+      // Submit form
+      fireEvent.click(screen.getByRole('button', { name: /send message/i }));
     });
-
-    expect(screen.getByText(/failed/i)).toBeInTheDocument();
+  
+    // Wait for error message to appear - using exact error message
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Failed to submit the form. Please try again later.'
+      );
+    });
   });
 });
