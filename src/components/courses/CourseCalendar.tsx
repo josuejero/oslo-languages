@@ -1,77 +1,92 @@
-import React from 'react';
-import { format, parseISO } from 'date-fns';
+import React, { useState } from 'react';
+import { format, parseISO, isFuture } from 'date-fns';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-interface CourseSession {
+interface Session {
   id: string;
-  courseId: string;
   startDate: string;
   endDate: string;
   availableSeats: number;
   schedule: string;
+  location: string;
+  isOnline: boolean;
 }
 
-interface CourseCalendarProps {
-  sessions: CourseSession[];
-  onSessionSelect?: (session: CourseSession) => void;
+interface Props {
+  sessions: Session[];
+  onSessionSelect: (session: Session) => void;
 }
 
-export default function CourseCalendar({ sessions, onSessionSelect }: CourseCalendarProps) {
-  const sortedSessions = [...sessions].sort(
-    (a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime()
-  );
+export default function CourseCalendar({ sessions, onSessionSelect }: Props) {
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+
+  // Filter out past sessions and sort by date
+  const availableSessions = sessions
+    .filter(session => isFuture(parseISO(session.startDate)))
+    .sort((a, b) => parseISO(a.startDate).getTime() - parseISO(b.startDate).getTime());
+
+  const handleSessionSelect = (session: Session) => {
+    setSelectedSessionId(session.id);
+    onSessionSelect(session);
+  };
+
+  if (availableSessions.length === 0) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          No upcoming sessions are currently scheduled. Please contact us for more information.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow">
-      <div className="px-6 py-4 border-b">
-        <h3 className="text-lg font-semibold">Upcoming Course Dates</h3>
-      </div>
-      
-      <div className="divide-y">
-        {sortedSessions.map((session) => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold mb-4">Available Sessions</h3>
+      <div className="grid gap-4">
+        {availableSessions.map((session) => (
           <div
             key={session.id}
-            className="p-6 hover:bg-gray-50 transition-colors"
+            className={`p-4 rounded-lg border transition-colors ${
+              selectedSessionId === session.id
+                ? 'border-blue-500 bg-blue-50'
+                : 'border-gray-200 hover:border-blue-300'
+            }`}
           >
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <p className="font-medium">
-                  {format(parseISO(session.startDate), 'MMMM d, yyyy')} - {' '}
-                  {format(parseISO(session.endDate), 'MMMM d, yyyy')}
-                </p>
-                <p className="text-sm text-gray-600">{session.schedule}</p>
-              </div>
-              <div className="text-right">
-                <span className={`inline-flex px-2 py-1 text-sm rounded-full ${
-                  session.availableSeats > 0
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
+            <button
+              onClick={() => handleSessionSelect(session)}
+              className="w-full text-left"
+              disabled={session.availableSeats === 0}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="font-medium">
+                    {format(parseISO(session.startDate), 'MMMM d, yyyy')} - {' '}
+                    {format(parseISO(session.endDate), 'MMMM d, yyyy')}
+                  </p>
+                  <p className="text-sm text-gray-600">{session.schedule}</p>
+                  <p className="text-sm text-gray-600">
+                    {session.isOnline ? 'Online Course' : `Location: ${session.location}`}
+                  </p>
+                </div>
+                <span
+                  className={`px-2 py-1 rounded-full text-sm ${
+                    session.availableSeats > 0
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}
+                >
                   {session.availableSeats > 0
                     ? `${session.availableSeats} seats available`
                     : 'Waitlist only'
                   }
                 </span>
               </div>
-            </div>
-            
-            <button
-              onClick={() => onSessionSelect?.(session)}
-              className={`w-full mt-4 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                session.availableSeats > 0
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-              }`}
-            >
-              {session.availableSeats > 0 ? 'Select Date' : 'Join Waitlist'}
             </button>
           </div>
         ))}
-
-        {sortedSessions.length === 0 && (
-          <div className="p-6 text-center text-gray-500">
-            No upcoming sessions scheduled
-          </div>
-        )}
       </div>
     </div>
   );

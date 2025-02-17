@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -19,7 +23,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "typeRoots": [
       "./node_modules/@types",
@@ -27,15 +33,17 @@
     ],
     "baseUrl": ".",
     "types": [
-      "node",
+      "node"
     ]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src/types/**/*.d.ts"
-, "jest.esm.config.cjs"  ],
+    "src/types/**/*.d.ts",
+    "jest.esm.config.cjs",
+    ".next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

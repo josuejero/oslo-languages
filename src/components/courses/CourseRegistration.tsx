@@ -1,7 +1,8 @@
-// src/components/courses/CourseRegistration.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { FormField, Input, Select } from '@/components/ui/form';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 interface CourseRegistrationProps {
   courseId: string;
@@ -9,11 +10,9 @@ interface CourseRegistrationProps {
   courseName: string;
   sessionDate: string;
   isWaitlist?: boolean;
-  isSubmitted?: boolean;
-  onSubmit: (data: RegistrationData) => Promise<void>;
 }
 
-export interface RegistrationData {
+interface RegistrationData {
   firstName: string;
   lastName: string;
   email: string;
@@ -22,82 +21,72 @@ export interface RegistrationData {
   specialRequirements?: string;
 }
 
-// Utility to log events.
-const logEvent = (fieldName: string, eventType: string, value: string) => {
-  console.debug(`${fieldName} ${eventType}:`, value);
-  console.debug("Active element:", document.activeElement);
-};
+const LANGUAGE_LEVELS = [
+  { value: 'beginner', label: 'Beginner (A1)' },
+  { value: 'elementary', label: 'Elementary (A2)' },
+  { value: 'intermediate', label: 'Intermediate (B1)' },
+  { value: 'upperIntermediate', label: 'Upper Intermediate (B2)' },
+  { value: 'advanced', label: 'Advanced (C1)' }
+];
 
 export default function CourseRegistration({
   courseId,
   sessionId,
   courseName,
   sessionDate,
-  isWaitlist = false,
-  isSubmitted = false,
-  onSubmit
+  isWaitlist = false
 }: CourseRegistrationProps) {
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Use Controller with defaultValues.
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<RegistrationData>({
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      languageLevel: '',
-      specialRequirements: ''
-    }
-  });
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<RegistrationData>();
 
-  const watchedValues = watch();
-  useEffect(() => {
-    console.debug("Current form values:", watchedValues);
-  }, [watchedValues]);
+  const onSubmit = async (data: RegistrationData) => {
+    setSubmitStatus('loading');
+    setErrorMessage('');
 
-  useEffect(() => {
-    console.debug("Validation errors:", errors);
-  }, [errors]);
-
-  const onSubmitForm = async (data: RegistrationData) => {
-    console.debug("onSubmitForm called with data:", data);
     try {
-      setSubmitStatus('loading');
-      console.debug("Calling onSubmit callback with data:", data);
-      await onSubmit(data);
-      setSubmitStatus('idle');
-      console.debug("onSubmit callback succeeded");
-    } catch (error) {
+      const response = await fetch('/api/courses/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId, sessionId, ...data }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to process registration');
+      }
+
+      setSubmitStatus('success');
+      reset(); // Clear form
+    } catch (error: unknown) {
       setSubmitStatus('error');
-      const errMsg = error instanceof Error ? error.message : 'Form submission failed';
-      setErrorMessage(errMsg);
-      console.error("Form submission failed with error:", error);
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to process registration');
     }
   };
 
-  // Use "text" for email input in tests.
-  const emailInputType = process.env.NODE_ENV === 'test' ? 'text' : 'email';
-
-  if (isSubmitted) {
-    console.debug("Form is submitted. isWaitlist:", isWaitlist);
+  if (submitStatus === 'success') {
     return (
-      <div className="text-center p-6">
-        <h3 className="text-lg font-semibold mb-2">
+      <div className="text-center p-6 bg-green-50 rounded-lg">
+        <h3 className="text-lg font-semibold text-green-800 mb-2">
           {isWaitlist ? 'Added to Waitlist' : 'Registration Successful'}
         </h3>
-        <p className="text-gray-600">
-          {isWaitlist 
-            ? "We'll contact you when a spot becomes available"
-            : "Thank you for your registration. We'll send you a confirmation email shortly."}
+        <p className="text-green-600">
+          {isWaitlist
+            ? "We'll contact you when a spot becomes available."
+            : "Thank you for registering! You'll receive a confirmation email shortly."}
         </p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {submitStatus === 'error' && (
         <Alert variant="destructive">
           <AlertDescription>{errorMessage}</AlertDescription>
@@ -110,75 +99,29 @@ export default function CourseRegistration({
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* First Name */}
-        <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-            First Name
-          </label>
+        <FormField label="First Name" error={errors.firstName?.message} required>
           <Controller
             name="firstName"
             control={control}
             rules={{ required: 'First name is required' }}
             render={({ field }) => (
-              <input
-                id="firstName"
-                {...field}
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => {
-                  field.onChange(e.target.value);
-                  logEvent("First Name", "changed", e.target.value);
-                }}
-                onBlur={(e) => {
-                  field.onBlur();
-                  logEvent("First Name", "blurred", e.target.value);
-                }}
-              />
+              <Input {...field} disabled={submitStatus === 'loading'} aria-invalid={errors.firstName ? 'true' : 'false'} />
             )}
           />
-          {errors.firstName && (
-            <p className="mt-1 text-sm text-red-600" role="alert">
-              {errors.firstName.message}
-            </p>
-          )}
-        </div>
+        </FormField>
 
-        {/* Last Name */}
-        <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name
-          </label>
+        <FormField label="Last Name" error={errors.lastName?.message} required>
           <Controller
             name="lastName"
             control={control}
             rules={{ required: 'Last name is required' }}
             render={({ field }) => (
-              <input
-                id="lastName"
-                {...field}
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => {
-                  field.onChange(e.target.value);
-                  logEvent("Last Name", "changed", e.target.value);
-                }}
-                onBlur={(e) => {
-                  field.onBlur();
-                  logEvent("Last Name", "blurred", e.target.value);
-                }}
-              />
+              <Input {...field} disabled={submitStatus === 'loading'} aria-invalid={errors.lastName ? 'true' : 'false'} />
             )}
           />
-          {errors.lastName && (
-            <p className="mt-1 text-sm text-red-600" role="alert">
-              {errors.lastName.message}
-            </p>
-          )}
-        </div>
+        </FormField>
 
-        {/* Email */}
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
+        <FormField label="Email" error={errors.email?.message} required>
           <Controller
             name="email"
             control={control}
@@ -190,139 +133,73 @@ export default function CourseRegistration({
               }
             }}
             render={({ field }) => (
-              <input
-                id="email"
-                type={emailInputType}
-                {...field}
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                aria-invalid={errors.email ? 'true' : 'false'}
-                onChange={(e) => {
-                  field.onChange(e.target.value);
-                  logEvent("Email", "changed", e.target.value);
-                }}
-                onBlur={(e) => {
-                  field.onBlur();
-                  logEvent("Email", "blurred", e.target.value);
-                }}
-              />
+              <Input {...field} type="email" disabled={submitStatus === 'loading'} aria-invalid={errors.email ? 'true' : 'false'} />
             )}
           />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600" role="alert">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+        </FormField>
 
-        {/* Phone Number */}
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number
-          </label>
+        <FormField label="Phone" error={errors.phone?.message} required>
           <Controller
             name="phone"
             control={control}
             rules={{ required: 'Phone number is required' }}
             render={({ field }) => (
-              <input
-                id="phone"
-                type="tel"
-                {...field}
-                className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => {
-                  field.onChange(e.target.value);
-                  logEvent("Phone", "changed", e.target.value);
-                }}
-                onBlur={(e) => {
-                  field.onBlur();
-                  logEvent("Phone", "blurred", e.target.value);
-                }}
-              />
+              <Input {...field} type="tel" disabled={submitStatus === 'loading'} aria-invalid={errors.phone ? 'true' : 'false'} />
             )}
           />
-          {errors.phone && (
-            <p className="mt-1 text-sm text-red-600" role="alert">
-              {errors.phone.message}
-            </p>
-          )}
-        </div>
+        </FormField>
       </div>
 
-      {/* Language Level */}
-      <div>
-        <label htmlFor="languageLevel" className="block text-sm font-medium text-gray-700 mb-1">
-          Current Language Level (Optional)
-        </label>
+      <FormField label="Current Language Level" error={errors.languageLevel?.message}>
         <Controller
           name="languageLevel"
           control={control}
           render={({ field }) => (
-            <select
-              id="languageLevel"
-              {...field}
-              className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => {
-                field.onChange(e.target.value);
-                logEvent("Language Level", "changed", e.target.value);
-              }}
-              onBlur={(e) => {
-                field.onBlur();
-                logEvent("Language Level", "blurred", e.target.value);
-              }}
-            >
-              <option value="">Select level</option>
-              <option value="none">No previous knowledge</option>
-              <option value="beginner">Beginner (A1)</option>
-              <option value="elementary">Elementary (A2)</option>
-              <option value="intermediate">Intermediate (B1)</option>
-              <option value="upperIntermediate">Upper Intermediate (B2)</option>
-              <option value="advanced">Advanced (C1)</option>
-            </select>
+            <Select options={LANGUAGE_LEVELS} {...field} disabled={submitStatus === 'loading'} />
           )}
         />
-      </div>
+      </FormField>
 
-      {/* Special Requirements */}
-      <div>
-        <label htmlFor="specialRequirements" className="block text-sm font-medium text-gray-700 mb-1">
-          Special Requirements or Comments (Optional)
-        </label>
+      <FormField label="Special Requirements or Comments" error={errors.specialRequirements?.message}>
         <Controller
           name="specialRequirements"
           control={control}
           render={({ field }) => (
+            // Render a native textarea instead of using Input with an unsupported "as" prop
             <textarea
-              id="specialRequirements"
               {...field}
               rows={3}
-              className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => {
-                field.onChange(e.target.value);
-                logEvent("Special Requirements", "changed", e.target.value);
-              }}
-              onBlur={(e) => {
-                field.onBlur();
-                logEvent("Special Requirements", "blurred", e.target.value);
-              }}
+              disabled={submitStatus === 'loading'}
+              className="input" // Apply appropriate styling
             />
           )}
         />
-      </div>
+      </FormField>
 
-      <button
-        type="submit"
-        disabled={submitStatus === 'loading'}
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-        onClick={() => {
-          console.debug("Submit button clicked. Current form values:", watchedValues);
-        }}
-      >
-        {submitStatus === 'loading'
-          ? 'Processing...'
-          : isWaitlist
-            ? 'Join Waitlist'
-            : 'Complete Registration'}
-      </button>
+      <div className="flex justify-end space-x-4">
+        <button
+          type="button"
+          onClick={() => reset()}
+          className="px-4 py-2 text-gray-600 hover:text-gray-800"
+          disabled={submitStatus === 'loading'}
+        >
+          Clear Form
+        </button>
+        <button
+          type="submit"
+          disabled={submitStatus === 'loading'}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center space-x-2"
+        >
+          {submitStatus === 'loading' ? (
+            <>
+              <LoadingSpinner />
+              <span>Processing...</span>
+            </>
+          ) : (
+            <span>{isWaitlist ? 'Join Waitlist' : 'Complete Registration'}</span>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

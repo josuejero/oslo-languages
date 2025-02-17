@@ -1,5 +1,6 @@
-// src/components/widgets/CourseFilters.tsx
-import { useId } from 'react';
+import React from 'react';
+import { Search } from 'lucide-react';
+import { useDebounce } from '@/utils/hooks/useDebounce';
 
 interface FilterOption {
   value: string;
@@ -7,170 +8,135 @@ interface FilterOption {
   count?: number;
 }
 
-interface Props {
+interface CourseFilterProps {
   languages: FilterOption[];
   levels: FilterOption[];
   schedules: FilterOption[];
+  search: string;
+  onSearchChange: (value: string) => void;
   selectedFilters: {
     language?: string;
     level?: string;
     schedule?: string;
   };
-  onFilterChange: (filterType: string, value: string) => void;
+  onFilterChange: (type: 'language' | 'level' | 'schedule', value: string) => void;
   onClearFilters: () => void;
 }
 
-export default function CourseFilters({
+export default function CourseFilter({
   languages,
   levels,
   schedules,
+  search,
+  onSearchChange,
   selectedFilters,
   onFilterChange,
   onClearFilters,
-}: Props) {
-  const filterGroupId = useId();
+}: CourseFilterProps) {
+  const [searchValue, setSearchValue] = React.useState(search);
+  const debouncedSearch = useDebounce(searchValue, 300);
+
+  React.useEffect(() => {
+    onSearchChange(debouncedSearch);
+  }, [debouncedSearch, onSearchChange]);
+
+  const hasActiveFilters = Object.values(selectedFilters).some(Boolean) || searchValue;
 
   return (
-    <div
-      role="region"
-      aria-labelledby="filter-heading"
-      className="bg-white p-4 rounded-lg shadow-sm"
-    >
-      <h2 id="filter-heading" className="sr-only">
-        Course filters
-      </h2>
+    <div className="space-y-6">
+      {/* Search Input */}
+      <div className="relative">
+        <input
+          type="search"
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          placeholder="Search courses..."
+          className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+      </div>
 
-      <form className="space-y-6">
+      {/* Filter Groups */}
+      <div className="space-y-4">
         {/* Language Filter */}
-        <fieldset>
-          <legend className="text-lg font-medium text-gray-900">Language</legend>
-          <div className="mt-2 space-y-2">
+        <div>
+          <h3 className="font-medium mb-2">Language</h3>
+          <div className="space-y-2">
             {languages.map(({ value, label, count }) => (
-              <div key={value} className="flex items-center">
+              <label key={value} className="flex items-center space-x-2">
                 <input
-                  id={`${filterGroupId}-language-${value}`}
+                  type="radio"
                   name="language"
                   value={value}
-                  type="radio"
                   checked={selectedFilters.language === value}
-                  onChange={(e) => onFilterChange('language', e.target.value)}
-                  className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-                  aria-describedby={count ? `${filterGroupId}-language-${value}-count` : undefined}
+                  onChange={() => onFilterChange('language', value)}
+                  className="text-blue-600 focus:ring-blue-500"
                 />
-                <label
-                  htmlFor={`${filterGroupId}-language-${value}`}
-                  className="ml-3 text-sm text-gray-700"
-                >
-                  {label}
-                  {count !== undefined && (
-                    <span
-                      id={`${filterGroupId}-language-${value}-count`}
-                      className="ml-2 text-gray-500"
-                    >
-                      ({count})
-                    </span>
-                  )}
-                </label>
-              </div>
+                <span>{label}</span>
+                {count !== undefined && (
+                  <span className="text-sm text-gray-500">({count})</span>
+                )}
+              </label>
             ))}
           </div>
-        </fieldset>
+        </div>
 
         {/* Level Filter */}
-        <fieldset>
-          <legend className="text-lg font-medium text-gray-900">Level</legend>
-          <div className="mt-2 space-y-2">
+        <div>
+          <h3 className="font-medium mb-2">Level</h3>
+          <div className="space-y-2">
             {levels.map(({ value, label, count }) => (
-              <div key={value} className="flex items-center">
+              <label key={value} className="flex items-center space-x-2">
                 <input
-                  id={`${filterGroupId}-level-${value}`}
+                  type="radio"
                   name="level"
                   value={value}
-                  type="radio"
                   checked={selectedFilters.level === value}
-                  onChange={(e) => onFilterChange('level', e.target.value)}
-                  className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-                  aria-describedby={count ? `${filterGroupId}-level-${value}-count` : undefined}
+                  onChange={() => onFilterChange('level', value)}
+                  className="text-blue-600 focus:ring-blue-500"
                 />
-                <label
-                  htmlFor={`${filterGroupId}-level-${value}`}
-                  className="ml-3 text-sm text-gray-700"
-                >
-                  {label}
-                  {count !== undefined && (
-                    <span
-                      id={`${filterGroupId}-level-${value}-count`}
-                      className="ml-2 text-gray-500"
-                    >
-                      ({count})
-                    </span>
-                  )}
-                </label>
-              </div>
+                <span>{label}</span>
+                {count !== undefined && (
+                  <span className="text-sm text-gray-500">({count})</span>
+                )}
+              </label>
             ))}
           </div>
-        </fieldset>
+        </div>
 
         {/* Schedule Filter */}
-        <fieldset>
-          <legend className="text-lg font-medium text-gray-900">Schedule</legend>
-          <div className="mt-2 space-y-2">
+        <div>
+          <h3 className="font-medium mb-2">Schedule</h3>
+          <div className="space-y-2">
             {schedules.map(({ value, label, count }) => (
-              <div key={value} className="flex items-center">
+              <label key={value} className="flex items-center space-x-2">
                 <input
-                  id={`${filterGroupId}-schedule-${value}`}
+                  type="radio"
                   name="schedule"
                   value={value}
-                  type="radio"
                   checked={selectedFilters.schedule === value}
-                  onChange={(e) => onFilterChange('schedule', e.target.value)}
-                  className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-                  aria-describedby={count ? `${filterGroupId}-schedule-${value}-count` : undefined}
+                  onChange={() => onFilterChange('schedule', value)}
+                  className="text-blue-600 focus:ring-blue-500"
                 />
-                <label
-                  htmlFor={`${filterGroupId}-schedule-${value}`}
-                  className="ml-3 text-sm text-gray-700"
-                >
-                  {label}
-                  {count !== undefined && (
-                    <span
-                      id={`${filterGroupId}-schedule-${value}-count`}
-                      className="ml-2 text-gray-500"
-                    >
-                      ({count})
-                    </span>
-                  )}
-                </label>
-              </div>
+                <span>{label}</span>
+                {count !== undefined && (
+                  <span className="text-sm text-gray-500">({count})</span>
+                )}
+              </label>
             ))}
           </div>
-        </fieldset>
-
-        {/* Clear Filters Button */}
-        {Object.values(selectedFilters).some(Boolean) && (
-          <button
-            type="button"
-            onClick={onClearFilters}
-            className="w-full px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-          >
-            Clear all filters
-          </button>
-        )}
-      </form>
-
-      {/* Live Region for Filter Updates */}
-      <div
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-        role="status"
-      >
-        {Object.entries(selectedFilters)
-          .filter(([, value]) => value)
-          .map(([key, value]) => (
-            `${key}: ${value}`
-          )).join(', ') || 'No filters applied'}
+        </div>
       </div>
+
+      {/* Clear Filters Button */}
+      {hasActiveFilters && (
+        <button
+          onClick={onClearFilters}
+          className="w-full px-4 py-2 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100"
+        >
+          Clear all filters
+        </button>
+      )}
     </div>
   );
 }

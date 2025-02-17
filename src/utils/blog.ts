@@ -27,6 +27,8 @@ export class BlogError extends Error {
   }
 }
 
+
+
 /**
  * Ensures that the necessary directories exist.
  */
@@ -70,14 +72,24 @@ function handleBlogError(error: unknown, message: string): never {
  */
 async function savePost(directory: string, slug: string, post: BlogPost): Promise<void> {
   try {
-    // Separate content from the rest of the post data.
-    const { content, ...data } = post;
-    // Generate markdown content with YAML front matter.
-    const markdownContent = matter.stringify(content, data);
+    // Extract content and prepare front matter data
+    const { content, ...frontMatterData } = post;
+    
+    // Remove undefined values from frontMatterData
+    const cleanedFrontMatter = Object.fromEntries(
+      Object.entries(frontMatterData).filter(([_, value]) => value !== undefined)
+    );
+
+    // Generate markdown with front matter
+    const fileContent = matter.stringify(content || '', cleanedFrontMatter);
+    
     const filePath = path.join(directory, `${slug}.md`);
-    await fs.writeFile(filePath, markdownContent);
+    await fs.writeFile(filePath, fileContent, 'utf8');
   } catch (error) {
-    handleBlogError(error, 'Failed to save post');
+    logger.error('Failed to save post', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    throw error;
   }
 }
 
@@ -89,11 +101,12 @@ async function savePost(directory: string, slug: string, post: BlogPost): Promis
  */
 export async function createPost(data: Partial<BlogPost>): Promise<BlogPost> {
   console.debug('Creating post with data:', data);
+  
   try {
     await ensureDirectories();
 
     if (!data.title) {
-      throw new BlogError('Title is required', 'VALIDATION', 400);
+      throw new Error('Title is required');
     }
 
     const id = uuidv4();
@@ -111,9 +124,13 @@ export async function createPost(data: Partial<BlogPost>): Promise<BlogPost> {
       status: data.status || 'draft',
       categories: data.categories || [],
       tags: data.tags || [],
-      coverImage: data.coverImage,
       readingTime: calculateReadingTime(data.content || '')
     };
+
+    // Only include coverImage if it exists
+    if (data.coverImage) {
+      newPost.coverImage = data.coverImage;
+    }
 
     const targetDir = data.status === 'draft' ? DRAFTS_DIR : POSTS_DIR;
     console.debug(`Saving post ${slug} to directory ${targetDir}`);
@@ -122,7 +139,10 @@ export async function createPost(data: Partial<BlogPost>): Promise<BlogPost> {
     logger.info('Post created:', { slug });
     return newPost;
   } catch (error) {
-    handleBlogError(error, 'Failed to create post');
+    logger.error('Failed to create post', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    throw error;
   }
 }
 
@@ -250,9 +270,10 @@ export function extractTags(posts: BlogPost[]): Array<{ name: string; count: num
  * @param content - The text content.
  * @returns A string representing the reading time.
  */
-export function calculateReadingTime(content: string): string {
+function calculateReadingTime(content: string): string {
+  const wordsPerMinute = 200;
   const wordCount = content.trim().split(/\s+/).length;
-  const minutes = Math.ceil(wordCount / WORDS_PER_MINUTE);
+  const minutes = Math.ceil(wordCount / wordsPerMinute);
   return `${minutes} min read`;
 }
 
@@ -276,7 +297,7 @@ export function formatDate(date: string): string {
  * @param text - The input text.
  * @returns A slug string.
  */
-export function createSlug(text: string): string {
+function createSlug(text: string): string {
   return text
     .toLowerCase()
     .replace(/[^\w\s-]/g, '')

@@ -1,105 +1,72 @@
-import sgMail from '@sendgrid/mail';
+import { contactFormTemplate } from './email-templates';
+import sgMail, { MailDataRequired } from '@sendgrid/mail';
 import { logger } from './logger';
 
-// Initialize SendGrid client
-const API_KEY = process.env.SENDGRID_API_KEY;
-if (!API_KEY) {
-  throw new Error('SENDGRID_API_KEY environment variable is not set');
+// Define and export the EmailError class so it can be imported elsewhere.
+export class EmailError extends Error {
+  statusCode: number;
+  constructor(message: string, statusCode: number = 500) {
+    super(message);
+    this.statusCode = statusCode;
+  }
 }
-sgMail.setApiKey(API_KEY);
 
-interface EmailParams {
+// Export a generic sendEmail function using the correct type
+export async function sendEmail(msg: MailDataRequired): Promise<void> {
+  if (!process.env.SENDGRID_API_KEY) {
+    throw new Error('SENDGRID_API_KEY is not set');
+  }
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  try {
+    await sgMail.send(msg);
+    logger.info('Email sent successfully', { to: msg.to });
+  } catch (error: unknown) {
+    logger.error('Failed to send email', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      msg
+    });
+    throw error;
+  }
+}
+
+// Existing sendContactEmail function (if still needed)
+export async function sendContactEmail(data: {
   name: string;
   email: string;
   subject: string;
   message: string;
-}
-
-export class EmailError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public statusCode: number = 500
-  ) {
-    super(message);
-    this.name = 'EmailError';
+}): Promise<void> {
+  if (!process.env.SENDGRID_API_KEY) {
+    throw new Error('SENDGRID_API_KEY is not set');
   }
-}
-
-export async function sendContactEmail({ name, email, subject, message }: EmailParams): Promise<void> {
-  // Validate required environment variables
-  const fromEmail = process.env.EMAIL_FROM;
-  const toEmail = process.env.EMAIL_TO;
-
-  if (!fromEmail || !toEmail) {
-    logger.error('Missing email configuration');
-    throw new EmailError(
-      'Email configuration error',
-      'CONFIG_ERROR',
-      500
-    );
-  }
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const { html, text } = contactFormTemplate(data);
+  const msg: MailDataRequired = {
+    to: process.env.EMAIL_TO!,
+    from: {
+      email: process.env.EMAIL_FROM!,
+      name: 'Oslo Languages Contact Form'
+    },
+    replyTo: {
+      email: data.email,
+      name: data.name
+    },
+    subject: `New Contact Form Submission: ${data.subject}`,
+    html,
+    text,
+  };
 
   try {
-    // Construct email content with proper HTML formatting
-    const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">New Contact Form Submission</h2>
-        <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Subject:</strong> ${subject}</p>
-          <p><strong>Message:</strong></p>
-          <div style="background: white; padding: 15px; border-radius: 3px;">
-            ${message.replace(/\n/g, '<br>')}
-          </div>
-        </div>
-      </div>
-    `;
-
-    const msg = {
-      to: toEmail,
-      from: {
-        email: fromEmail,
-        name: 'Oslo Languages Contact Form'
-      },
-      replyTo: {
-        email,
-        name
-      },
-      subject: `New Contact Form Submission: ${subject}`,
-      html: htmlContent,
-      text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}`,
-      mailSettings: {
-        sandboxMode: {
-          enable: process.env.NODE_ENV !== 'production'
-        }
-      }
-    };
-
     await sgMail.send(msg);
-    logger.info('Contact email sent successfully', { to: toEmail, from: email });
-  } catch (error) {
-    logger.error('Failed to send contact email', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      name,
-      email
+    logger.info('Contact form email sent successfully', {
+      to: process.env.EMAIL_TO,
+      from: data.email
     });
-
-    // Determine error type and throw appropriate error
-    if (error instanceof Error) {
-      if (error.message.includes('quota')) {
-        throw new EmailError('Email quota exceeded', 'QUOTA_ERROR', 429);
-      }
-      if (error.message.includes('invalid')) {
-        throw new EmailError('Invalid email configuration', 'VALIDATION_ERROR', 400);
-      }
-    }
-
-    throw new EmailError(
-      'Failed to send email',
-      'SEND_ERROR',
-      500
-    );
+  } catch (error: unknown) {
+    logger.error('Failed to send contact form email', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      data
+    });
+    throw error;
   }
 }
