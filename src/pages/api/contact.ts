@@ -1,77 +1,101 @@
+// src/pages/api/contact.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { sendContactEmail, EmailError } from '../../utils/email';
-import { logger } from '../../utils/logger';
+import { sendContactEmail } from '@/utils/email';
+import { logger } from '@/utils/logger';
 
-interface ContactFormData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-// Validate email format
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-  return emailRegex.test(email);
-}
-
-// Validate form data
-function validateFormData(data: ContactFormData): string | null {
-  if (!data.name || data.name.trim().length < 2) {
-    return 'Name must be at least 2 characters long';
-  }
-  if (!data.email || !isValidEmail(data.email)) {
-    return 'Valid email address is required';
-  }
-  if (!data.subject || data.subject.trim().length < 3) {
-    return 'Subject is required';
-  }
-  if (!data.message || data.message.trim().length < 10) {
-    return 'Message must be at least 10 characters long';
-  }
-  return null;
+type ResponseData = {
+  success: boolean;
+  message?: string;
+  error?: string | string[];
 }
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<ResponseData>
 ) {
+  // Debug logging
+  console.log('API Route Hit:', {
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    body: req.body
+  });
+
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle OPTIONS request for CORS
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // Only allow POST requests
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ success: false, error: 'Method not allowed' });
+    return res.status(405).json({ 
+      success: false, 
+      error: 'Method not allowed'
+    });
   }
 
   try {
-    const formData: ContactFormData = req.body;
+    // Log the raw body
+    console.log('Raw request body:', req.body);
 
-    // Validate form data
-    const validationError = validateFormData(formData);
-    if (validationError) {
-      return res.status(400).json({ success: false, error: validationError });
+    const { name, email, subject, message } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !subject || !message) {
+      console.log('Validation failed - missing fields:', { name, email, subject, message });
+      return res.status(400).json({
+        success: false,
+        error: 'All fields are required'
+      });
     }
 
-    // Send email using SendGrid
-    await sendContactEmail(formData);
+    // Email validation
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    if (!emailRegex.test(email)) {
+      console.log('Invalid email:', email);
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid email address'
+      });
+    }
 
-    // Log successful submission
+    // Send email
+    if (process.env.SENDGRID_API_KEY) {
+      await sendContactEmail({
+        name,
+        email,
+        subject,
+        message
+      });
+    } else {
+      console.log('SendGrid API key not found - skipping email send');
+    }
+
+    // Log success
     logger.info('Contact form submitted successfully', {
-      name: formData.name,
-      email: formData.email
+      email,
+      subject
     });
 
+    // Return success response
     return res.status(200).json({
       success: true,
       message: 'Thank you for your message. We will contact you soon.'
     });
-  } catch (error: unknown) {
-    // Handle known email errors
-    if (error instanceof EmailError) {
-      return res.status(error.statusCode).json({ success: false, error: error.message });
-    }
-    logger.error('Contact form error', {
-      error: error instanceof Error ? error.message : 'Unknown error'
+
+  } catch (error) {
+    // Log error with full details
+    console.error('Contact form error:', error);
+    logger.error('Contact form error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
     });
+
     return res.status(500).json({
       success: false,
       error: 'Failed to send message. Please try again later.'

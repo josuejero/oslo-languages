@@ -1,16 +1,12 @@
 import withBundleAnalyzer from '@next/bundle-analyzer';
-import path from 'path'; // For resolving paths
-import { fileURLToPath } from 'url'; // To support ESM __dirname
-
-// Added import to enable CommonJS require in an ESM module
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
-const require = createRequire(import.meta.url); // Define require for use in this file
-
-// Define __filename and __dirname for ESM compatibility
+const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-
-import webpack from 'next/dist/compiled/webpack/webpack-lib.js'; // Use Next.js's compiled webpack
+// Use Next.js's compiled webpack
+import webpack from 'next/dist/compiled/webpack/webpack-lib.js';
 
 // Define security headers for all routes
 const securityHeaders = [
@@ -45,27 +41,27 @@ const securityHeaders = [
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-  trailingSlash: true,
+  trailingSlash: false,
   reactStrictMode: true,
   poweredByHeader: false,
-  // Removed unsupported 'server' key.
-  // For server-specific configuration, consider a custom server setup.
-
-  // Configure redirects for admin routes
   async redirects() {
     return [
       { source: '/admin', destination: '/admin/login', permanent: true }
     ];
   },
-
-  // Set global headers
   async headers() {
     return [
-      { source: '/:path*', headers: securityHeaders }
+      { 
+        source: '/:path*', 
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+        ]
+        
+      }
     ];
   },
-
-  // Next.js Image Optimization settings
   images: {
     domains: [
       'loremflickr.com',
@@ -81,39 +77,24 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
   },
-
-  // Cache configuration for on-demand entries
   onDemandEntries: {
-    maxInactiveAge: 25 * 1000, // Keep pages for 25 seconds
-    pagesBufferLength: 2,      // Number of pages to keep in buffer
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
   },
-
-  // Enable compression for responses
   compress: true,
-
-  // Enable source maps in production for better error tracking
   productionBrowserSourceMaps: true,
-
-  // Customize webpack configuration
   webpack: (config, { dev, isServer }) => {
-    // Alias "remark-github-blockquote-alert" so nested dependencies resolve correctly
     config.resolve.alias['remark-github-blockquote-alert'] =
-      require.resolve('remark-github-blockquote-alert'); // Using require.resolve via createRequire
-
-    // Force resolution of "remark-github-blockquote-alert" using NormalModuleReplacementPlugin
+      require.resolve('remark-github-blockquote-alert');
     config.plugins.push(
       new webpack.NormalModuleReplacementPlugin(
         /^remark-github-blockquote-alert$/,
-        require.resolve('remark-github-blockquote-alert') // Updated replacement using require.resolve
+        require.resolve('remark-github-blockquote-alert')
       )
     );
-
     if (!dev && !isServer) {
-      // Enable React profiling in production for performance insights
       config.resolve.alias['react-dom$'] = 'react-dom/profiling';
       config.resolve.alias['scheduler/tracing'] = 'scheduler/tracing-profiling';
-
-      // Configure minification and chunk splitting
       config.optimization = {
         ...config.optimization,
         minimize: true,
@@ -142,19 +123,18 @@ const nextConfig = {
     }
     return config;
   },
-
-  // Moved transpilePackages out of experimental as per Next.js v14 guidelines
   transpilePackages: ['remark-github-blockquote-alert', 'rehype-prism-plus'],
-
-  // Build-time optimizations in experimental features
   experimental: {
-    optimizeCss: true, // Enable CSS optimization
+    optimizeCss: true,
     optimizePackageImports: ['@mui/icons-material', '@mui/material', 'date-fns'],
-    esmExternals: false, // Disable ESM externalization to force bundling of ESM modules as CommonJS
+    esmExternals: false,
   },
+  // Enable SWC compiler with Emotion support
+  compiler: {
+    emotion: true
+  }
 };
 
-// Enable bundle analysis in production builds
 const withAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });

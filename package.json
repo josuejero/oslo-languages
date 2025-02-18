@@ -17,7 +17,8 @@
     "blog:create": "tsx scripts/blog-cli.ts create",
     "blog:list": "tsx scripts/blog-cli.ts list",
     "blog:delete": "tsx scripts/blog-cli.ts delete",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "test:email": "tsx src/utils/__tests__/test-email.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.0",

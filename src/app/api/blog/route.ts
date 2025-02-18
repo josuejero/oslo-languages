@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
     logger.error('Failed to get posts', {
       error: error instanceof Error ? error.message : 'Unknown error'
     });
-
     return NextResponse.json(
       { error: 'Failed to get posts' },
       { status: 500 }
@@ -48,7 +47,6 @@ export async function POST(request: NextRequest) {
     logger.error('Failed to create post', {
       error: error instanceof Error ? error.message : 'Unknown error'
     });
-
     return NextResponse.json(
       { error: 'Failed to create post' },
       { status: 500 }
@@ -72,7 +70,6 @@ export async function DELETE(request: NextRequest) {
     logger.error('Failed to delete post', {
       error: error instanceof Error ? error.message : 'Unknown error'
     });
-
     return NextResponse.json(
       { error: 'Failed to delete post' },
       { status: 500 }
@@ -96,7 +93,6 @@ export async function PUT(request: NextRequest) {
     logger.error('Failed to update post', {
       error: error instanceof Error ? error.message : 'Unknown error'
     });
-
     return NextResponse.json(
       { error: 'Failed to update post' },
       { status: 500 }
