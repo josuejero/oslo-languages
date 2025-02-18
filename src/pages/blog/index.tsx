@@ -20,6 +20,12 @@ interface BlogPageProps {
   initialTotal: number;
 }
 
+export const metadata = {
+  title: 'Blog | Oslo Languages',
+  description: 'Read our latest articles about language learning, Norwegian culture, and more.',
+};
+
+
 /**
  * BlogPage component renders the main blog page.
  *

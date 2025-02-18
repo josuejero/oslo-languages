@@ -7,8 +7,7 @@ import DOMPurify from 'isomorphic-dompurify';
 import { remark } from 'remark';
 import html from 'remark-html';
 import { logger } from '@/utils/logger';
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
+import unified from 'unified';
 import remarkHtml from 'remark-html';
 import type { BlogPost } from '@/types/blog';
 

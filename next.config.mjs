@@ -7,8 +7,8 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url); // Define require for use in this file
 
 // Define __filename and __dirname for ESM compatibility
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 
 import webpack from 'next/dist/compiled/webpack/webpack-lib.js'; // Use Next.js's compiled webpack
 

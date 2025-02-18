@@ -1,132 +1,123 @@
 // src/components/blog/BlogList.tsx
-import Link from 'next/link';
-import { BlogPost } from '@/types/blog';
-import { formatDate } from '@/utils/blog';
-import OptimizedImage from '@/components/OptimizedImage';
+import React, { useState, useEffect } from 'react';
+import { useBlog } from '@/utils/hooks/useBlog';
+import BlogFilter from './BlogFilter';
+import BlogPagination from './BlogPagination';
+import BlogPost from './BlogPost';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import type { BlogPost as BlogPostType } from '@/types/blog';
 
-interface PaginationProps {
-  page: number;
-  limit: number;
+const POSTS_PER_PAGE = 10;
+
+// Define FilterState type to match BlogFilter component's expected props
+interface FilterState {
+  search: string;
+  category: string;
+  tag: string;
+  sortBy: 'date' | 'title' | 'author';
+  sortOrder: 'asc' | 'desc';
 }
 
-interface BlogListProps {
-  posts: BlogPost[];
-  className?: string;
-  onCategoryClick?: (category: string) => void;
-  onTagClick?: (tag: string) => void;
-  // Added pagination prop to allow pagination controls as per tests
-  pagination?: PaginationProps;
-}
+export default function BlogList() {
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  // Initialize filters with proper types
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    category: '',
+    tag: '',
+    sortBy: 'date',
+    sortOrder: 'desc'
+  });
 
-/**
- * Renders a grid of blog posts along with optional pagination controls.
- *
- * @param {BlogListProps} props - Component props including posts and optional pagination data.
- * @returns {JSX.Element} The rendered list of blog posts.
- */
-export default function BlogList({
-  posts,
-  className = '',
-  onCategoryClick,
-  onTagClick,
-  pagination,
-}: BlogListProps) {
-  if (posts.length === 0) {
+  const { searchPosts, loading, error } = useBlog();
+  // Initialize posts state with proper type
+  const [posts, setPosts] = useState<BlogPostType[]>([]);
+  const [totalPosts, setTotalPosts] = useState(0);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const result = await searchPosts({
+        query: filters.search,
+        category: filters.category,
+        tag: filters.tag,
+        page: currentPage,
+        limit: POSTS_PER_PAGE,
+        sortBy: filters.sortBy,
+        sortOrder: filters.sortOrder
+      });
+
+      if (result) {
+        setPosts(result.posts);
+        setTotalPosts(result.total);
+      }
+    };
+
+    fetchPosts();
+  }, [filters, currentPage, searchPosts]);
+
+  // Add proper type for newFilters parameter
+  const handleFilterChange = (newFilters: Partial<FilterState>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (error) {
     return (
-      <div className="text-center py-12 bg-gray-50 rounded-lg">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">No posts found</h3>
-        <p className="text-gray-600">Try adjusting your search or filters</p>
-      </div>
+      <Alert variant="destructive">
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
     );
   }
 
-  // Calculate pagination data if pagination prop is provided
-  let totalPages = 1;
-  if (pagination) {
-    totalPages = Math.ceil(posts.length / pagination.limit);
-  }
-
   return (
-    <>
-      <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-8 ${className}`}>
-        {posts.map((post) => (
-          <article
-            key={post.slug}
-            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-          >
-            {post.coverImage && (
-              <div className="relative h-48">
-                <OptimizedImage
-                  src={post.coverImage}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  aspectRatio={16 / 9}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  lazyBoundary="200px"
-                />
-              </div>
-            )}
-            <div className="p-6">
-              <div className="flex flex-wrap gap-2 mb-3">
-                {post.categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => onCategoryClick?.(category)}
-                    className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full hover:bg-blue-200"
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-              <h2 className="text-xl font-bold mb-2 text-gray-900">
-                <Link href={`/blog/${post.slug}`} className="hover:text-blue-600 transition-colors">
-                  {post.title}
-                </Link>
-              </h2>
-              <p className="text-gray-600 mb-4 line-clamp-2">{post.excerpt}</p>
-              <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>{post.author}</span>
-                <time dateTime={post.date}>{formatDate(post.date)}</time>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => onTagClick?.(tag)}
-                    className="text-sm text-gray-600 hover:text-blue-600"
-                  >
-                    #{tag}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      {/* Render pagination controls if pagination prop is provided */}
-      {pagination && (
-        <div className="mt-8 flex items-center justify-center space-x-4">
-          <button
-            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-            disabled={pagination.page === 1}
-            // In a real scenario, you would trigger a page change callback here.
-          >
-            Previous
-          </button>
-          <span>
-            Page {pagination.page} of {totalPages}
-          </span>
-          <button
-            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-            disabled={pagination.page === totalPages}
-            // In a real scenario, you would trigger a page change callback here.
-          >
-            Next
-          </button>
+    <div className="space-y-8">
+      <div className="grid md:grid-cols-4 gap-8">
+        <div className="md:col-span-1">
+          <BlogFilter
+            categories={[]} // You'll need to pass actual categories
+            tags={[]} // You'll need to pass actual tags
+            onFilter={handleFilterChange}
+          />
         </div>
-      )}
-    </>
+        
+        <div className="md:col-span-3">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {posts.map((post) => (
+                  <BlogPost key={post.slug} post={post} />
+                ))}
+              </div>
+              
+              {posts.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">No posts found matching your criteria.</p>
+                </div>
+              )}
+              
+              {totalPosts > POSTS_PER_PAGE && (
+                <BlogPagination
+                  currentPage={currentPage}
+                  totalItems={totalPosts}
+                  itemsPerPage={POSTS_PER_PAGE}
+                  onPageChange={handlePageChange}
+                />
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,3 @@
-// src/pages/api/blog/search.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { searchPosts } from '@/utils/blog';
 import { logger } from '@/utils/logger';
@@ -17,7 +16,7 @@ export default async function handler(
       category,
       tag,
       page = '1',
-      limit = '9',
+      limit = '6',
       sortBy = 'date',
       sortOrder = 'desc'
     } = req.query;
