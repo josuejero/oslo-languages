@@ -116,7 +116,7 @@ async function main() {
     // Define exclusions and allowed file types
     console.debug("[DEBUG] Defining exclusions and allowed file types.");
     const excludeDirs = new Set(["node_modules", "coverage", ".next", ".git"]);
-    const excludeFiles = new Set(["package-lock.json", "problem.js", outputFilePath]);
+    const excludeFiles = new Set(["package-lock.json", "problem.js", "package-lock 2.json", outputFilePath]);
     // Allowed extensions: md, ts, tsx, js, mjs, json, css
     const allowedExtensions = new Set([".md", ".ts", ".tsx", ".js", ".mjs", ".json", ".css"]);
     // Allow specific filenames if needed (e.g. Dockerfile)
