@@ -39,4 +39,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-*.txt
+*.txtContactForm.tsx.bak
+course-templates.ts.bak
+types.ts.bak
+diff.patch
+problem.js
+BugSleuth.js
+error-parser.js
+esm-test.js
+public/file.svg
+public/window.svg
+public/globe.svg
+public/next.svg
