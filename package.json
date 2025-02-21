@@ -21,6 +21,8 @@
     "test:email": "tsx src/utils/__tests__/test-email.ts"
   },
   "dependencies": {
+    "@babel/runtime": "^7.26.9",
+    "@emotion/react": "^11.14.0",
     "@faker-js/faker": "^8.0.0",
     "@next/bundle-analyzer": "^14.0.4",
     "@next/env": "^14.0.4",
@@ -40,7 +42,6 @@
     "inquirer": "^9.2.12",
     "isomorphic-dompurify": "^2.3.0",
     "lucide-react": "^0.294.0",
-    "netlify-cms-app": "^2.15.72",
     "netlify-identity-widget": "^1.9.2",
     "next": "^14.2.23",
     "next-auth": "^4.24.5",

@@ -129,7 +129,6 @@ const AdminDashboard = () => {
         <TabsList>
           <TabsTrigger value="blog">Blog</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="courses">Courses</TabsTrigger>
         </TabsList>
 
         <TabsContent value="blog">
@@ -140,9 +139,6 @@ const AdminDashboard = () => {
           <ContentEditor />
         </TabsContent>
 
-        <TabsContent value="courses">
-          <CourseManager />
-        </TabsContent>
       </Tabs>
     </div>
   );

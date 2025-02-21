@@ -1,13 +1,27 @@
-// src/components/layout/header/Navigation.tsx
-import { useRef, useEffect, useState } from 'react';
+/**
+ * @file Navigation.tsx
+ * @description Provides the primary site navigation bar, including both desktop and mobile variants.
+ * Incorporates accessibility features like skip links, keyboard-trapping within the mobile menu,
+ * and ARIA attributes for clarity.
+ */
+
+import { useRef, useEffect, useState, KeyboardEvent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+/**
+ * @interface NavigationLink
+ * Represents a single link in the navigation bar.
+ */
 interface NavigationLink {
   href: string;
   label: string;
 }
 
+/**
+ * @constant navigationLinks
+ * Defines the top-level navigation items used throughout the site.
+ */
 const navigationLinks: NavigationLink[] = [
   { href: '/', label: 'Home' },
   { href: '/courses', label: 'Courses' },
@@ -15,62 +29,91 @@ const navigationLinks: NavigationLink[] = [
   { href: '/contact', label: 'Contact' }
 ];
 
-export default function Navigation() {
+/**
+ * @function Navigation
+ * Renders both desktop and mobile navigation, managing open/close states
+ * and focus management to facilitate keyboard accessibility.
+ *
+ * @returns JSX.Element
+ */
+export default function Navigation(): JSX.Element {
+  // Manages whether the mobile menu is open or closed
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // References for the menu container and the mobile toggle button
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const pathname = usePathname();
 
   // Track the first and last focusable elements for keyboard navigation
   const [firstFocusable, setFirstFocusable] = useState<HTMLElement | null>(null);
   const [lastFocusable, setLastFocusable] = useState<HTMLElement | null>(null);
 
-  // Update focusable elements when menu opens
+  // Get current path to highlight active navigation link
+  const pathname = usePathname();
+
+  /**
+   * Effect: When the mobile menu opens, find all focusable elements and
+   * set the first one to receive immediate focus for keyboard users.
+   */
   useEffect(() => {
     if (isMenuOpen && menuRef.current) {
       const focusableElements = menuRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'a[href], button:not([disabled]), input:not([disabled]), ' +
+        'select:not([disabled]), textarea:not([disabled]), ' +
+        '[tabindex]:not([tabindex="-1"])'
       );
 
-      setFirstFocusable(focusableElements[0]);
-      setLastFocusable(focusableElements[focusableElements.length - 1]);
+      setFirstFocusable(focusableElements[0] || null);
+      setLastFocusable(focusableElements[focusableElements.length - 1] || null);
 
-      // Focus first element when menu opens
+      // Focus the first focusable element in the menu
       focusableElements[0]?.focus();
     }
   }, [isMenuOpen]);
 
-  // Handle keyboard navigation
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  /**
+   * @function handleKeyDown
+   * Manages keyboard interactions within the mobile menu:
+   * - Close the menu upon pressing Escape.
+   * - Trap focus within the menu when using Tab.
+   *
+   * @param {KeyboardEvent} event - The keyboard event object.
+   */
+  const handleKeyDown = (event: KeyboardEvent) => {
     if (!isMenuOpen) return;
 
     const { key, shiftKey } = event;
 
-    // Close menu on Escape
+    // Close menu on Escape key
     if (key === 'Escape') {
       setIsMenuOpen(false);
       buttonRef.current?.focus();
       return;
     }
 
-    // Trap focus within menu
+    // Trap focus inside the mobile menu
     if (key === 'Tab') {
       if (!firstFocusable || !lastFocusable) return;
 
+      // If Shift+Tab on first element, move to last
       if (shiftKey && document.activeElement === firstFocusable) {
         event.preventDefault();
         lastFocusable.focus();
-      } else if (!shiftKey && document.activeElement === lastFocusable) {
+      }
+      // If Tab on last element, move to first
+      else if (!shiftKey && document.activeElement === lastFocusable) {
         event.preventDefault();
         firstFocusable.focus();
       }
     }
   };
 
-  // Close menu when clicking outside
+  /**
+   * Effect: Close the mobile menu if the user clicks outside the menu area.
+   */
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setIsMenuOpen(false);
       }
     };
@@ -81,7 +124,11 @@ export default function Navigation() {
 
   return (
     <nav aria-label="Main navigation" className="relative">
-      {/* Skip Link - Hidden until focused */}
+      {/**
+       * Skip Link:
+       * Allows keyboard users to jump directly to the main content,
+       * bypassing repeated navigation elements.
+       */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white text-blue-600 p-2 z-50"
@@ -89,7 +136,7 @@ export default function Navigation() {
         Skip to main content
       </a>
 
-      {/* Desktop Navigation */}
+      {/* Desktop Navigation - visible on medium screens and above */}
       <div className="hidden md:flex space-x-4">
         {navigationLinks.map(({ href, label }) => (
           <Link
@@ -110,18 +157,22 @@ export default function Navigation() {
         ))}
       </div>
 
-      {/* Mobile Navigation Button */}
+      {/**
+       * Mobile Navigation Toggle:
+       * Shown only on smaller screens. Toggles the mobile nav menu state.
+       */}
       <button
         ref={buttonRef}
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:bg-blue-50 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         aria-expanded={isMenuOpen}
         aria-controls="mobile-menu"
-        aria-label={isMenuOpen ? "Close main menu" : "Open main menu"}
+        aria-label={isMenuOpen ? 'Close main menu' : 'Open main menu'}
       >
         <span className="sr-only">
           {isMenuOpen ? 'Close main menu' : 'Open main menu'}
         </span>
+        {/* Menu icon changes to X when menu is open */}
         <svg
           className="h-6 w-6"
           fill="none"
@@ -133,12 +184,19 @@ export default function Navigation() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+            d={
+              isMenuOpen
+                ? 'M6 18L18 6M6 6l12 12'
+                : 'M4 6h16M4 12h16M4 18h16'
+            }
           />
         </svg>
       </button>
 
-      {/* Mobile Menu */}
+      {/**
+       * Mobile Menu Container:
+       * Revealed when `isMenuOpen` is true. Contains a vertical list of nav links.
+       */}
       <div
         id="mobile-menu"
         ref={menuRef}

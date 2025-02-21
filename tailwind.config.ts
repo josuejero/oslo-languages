@@ -1,8 +1,17 @@
-// tailwind.config.ts
+/**
+ * @file tailwind.config.ts
+ * @description Primary Tailwind CSS configuration file.
+ *
+ * This file defines the custom color palette and plugin settings for the project.
+ * All color variables map to CSS custom properties (var(--color-...)), making it easy
+ * to adjust or theme the application by changing values in a single place.
+ */
+
 import type { Config } from 'tailwindcss';
 import typography from '@tailwindcss/typography';
 
 const config: Config = {
+  // Where Tailwind will look for class names
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -10,6 +19,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      /**
+       * Custom color definitions mapped to CSS variables.
+       * Usage example in a component: className="bg-background-primary text-text-primary"
+       */
       colors: {
         background: {
           primary: 'var(--color-background-primary)',
@@ -48,20 +61,26 @@ const config: Config = {
           outline: 'var(--color-focus-outline)',
         },
       },
-      // Ensure proper contrast for focus rings
+      /**
+       * Extend ring and outline properties so we can use custom focus rings.
+       */
       ringColor: {
-        DEFAULT: 'var(--color-focus-ring)',
+        DEFAULT: 'var(--color-focus-ring)', // Default ring color matches our custom property
       },
-      // Add custom outline styles
       outline: {
-        focus: '2px solid var(--color-focus-outline)',
+        focus: '2px solid var(--color-focus-outline)', // Standard 2px outline for focus states
       },
     },
   },
   plugins: [
+    // The official typography plugin for improved prose styling
     typography,
-    // Add plugin for better focus-visible support
-    function({ addVariant }: { addVariant: (name: string, definition: string[]) => void }) {
+    /**
+     * Custom plugin for better :focus-visible support across the application.
+     * Adds a new variant "focus-visible" for styling elements only when the user
+     * is navigating via keyboard (or an accessibility device).
+     */
+    function ({ addVariant }: { addVariant: (name: string, definition: string[]) => void }) {
       addVariant('focus-visible', ['&:focus-visible', '.focus-visible &']);
     },
   ],
