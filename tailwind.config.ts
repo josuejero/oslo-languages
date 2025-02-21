@@ -1,6 +1,6 @@
 /**
  * @file tailwind.config.ts
- * @description Primary Tailwind CSS configuration file.
+ * @description Primary Tailwind CSS configuration file using TypeScript.
  *
  * This file defines the custom color palette and plugin settings for the project.
  * All color variables map to CSS custom properties (var(--color-...)), making it easy
@@ -10,8 +10,10 @@
 import type { Config } from 'tailwindcss';
 import typography from '@tailwindcss/typography';
 
+type AddVariantFn = (variantName: string, selectors: string[]) => void;
+
 const config: Config = {
-  // Where Tailwind will look for class names
+  // Directories Tailwind scans for class names:
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -65,22 +67,21 @@ const config: Config = {
        * Extend ring and outline properties so we can use custom focus rings.
        */
       ringColor: {
-        DEFAULT: 'var(--color-focus-ring)', // Default ring color matches our custom property
+        DEFAULT: 'var(--color-focus-ring)', // Default ring color references our custom property
       },
       outline: {
-        focus: '2px solid var(--color-focus-outline)', // Standard 2px outline for focus states
+        focus: '2px solid var(--color-focus-outline)', // 2px outline for focus states
       },
     },
   },
   plugins: [
-    // The official typography plugin for improved prose styling
+    // Provides better default styling for rich text (e.g., blog posts)
     typography,
     /**
-     * Custom plugin for better :focus-visible support across the application.
-     * Adds a new variant "focus-visible" for styling elements only when the user
-     * is navigating via keyboard (or an accessibility device).
+     * Adds a "focus-visible" variant. Elements styled with `focus-visible:xyz`
+     * will only apply those styles when using keyboard navigation, not on mouse focus.
      */
-    function ({ addVariant }: { addVariant: (name: string, definition: string[]) => void }) {
+    function focusVisiblePlugin({ addVariant }: { addVariant: AddVariantFn }) {
       addVariant('focus-visible', ['&:focus-visible', '.focus-visible &']);
     },
   ],

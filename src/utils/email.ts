@@ -83,7 +83,9 @@ ${data.message}
   } catch (error) {
     const statusCode = error instanceof EmailError 
       ? error.statusCode 
-      : error.code || 500;
+      : (error && typeof error === 'object' && 'code' in error && typeof error.code === 'number' 
+          ? error.code 
+          : 500);
 
     logger.error('Failed to send email', {
       error: error instanceof Error ? error.message : 'Unknown error',

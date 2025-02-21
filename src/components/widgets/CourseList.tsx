@@ -1,152 +1,102 @@
-// src/components/widgets/CourseList.tsx
-import { useRef } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import OptimizedImage from '@/components/OptimizedImage';
-import { Course } from '@/types';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
-/**
- * CourseList Component
- *
- * Displays a grid of course cards with keyboard navigation support.
- *
- * @param {Object} props - Component properties.
- * @param {Course[]} props.courses - Array of courses to display.
- * @param {string} [props.title='Available Courses'] - Section title.
- * @returns {JSX.Element} Rendered CourseList component.
- */
-export default function CourseList({ courses, title = 'Available Courses' }: { courses: Course[]; title?: string; }) {
-  const listRef = useRef<HTMLUListElement>(null);
+interface Course {
+  id: string;
+  title: string;
+  level: string;
+  language: string;
+  schedule: string;
+  description: string;
+}
 
-  /**
-   * Handles keyboard navigation within the grid.
-   *
-   * @param {React.KeyboardEvent<HTMLLIElement>} event - The keyboard event.
-   * @param {number} index - Index of the current list item.
-   */
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>, index: number) => {
-    const items = listRef.current?.querySelectorAll('li');
-    if (!items) return;
+const courses: Course[] = [
+  {
+    id: 'norwegian-a1',
+    title: 'Norwegian Beginner Course (A1)',
+    level: 'A1',
+    language: 'Norwegian',
+    schedule: 'Morning & Evening Classes',
+    description: 'Start your Norwegian language journey with our comprehensive beginner course.',
+  },
+  {
+    id: 'business-english',
+    title: 'Business English',
+    level: 'B1-C1',
+    language: 'English',
+    schedule: 'Flexible Schedule',
+    description: 'Enhance your professional English skills with our specialized business course.',
+  },
+  {
+    id: 'spanish-a2',
+    title: 'Spanish Elementary Course (A2)',
+    level: 'A2',
+    language: 'Spanish',
+    schedule: 'Afternoon Classes',
+    description: 'Build on your basic Spanish knowledge with our elementary level course.',
+  },
+];
 
-    const GRID_COLS = 3; // Matches our grid-cols-3 layout
-
-    switch (event.key) {
-      case 'ArrowRight':
-        if (index < items.length - 1) {
-          (items[index + 1].querySelector('a') as HTMLElement)?.focus();
-        }
-        break;
-      case 'ArrowLeft':
-        if (index > 0) {
-          (items[index - 1].querySelector('a') as HTMLElement)?.focus();
-        }
-        break;
-      case 'ArrowDown':
-        if (index + GRID_COLS < items.length) {
-          (items[index + GRID_COLS].querySelector('a') as HTMLElement)?.focus();
-        }
-        break;
-      case 'ArrowUp':
-        if (index - GRID_COLS >= 0) {
-          (items[index - GRID_COLS].querySelector('a') as HTMLElement)?.focus();
-        }
-        break;
-      case 'Home':
-        (items[0].querySelector('a') as HTMLElement)?.focus();
-        break;
-      case 'End':
-        (items[items.length - 1].querySelector('a') as HTMLElement)?.focus();
-        break;
-    }
-  };
-
+export default function CourseList() {
   return (
-    <section aria-labelledby="courses-title">
-      <h2 id="courses-title" className="sr-only">
-        {title}
-      </h2>
-
-      <ul
-        ref={listRef}
-        role="list"
-        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-        aria-label={title}
-      >
-        {courses.map((course, index) => (
-          <li
-            key={course.id}
-            onKeyDown={(e) => handleKeyDown(e, index)}
-            className="relative"
-          >
-            <article
-              className="h-full bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-              aria-labelledby={`course-${course.id}-title`}
-            >
-              <Link
-                href={`/courses/${course.id}`}
-                className="block h-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg"
+    <div className="max-w-7xl mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold text-center mb-12">Our Language Courses</h1>
+      
+      <p className="text-lg text-center mb-12 max-w-3xl mx-auto">
+        Discover our range of language courses designed to help you achieve your language learning goals. 
+        Contact us to discuss your needs and find the perfect course for you.
+      </p>
+      
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {courses.map((course) => (
+          <Card key={course.id} className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-bold">{course.title}</h2>
+                <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                  {course.level}
+                </span>
+              </div>
+            </CardHeader>
+            
+            <CardContent>
+              <dl className="space-y-2 mb-6">
+                <div className="flex justify-between">
+                  <dt className="font-medium">Language:</dt>
+                  <dd>{course.language}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="font-medium">Schedule:</dt>
+                  <dd>{course.schedule}</dd>
+                </div>
+              </dl>
+              
+              <p className="text-gray-600 mb-6">{course.description}</p>
+              
+              <Link 
+                href="/contact" 
+                className="block w-full bg-blue-600 text-white text-center px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
               >
-                <div className="relative h-48">
-                  {/* Changed property from course.image to course.imageUrl to match the Course type */}
-                  <OptimizedImage
-                    src={course.imageUrl}
-                    alt=""  // Decorative image; meaning conveyed via text below.
-                    fill
-                    className="object-cover"
-                    aspectRatio={16 / 9}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    background="bg-gray-100"
-                  />
-                </div>
-
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3
-                      id={`course-${course.id}-title`}
-                      className="text-xl font-bold text-gray-900"
-                    >
-                      {course.title}
-                    </h3>
-                    <span
-                      className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded"
-                      aria-label={`Level ${course.level}`}
-                    >
-                      {course.level}
-                    </span>
-                  </div>
-
-                  <dl className="space-y-1 text-sm text-gray-700">
-                    <div className="flex justify-between">
-                      <dt className="sr-only">Language</dt>
-                      <dd>{course.language}</dd>
-                    </div>
-                    <div className="flex justify-between">
-                      <dt className="sr-only">Schedule</dt>
-                      <dd>{course.schedule}</dd>
-                    </div>
-                  </dl>
-
-                  <div
-                    className="mt-4 text-blue-600 font-medium"
-                    aria-hidden="true"
-                  >
-                    Learn more
-                    <span className="sr-only">
-                      about {course.title} ({course.language} - Level {course.level})
-                    </span>
-                    <span aria-hidden="true"> →</span>
-                  </div>
-                </div>
+                Inquire Now
               </Link>
-            </article>
-          </li>
+            </CardContent>
+          </Card>
         ))}
-      </ul>
-
-      {courses.length === 0 && (
-        <p className="text-center text-gray-500 py-8">
-          No courses available at this time.
+      </div>
+      
+      <div className="mt-16 bg-blue-50 rounded-xl p-8 text-center">
+        <h2 className="text-2xl font-bold mb-4">Not sure which course is right for you?</h2>
+        <p className="text-lg mb-6">
+          Get in touch with us for a personalized recommendation based on your goals and current level.
         </p>
-      )}
-    </section>
+        <Link 
+          href="/contact" 
+          className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Contact Us
+        </Link>
+      </div>
+    </div>
   );
 }

@@ -1,24 +1,37 @@
-// src/components/layout/header/Header.tsx
+/**
+ * @file Header.tsx
+ * @description A redesigned site header with a brand background, 
+ * horizontal padding, and a simple nav using Tailwind utilities.
+ */
+
 import Link from 'next/link';
-import Navigation from './Navigation';
+import Navigation from './Navigation'; // If you have a separate Navigation component
 
 export default function Header() {
   return (
-    <header className="bg-white shadow-md" role="banner">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex-shrink-0">
-            <Link
-              href="/"
-              className="text-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
-              aria-label="Oslo Languages, back to home page"
-            >
-              Oslo Languages
-            </Link>
-          </div>
+    // Brand background, text white, 
+    // a bit of shadow for visual depth
+    <header className="bg-brand text-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
+        {/**
+         * Logo / Site Name
+         * We can use a simple text-based logo or an actual <img> / <Image /> 
+         * component. 
+         */}
+        <Link
+          href="/"
+          className="text-2xl font-heading tracking-tight hover:opacity-90 transition-all"
+          aria-label="Back to Home"
+        >
+          Oslo Languages
+        </Link>
 
-          <Navigation />
-        </div>
+        {/**
+         * Navigation
+         * For the step-by-step, we assume "Navigation" is a subcomponent 
+         * or we can place inline links. 
+         */}
+        <Navigation />
       </div>
     </header>
   );

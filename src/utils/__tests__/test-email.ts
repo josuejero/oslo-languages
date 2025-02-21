@@ -1,6 +1,14 @@
 // src/utils/__tests__/test-email.ts
 import { sendContactEmail } from '../email';
 
+interface SendGridError {
+  response?: {
+    status: number;
+    body: any;
+  };
+  message: string;
+}
+
 async function testSendGrid() {
   try {
     await sendContactEmail({
@@ -12,11 +20,15 @@ async function testSendGrid() {
     console.log('Test email sent successfully!');
   } catch (error) {
     console.error('Failed to send test email:', error);
-    if (error.response) {
-      console.error('SendGrid Response:', {
-        status: error.response.status,
-        body: error.response.body
-      });
+    // Type guard to check if error is SendGridError
+    if (error && typeof error === 'object' && 'response' in error) {
+      const sendGridError = error as SendGridError;
+      if (sendGridError.response) {
+        console.error('SendGrid Response:', {
+          status: sendGridError.response.status,
+          body: sendGridError.response.body
+        });
+      }
     }
   }
 }
