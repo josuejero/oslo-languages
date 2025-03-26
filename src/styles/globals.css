@@ -1,9 +1,13 @@
-/* src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /* Set base font size for consistency across browsers */
+  html {
+    font-size: 16px;
+  }
+
   :root {
     /* Default light mode colors are set in ThemeProvider */
     color-scheme: light;
@@ -23,19 +27,25 @@
     @apply ring-4 ring-focus-ring ring-offset-4;
   }
 
-  /* Base text colors */
+  /* Base text colors and smoothing */
   body {
     @apply bg-background-primary text-text-primary;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6; /* Added for improved readability */
   }
 
-  /* Headings */
+  /* Headings: uniform bold style and primary text color */
   h1, h2, h3, h4, h5, h6 {
     @apply text-text-primary font-bold;
   }
 
-  /* Links */
+  /* Paragraph styling for relaxed line spacing */
+  p {
+    @apply leading-relaxed;
+  }
+
+  /* Links styling */
   a {
     @apply text-action-primary hover:text-action-primaryHover;
     text-underline-offset: 0.2em;
@@ -50,7 +60,7 @@
     @apply ring-2 ring-focus-ring ring-offset-2 ring-offset-background-primary outline-none;
   }
 
-  /* Form elements */
+  /* Form elements styling */
   input, select, textarea {
     @apply bg-background-primary text-text-primary border-border-default;
   }
@@ -78,7 +88,7 @@
     @apply bg-border-hover;
   }
 
-  /* Skip links */
+  /* Skip links styling */
   .skip-link {
     @apply sr-only focus:not-sr-only;
     @apply fixed left-4 top-4 px-4 py-2;

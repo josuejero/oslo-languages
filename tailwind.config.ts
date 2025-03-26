@@ -1,10 +1,7 @@
 /**
- * @file tailwind.config.ts
- * @description Primary Tailwind CSS configuration file using TypeScript.
- *
- * This file defines the custom color palette and plugin settings for the project.
- * All color variables map to CSS custom properties (var(--color-...)), making it easy
- * to adjust or theme the application by changing values in a single place.
+ * Tailwind CSS configuration file for Oslo Languages.
+ * This configuration defines a custom color palette that maps to CSS variables,
+ * and extends the theme with additional spacing and screen breakpoints to improve responsiveness.
  */
 
 import type { Config } from 'tailwindcss';
@@ -13,7 +10,6 @@ import typography from '@tailwindcss/typography';
 type AddVariantFn = (variantName: string, selectors: string[]) => void;
 
 const config: Config = {
-  // Directories Tailwind scans for class names:
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -22,8 +18,8 @@ const config: Config = {
   theme: {
     extend: {
       /**
-       * Custom color definitions mapped to CSS variables.
-       * Usage example in a component: className="bg-background-primary text-text-primary"
+       * Custom color definitions mapped to CSS custom properties.
+       * These tokens are used throughout the app for backgrounds, text, borders, and actions.
        */
       colors: {
         background: {
@@ -64,22 +60,32 @@ const config: Config = {
         },
       },
       /**
+       * Extend the theme with additional properties:
+       * - spacing: Add a larger spacing value (128) for use in layouts.
+       * - screens: Introduce an extra-small (xs) breakpoint for very small devices.
+       */
+      spacing: {
+        '128': '32rem',
+      },
+      screens: {
+        xs: '480px',
+      },
+      /**
        * Extend ring and outline properties so we can use custom focus rings.
        */
       ringColor: {
-        DEFAULT: 'var(--color-focus-ring)', // Default ring color references our custom property
+        DEFAULT: 'var(--color-focus-ring)',
       },
       outline: {
-        focus: '2px solid var(--color-focus-outline)', // 2px outline for focus states
+        focus: '2px solid var(--color-focus-outline)',
       },
     },
   },
   plugins: [
-    // Provides better default styling for rich text (e.g., blog posts)
     typography,
     /**
-     * Adds a "focus-visible" variant. Elements styled with `focus-visible:xyz`
-     * will only apply those styles when using keyboard navigation, not on mouse focus.
+     * Adds a "focus-visible" variant so that elements styled with focus-visible classes
+     * are only applied when appropriate for keyboard navigation.
      */
     function focusVisiblePlugin({ addVariant }: { addVariant: AddVariantFn }) {
       addVariant('focus-visible', ['&:focus-visible', '.focus-visible &']);
