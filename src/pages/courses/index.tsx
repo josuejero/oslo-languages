@@ -17,6 +17,20 @@ export const metadata = generateMetadata({
   ]
 });
 
+type CourseColor = 'blue' | 'indigo' | 'rose';
+
+interface Course {
+  id: string;
+  title: string;
+  level: string;
+  language: string;
+  schedule: string;
+  description: string;
+  icon: string;
+  color: CourseColor; // Use the defined type here
+  accent: string;
+}
+
 // Course data - in a real app this would come from a CMS or API
 const courses = [
   {
@@ -135,7 +149,7 @@ export default function CoursesPage() {
             Language Courses in Oslo
           </h1>
           <p className="text-xl max-w-3xl mx-auto text-blue-100">
-            Whether you're starting your language journey or advancing your skills,
+            Whether you&apos;re starting your language journey or advancing your skills,
             our experienced teachers are here to guide you every step of the way.
           </p>
         </div>
@@ -156,7 +170,7 @@ export default function CoursesPage() {
           {/* Course List */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             {courses.map((course) => {
-              const colors = colorMap[course.color];
+              const colors = colorMap[course.color as CourseColor];
               
               return (
                 <div 
@@ -245,7 +259,7 @@ export default function CoursesPage() {
             <span className="inline-block px-3 py-1 text-sm font-medium bg-amber-100 text-amber-800 rounded-full mb-4">Our Advantages</span>
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">Why Choose Oslo Languages?</h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              We provide more than just language instruction. Here's what makes us different.
+              We provide more than just language instruction. Here&apos;s what makes us different.
             </p>
           </div>
           

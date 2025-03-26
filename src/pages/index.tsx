@@ -25,7 +25,7 @@ export default function Home() {
               <span className="block text-yellow-300">Heart of Oslo</span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-blue-100">
-              Join Oslo's premier language school offering Norwegian, English, Spanish and more.
+              Join Oslo&apos;s premier language school offering Norwegian, English, Spanish and more.
               Expert teachers, flexible schedules, and proven learning methods.
             </p>
             <div>

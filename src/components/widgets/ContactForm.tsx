@@ -164,7 +164,7 @@ export default function ContactForm() {
           {errors.email && (
             <p className="text-sm text-red-600 mt-1 animate-fadeIn">{errors.email.message}</p>
           )}
-          <p className="text-xs text-gray-500 italic">We'll never share your email with anyone else.</p>
+          <p className="text-xs text-gray-500 italic">We&apos;ll never share your email with anyone else.</p>
         </div>
       </div>
 

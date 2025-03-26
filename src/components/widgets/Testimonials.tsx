@@ -184,7 +184,7 @@ export default function Testimonials() {
                 >
                   <path d="M10 8c-3.9 0-7 3.1-7 7s3.1 7 7 7c0 0-1 3-5 3v2c0 0 8 0 8-11 0-3.9-3.1-7-7-7zm12 0c-3.9 0-7 3.1-7 7s3.1 7 7 7c0 0-1 3-5 3v2c0 0 8 0 8-11 0-3.9-3.1-7-7-7z"></path>
                 </svg>
-                <p>"{testimonials[activeIndex].text}"</p>
+                <p>&quot;{testimonials[activeIndex].text}&quot;</p>
               </blockquote>
 
               <div>

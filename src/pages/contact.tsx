@@ -55,7 +55,7 @@ export default function ContactPage() {
             Contact <span className="text-yellow-300">Us</span>
           </h1>
           <p className="text-xl max-w-2xl mx-auto text-blue-100 animate-fadeIn" style={{ animationDelay: "0.3s" }}>
-            Get in touch with us. We'd love to hear from you and will respond as soon as possible.
+            Get in touch with us. We&apos;d love to hear from you and will respond as soon as possible.
           </p>
         </div>
         

@@ -201,7 +201,7 @@ export default function PrivacyPolicyPage() {
             Have More Questions?
           </h2>
           <p className="text-lg text-gray-700 mb-6">
-            We're committed to protecting your privacy. If you have any questions about our Privacy Policy, 
+            We&apos;re committed to protecting your privacy. If you have any questions about our Privacy Policy, 
             our team is here to help.
           </p>
           <Link 

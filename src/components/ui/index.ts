@@ -3,8 +3,10 @@ export {
   Alert,
   AlertTitle,
   AlertDescription,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTitle,
-  AlertDialogAction
 } from './alert';
+
+// Remove these non-existent exports:
+// AlertDialog,
+// AlertDialogContent,
+// AlertDialogTitle,
+// AlertDialogAction
