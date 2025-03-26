@@ -1,6 +1,6 @@
 // src/components/layout/header/__tests__/Header.test.tsx
-
 import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import Header from '../Header';
 
 // Mock usePathname
