@@ -1,33 +1,53 @@
 // src/components/ui/alert.tsx
-import * as React from 'react';
+import React from 'react';
+import { CheckCircle, AlertCircle, InfoIcon, AlertTriangle } from 'lucide-react';
 
 // Alert Component
 interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'destructive' | 'success' | 'warning';
+  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
   className?: string;
+  icon?: boolean;
 }
 
 export function Alert({ 
   children, 
   variant = 'default', 
-  className = '', 
+  className = '',
+  icon = true,
   ...props 
 }: AlertProps) {
-
+  // Configuration for different alert variants
   const variantStyles = {
-    default: 'bg-background-secondary text-text-primary',
-    destructive: 'bg-red-100 text-red-700',
-    success: 'bg-green-100 text-green-700',
-    warning: 'bg-yellow-100 text-yellow-800', // add a style for warning
+    default: 'bg-blue-50 border-blue-200 text-blue-800',
+    destructive: 'bg-red-50 border-red-200 text-red-800',
+    success: 'bg-green-50 border-green-200 text-green-800',
+    warning: 'bg-amber-50 border-amber-200 text-amber-800',
+    info: 'bg-indigo-50 border-indigo-200 text-indigo-800'
   };
+
+  // Icon components for each variant
+  const variantIcons = {
+    default: InfoIcon,
+    destructive: AlertCircle,
+    success: CheckCircle,
+    warning: AlertTriangle,
+    info: InfoIcon
+  };
+
+  const IconComponent = variantIcons[variant];
 
   return (
     <div
       role="alert"
-      className={`p-4 rounded-lg ${variantStyles[variant]} ${className}`}
+      className={`p-4 rounded-lg border ${variantStyles[variant]} flex items-start animate-fadeIn ${className}`}
       {...props}
     >
-      {children}
+      {icon && (
+        <div className="flex-shrink-0 mr-3 mt-0.5">
+          <IconComponent className="w-5 h-5" />
+        </div>
+      )}
+      <div className="flex-1">{children}</div>
     </div>
   );
 }
@@ -69,95 +89,5 @@ export function AlertDescription({
     >
       {children}
     </div>
-  );
-}
-
-// Alert Dialog Components
-interface AlertDialogProps {
-  open?: boolean;
-  children: React.ReactNode;
-  onClose?: () => void;
-}
-
-export function AlertDialog({ 
-  open = false, 
-  children, 
-  onClose 
-}: AlertDialogProps) {
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-50">
-      <div 
-        className="fixed inset-0 bg-black/50"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <div className="fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-// Alert Dialog Content Component
-interface AlertDialogContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
-}
-
-export function AlertDialogContent({ 
-  children, 
-  className = '', 
-  ...props 
-}: AlertDialogContentProps) {
-  return (
-    <div
-      className={`bg-background-primary p-6 rounded-lg shadow-lg max-w-md w-full ${className}`}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
-
-// Alert Dialog Title Component
-interface AlertDialogTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
-  className?: string;
-}
-
-export function AlertDialogTitle({
-  children,
-  className = '',
-  ...props
-}: AlertDialogTitleProps) {
-  return (
-    <h2
-      className={`text-lg font-semibold mb-4 ${className}`}
-      {...props}
-    >
-      {children}
-    </h2>
-  );
-}
-
-// Alert Dialog Action Component
-interface AlertDialogActionProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  className?: string;
-}
-
-export function AlertDialogAction({
-  children,
-  className = '',
-  ...props
-}: AlertDialogActionProps) {
-  return (
-    <button
-      className={`inline-flex items-center justify-center px-4 py-2 font-medium rounded-md 
-        bg-accent-primary text-white hover:bg-accent-primaryHover 
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-primary ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
   );
 }

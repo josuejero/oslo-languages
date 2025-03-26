@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logger } from '@/utils/logger';
-import { FormField, Input, Textarea } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Send, RefreshCw } from 'lucide-react';
 
 type FormData = {
   name: string;
@@ -22,13 +22,27 @@ const INITIAL_MESSAGE_TIMEOUT = 5000; // 5 seconds
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<SubmissionStatus>(null);
+  const [formValues, setFormValues] = useState<Partial<FormData>>({});
   
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors }
-  } = useForm<FormData>();
+    formState: { errors, dirtyFields, touchedFields }
+  } = useForm<FormData>({
+    defaultValues: formValues
+  });
+
+  // Animated validation feedback
+  const getInputStyles = (fieldName: keyof FormData) => {
+    const isDirty = dirtyFields[fieldName];
+    const isTouched = touchedFields[fieldName];
+    const hasError = errors[fieldName];
+    
+    if (hasError) return "border-red-500 focus:border-red-500 focus:ring-red-200";
+    if (isDirty && isTouched) return "border-green-500 focus:border-green-500 focus:ring-green-200";
+    return "border-gray-300 focus:border-blue-500 focus:ring-blue-200";
+  };
 
   // Handle form submission
   const onSubmit = async (data: FormData) => {
@@ -57,6 +71,9 @@ export default function ContactForm() {
         message: result.message || 'Thank you for your message. We will contact you soon.'
       });
 
+      // Save form values temporarily in case user wants to send another message
+      setFormValues(data);
+      
       // Reset form after successful submission
       reset();
 
@@ -82,7 +99,7 @@ export default function ContactForm() {
   return (
     <form 
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
+      className="space-y-6 transition-all duration-300"
       noValidate
       aria-label="Contact form"
     >
@@ -92,59 +109,72 @@ export default function ContactForm() {
           variant={status.type === 'success' ? 'success' : 'destructive'}
           role="alert"
           aria-live="polite"
+          className="animate-fadeIn"
         >
           <AlertDescription>{status.message}</AlertDescription>
         </Alert>
       )}
 
-      {/* Name Field */}
-      <FormField
-        label="Name"
-        required
-        error={errors.name?.message}
-      >
-        <Input
-          {...register('name', { 
-            required: 'Name is required',
-            minLength: {
-              value: 2,
-              message: 'Name must be at least 2 characters'
-            }
-          })}
-          type="text"
-          aria-invalid={errors.name ? 'true' : 'false'}
-          disabled={isSubmitting}
-        />
-      </FormField>
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Name Field */}
+        <div className="space-y-2">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="name"
+            {...register('name', { 
+              required: 'Name is required',
+              minLength: {
+                value: 2,
+                message: 'Name must be at least 2 characters'
+              }
+            })}
+            type="text"
+            placeholder="Your name"
+            className={`w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all duration-300 ${getInputStyles('name')}`}
+            aria-invalid={errors.name ? 'true' : 'false'}
+            disabled={isSubmitting}
+          />
+          {errors.name && (
+            <p className="text-sm text-red-600 mt-1 animate-fadeIn">{errors.name.message}</p>
+          )}
+        </div>
 
-      {/* Email Field */}
-      <FormField
-        label="Email"
-        required
-        error={errors.email?.message}
-        hint="We'll never share your email with anyone else."
-      >
-        <Input
-          {...register('email', { 
-            required: 'Email is required',
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: 'Invalid email address'
-            }
-          })}
-          type="email"
-          aria-invalid={errors.email ? 'true' : 'false'}
-          disabled={isSubmitting}
-        />
-      </FormField>
+        {/* Email Field */}
+        <div className="space-y-2">
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            Email <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="email"
+            {...register('email', { 
+              required: 'Email is required',
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: 'Invalid email address'
+              }
+            })}
+            type="email"
+            placeholder="Your email address"
+            className={`w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all duration-300 ${getInputStyles('email')}`}
+            aria-invalid={errors.email ? 'true' : 'false'}
+            disabled={isSubmitting}
+          />
+          {errors.email && (
+            <p className="text-sm text-red-600 mt-1 animate-fadeIn">{errors.email.message}</p>
+          )}
+          <p className="text-xs text-gray-500 italic">We'll never share your email with anyone else.</p>
+        </div>
+      </div>
 
       {/* Subject Field */}
-      <FormField
-        label="Subject"
-        required
-        error={errors.subject?.message}
-      >
-        <Input
+      <div className="space-y-2">
+        <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+          Subject <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="subject"
           {...register('subject', { 
             required: 'Subject is required',
             minLength: {
@@ -153,18 +183,23 @@ export default function ContactForm() {
             }
           })}
           type="text"
+          placeholder="What is your message about?"
+          className={`w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all duration-300 ${getInputStyles('subject')}`}
           aria-invalid={errors.subject ? 'true' : 'false'}
           disabled={isSubmitting}
         />
-      </FormField>
+        {errors.subject && (
+          <p className="text-sm text-red-600 mt-1 animate-fadeIn">{errors.subject.message}</p>
+        )}
+      </div>
 
       {/* Message Field */}
-      <FormField
-        label="Message"
-        required
-        error={errors.message?.message}
-      >
-        <Textarea
+      <div className="space-y-2">
+        <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+          Message <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          id="message"
           {...register('message', { 
             required: 'Message is required',
             minLength: {
@@ -177,36 +212,40 @@ export default function ContactForm() {
             }
           })}
           rows={5}
+          placeholder="Please write your message here..."
+          className={`w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all duration-300 resize-y ${getInputStyles('message')}`}
           aria-invalid={errors.message ? 'true' : 'false'}
           disabled={isSubmitting}
-          className="resize-y"
         />
-      </FormField>
+        {errors.message && (
+          <p className="text-sm text-red-600 mt-1 animate-fadeIn">{errors.message.message}</p>
+        )}
+      </div>
 
       {/* Form Controls */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center pt-4">
         <button
           type="button"
           onClick={() => reset()}
-          className="text-gray-600 hover:text-gray-900 disabled:text-gray-400 px-4 py-2 rounded transition-colors"
+          className="inline-flex items-center bg-white text-gray-700 hover:text-gray-900 disabled:text-gray-400 px-4 py-2 rounded-lg border border-gray-300 hover:border-gray-400 transition-colors shadow-sm group"
           disabled={isSubmitting}
         >
+          <RefreshCw className="w-4 h-4 mr-2 group-hover:animate-spin" />
           Clear Form
         </button>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 
+          className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 
                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                   disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
+                   disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors shadow-md"
           aria-busy={isSubmitting}
         >
           {isSubmitting ? (
             <>
-              <span className="sr-only">Sending message...</span>
               <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block"
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -228,7 +267,10 @@ export default function ContactForm() {
               Sending...
             </>
           ) : (
-            'Send Message'
+            <>
+              <Send className="w-5 h-5 mr-2" />
+              Send Message
+            </>
           )}
         </button>
       </div>
