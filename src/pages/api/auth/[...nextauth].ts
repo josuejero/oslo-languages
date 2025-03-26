@@ -2,13 +2,44 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import { logAuth } from '../../../utils/debug/auth-logger.js';
 
-// Log environment variables (sanitized) - simpler approach
-console.log('[NextAuth] Initializing with admin credentials:', {
+// Enhanced debugging for auth process
+const debug = (message, data = {}) => {
+  console.log(`[NextAuth Debug] ${message}`, data);
+  
+  // You can enable file logging here if needed
+  // logToFile(message, data);
+};
+
+// Validate environment variables on startup
+const validateEnv = () => {
+  const requiredVars = ['NEXTAUTH_SECRET', 'ADMIN_EMAIL', 'ADMIN_PASSWORD_HASH'];
+  const missing = requiredVars.filter(key => !process.env[key]);
+  
+  if (missing.length > 0) {
+    console.error(`[NextAuth] Missing required environment variables: ${missing.join(', ')}`);
+    return false;
+  }
+  
+  // Validate hash format (bcrypt hashes start with $2a$, $2b$, or $2y$)
+  const hash = process.env.ADMIN_PASSWORD_HASH || '';
+  const validHashPattern = /^\$2[ayb]\$[0-9]{2}\$[A-Za-z0-9./]{53}$/;
+  
+  if (!validHashPattern.test(hash)) {
+    console.error('[NextAuth] Admin password hash format appears invalid');
+    return false;
+  }
+  
+  return true;
+};
+
+// Log environment status (sanitized)
+debug('Initializing with admin credentials', {
   adminEmailExists: !!process.env.ADMIN_EMAIL,
   adminPasswordHashExists: !!process.env.ADMIN_PASSWORD_HASH,
-  nodeEnv: process.env.NODE_ENV
+  adminPasswordHashFormat: process.env.ADMIN_PASSWORD_HASH?.substring(0, 7) + '...',
+  hashLength: process.env.ADMIN_PASSWORD_HASH?.length,
+  environmentValid: validateEnv(),
 });
 
 export default NextAuth({
@@ -21,50 +52,74 @@ export default NextAuth({
       },
       async authorize(credentials, req) {
         try {
-          // Start logging authentication process
-          console.log('Auth request received', {
+          // Enhanced request logging
+          debug('Auth request received', {
             hasCredentials: !!credentials,
-            method: req?.method
+            emailProvided: !!credentials?.email,
+            passwordProvided: !!credentials?.password,
           });
 
+          // Validate credentials
           if (!credentials?.email || !credentials?.password) {
-            console.log('Auth failed: Missing credentials');
+            debug('Auth failed: Missing credentials');
             return null;
           }
           
-          // Compare email
-          if (credentials.email !== process.env.ADMIN_EMAIL) {
-            console.log('Auth failed: Email mismatch');
+          // Get environment variables with validation
+          const adminEmail = process.env.ADMIN_EMAIL;
+          const storedHash = process.env.ADMIN_PASSWORD_HASH;
+          
+          if (!adminEmail || !storedHash) {
+            debug('Auth failed: Missing environment variables');
             return null;
           }
           
-          // Verify password
-          const isValid = await bcrypt.compare(
-            credentials.password,
-            process.env.ADMIN_PASSWORD_HASH || ''
-          );
-          
-          console.log('Password validation completed', {
-            isValid,
-            passwordLength: credentials.password.length
-          });
-          
-          // Return user if authentication succeeds
-          if (isValid) {
-            console.log('Authentication successful');
-            return {
-              id: '1',
-              email: credentials.email,
-              name: 'Admin'
-            };
+          // Compare email (case insensitive)
+          if (credentials.email.toLowerCase() !== adminEmail.toLowerCase()) {
+            debug('Auth failed: Email mismatch');
+            return null;
           }
           
-          console.log('Authentication failed - password mismatch');
-          return null;
+          // Verify password with additional error handling
+          try {
+            const isValid = await bcrypt.compare(
+              credentials.password,
+              storedHash
+            );
+            
+            debug('Password validation completed', {
+              isValid,
+              providedPasswordLength: credentials.password.length,
+              storedHashLength: storedHash.length,
+            });
+            
+            // Return user if authentication succeeds
+            if (isValid) {
+              debug('Authentication successful');
+              return {
+                id: '1',
+                email: credentials.email,
+                name: 'Admin',
+                role: 'admin'
+              };
+            }
+            
+            debug('Authentication failed - password mismatch');
+            return null;
+          } catch (bcryptError) {
+            // Handle bcrypt-specific errors
+            debug('Password verification error', {
+              errorMessage: bcryptError instanceof Error ? bcryptError.message : String(bcryptError),
+              errorType: bcryptError.constructor.name,
+              storedHashPrefix: storedHash.substring(0, 7)
+            });
+            return null;
+          }
         } catch (error) {
-          console.error('Password verification error', 
-            error instanceof Error ? error.message : String(error)
-          );
+          debug('Unexpected error during authentication', {
+            errorType: error.constructor.name,
+            errorMessage: error instanceof Error ? error.message : String(error)
+          });
           return null;
         }
       }
@@ -81,23 +136,28 @@ export default NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      console.log('JWT callback', {
-        hasToken: !!token,
-        hasUser: !!user
-      });
+      // Add user data to token if available
       if (user) {
         token.user = user;
       }
       return token;
     },
     async session({ session, token }) {
-      console.log('Session callback', {
-        hasSession: !!session,
-        hasToken: !!token
-      });
+      // Add user data from token to session
       session.user = token.user;
       return session;
     }
   },
   debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, ...message) {
+      debug(`Error: ${code}`, { message });
+    },
+    warn(code, ...message) {
+      debug(`Warning: ${code}`, { message });
+    },
+    debug(code, ...message) {
+      debug(`Debug: ${code}`, { message });
+    }
+  }
 });
