@@ -2,14 +2,12 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-const { logAuth } = require('../../../utils/debug/auth-logger');
+import { logAuth } from '../../../utils/debug/auth-logger.js';
 
-// Log environment variables (sanitized)
-logAuth('NextAuth initializing', {
+// Log environment variables (sanitized) - simpler approach
+console.log('[NextAuth] Initializing with admin credentials:', {
   adminEmailExists: !!process.env.ADMIN_EMAIL,
-  adminEmailLength: process.env.ADMIN_EMAIL?.length,
   adminPasswordHashExists: !!process.env.ADMIN_PASSWORD_HASH,
-  adminPasswordHashLength: process.env.ADMIN_PASSWORD_HASH?.length,
   nodeEnv: process.env.NODE_ENV
 });
 
@@ -22,90 +20,53 @@ export default NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
-        // Start logging every step of the auth process
-        logAuth('Auth request received', {
-          hasCredentials: !!credentials,
-          reqMethod: req?.method,
-          reqHeaders: req?.headers ? Object.keys(req.headers) : null
-        });
-
-        if (!credentials?.email || !credentials?.password) {
-          logAuth('Missing credentials', {
-            hasEmail: !!credentials?.email,
-            hasPassword: !!credentials?.password
-          });
-          return null;
-        }
-        
-        logAuth('Credentials received', {
-          email: credentials.email,
-          expectedEmail: process.env.ADMIN_EMAIL,
-          emailMatch: credentials.email === process.env.ADMIN_EMAIL,
-          passwordLength: credentials.password.length
-        });
-
-        // Direct string comparison for email
-        if (credentials.email !== process.env.ADMIN_EMAIL) {
-          logAuth('Email mismatch', {
-            inputEmail: credentials.email,
-            expectedEmail: process.env.ADMIN_EMAIL
-          });
-          return null;
-        }
-        
-        // Log the actual stored hash (for debugging only - remove in production)
-        logAuth('Stored password hash', {
-          hash: process.env.ADMIN_PASSWORD_HASH
-        });
-
         try {
-          // Generate a new hash for the provided password to compare formats
-          const newHash = await bcrypt.hash(credentials.password, 12);
-          logAuth('Generated new hash for comparison', {
-            newHash: newHash,
-            currentInputPassword: credentials.password
+          // Start logging authentication process
+          console.log('Auth request received', {
+            hasCredentials: !!credentials,
+            method: req?.method
           });
+
+          if (!credentials?.email || !credentials?.password) {
+            console.log('Auth failed: Missing credentials');
+            return null;
+          }
           
-          // Direct bcrypt compare
-          logAuth('Attempting password verification');
+          // Compare email
+          if (credentials.email !== process.env.ADMIN_EMAIL) {
+            console.log('Auth failed: Email mismatch');
+            return null;
+          }
+          
+          // Verify password
           const isValid = await bcrypt.compare(
             credentials.password,
             process.env.ADMIN_PASSWORD_HASH || ''
           );
           
-          logAuth('Password validation completed', {
-            isValid: isValid,
-            inputPasswordLength: credentials.password.length,
-            storedHashLength: (process.env.ADMIN_PASSWORD_HASH || '').length
+          console.log('Password validation completed', {
+            isValid,
+            passwordLength: credentials.password.length
           });
           
-          // Try direct character by character comparison for debugging
-          const storedHash = process.env.ADMIN_PASSWORD_HASH || '';
-          logAuth('Hash comparison', {
-            storedHashFirstChars: storedHash.substring(0, 10),
-            generatedHashFirstChars: newHash.substring(0, 10),
-            sameLength: storedHash.length === newHash.length
-          });
-          
-          // If validation passes, return user
+          // Return user if authentication succeeds
           if (isValid) {
-            logAuth('Authentication successful');
+            console.log('Authentication successful');
             return {
               id: '1',
               email: credentials.email,
               name: 'Admin'
             };
-          } else {
-            logAuth('Authentication failed - password mismatch');
           }
+          
+          console.log('Authentication failed - password mismatch');
+          return null;
         } catch (error) {
-          logAuth('Password verification error', {
-            error: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined
-          });
+          console.error('Password verification error', 
+            error instanceof Error ? error.message : String(error)
+          );
+          return null;
         }
-        
-        return null;
       }
     })
   ],
@@ -120,7 +81,7 @@ export default NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      logAuth('JWT callback', {
+      console.log('JWT callback', {
         hasToken: !!token,
         hasUser: !!user
       });
@@ -130,7 +91,7 @@ export default NextAuth({
       return token;
     },
     async session({ session, token }) {
-      logAuth('Session callback', {
+      console.log('Session callback', {
         hasSession: !!session,
         hasToken: !!token
       });
@@ -138,36 +99,5 @@ export default NextAuth({
       return session;
     }
   },
-  logger: {
-    error(code, ...message) {
-      logAuth(`Error: ${code}`, { message });
-    },
-    warn(code, ...message) {
-      logAuth(`Warning: ${code}`, { message });
-    },
-    debug(code, ...message) {
-      logAuth(`Debug: ${code}`, { message });
-    },
-  },
-  debug: true,
-  events: {
-    async signIn(message) {
-      logAuth('SignIn event', message);
-    },
-    async signOut(message) {
-      logAuth('SignOut event', message);
-    },
-    async createUser(message) {
-      logAuth('CreateUser event', message);
-    },
-    async linkAccount(message) {
-      logAuth('LinkAccount event', message);
-    },
-    async session(message) {
-      logAuth('Session event', message);
-    },
-    async error(message) {
-      logAuth('Error event', message);
-    }
-  }
+  debug: process.env.NODE_ENV === 'development',
 });
