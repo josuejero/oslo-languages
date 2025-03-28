@@ -31,24 +31,17 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 *.txtContactForm.tsx.bak
 course-templates.ts.bak
 types.ts.bak
 diff.patch
-problem.js
-BugSleuth.js
-error-parser.js
-esm-test.js
 public/file.svg
 public/window.svg
 public/globe.svg
 public/next.svg
-*.txt

@@ -26,7 +26,7 @@ export interface BlogPost {
   date: string;
   
   /** Optional update date */
-  updatedAt?: string;
+  updatedAt?: string | null;
   
   /** Publication status */
   status?: 'draft' | 'published';

@@ -24,8 +24,8 @@ export default function BlogSEO({ post, canonicalUrl }: BlogSEOProps) {
   const imageUrl = post.coverImage ? `${baseUrl}${post.coverImage}` : undefined;
 
   // Format dates for schema
-  const publishDate = post.publishedAt || post.updatedAt;
-  const modifiedDate = post.updatedAt || post.publishedAt;
+  const publishDate = (post.publishedAt || post.updatedAt) ?? undefined;
+  const modifiedDate = (post.updatedAt || post.publishedAt) ?? undefined;
 
   // Article schema for structured data
   const articleSchema = {

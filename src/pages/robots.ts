@@ -1,4 +1,4 @@
-// src/app/robots.ts
+// src/pages/robots.ts
 import { MetadataRoute } from 'next';
 
 /**

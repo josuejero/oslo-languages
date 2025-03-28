@@ -1,4 +1,4 @@
-// src/app/sitemap.ts
+// src/pages/sitemap.ts
 import { MetadataRoute } from 'next';
 
 // Types

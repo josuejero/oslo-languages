@@ -56,10 +56,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 };
 
+// src/pages/blog/[slug].tsx - fix for the getStaticProps function
+
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   try {
     const slug = params?.slug as string;
-    // Fetch the post using the blog-operations module
     const postOperations = await getPostBySlug(slug);
 
     if (!postOperations) {
@@ -68,12 +69,15 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       };
     }
 
-        // Combine fields from the operations post and add a 'date' field required by the BlogPost component.
-        const post: CombinedBlogPost = {
-          ...postOperations,
-          date: postOperations.publishedAt || postOperations.updatedAt || new Date().toISOString(),
-          readingTime: postOperations.readingTime || '1 min read'
-        };
+    // Create a safe version of the post with null instead of undefined values
+    // and ensure all date fields are properly serialized
+    const post: CombinedBlogPost = {
+      ...postOperations,
+      date: postOperations.publishedAt || postOperations.date || new Date().toISOString(),
+      // Use null instead of undefined for updatedAt
+      updatedAt: postOperations.updatedAt || null,
+      readingTime: postOperations.readingTime || '1 min read'
+    };
 
     return {
       props: {
