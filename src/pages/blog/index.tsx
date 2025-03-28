@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import BlogList from '@/components/blog/BlogList';
 // Updated import: BlogManager is now imported from the admin folder
 import BlogManager from '@/components/admin/BlogManager';
-import BlogSearch from '@/components/blog/BlogSearch'; // New component import
+import BlogSearch from '@/components/blog/BlogFilter'; // New component import
 import { useBlog } from '@/utils/hooks/useBlog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import LoadingSpinner from '@/components/LoadingSpinner';
