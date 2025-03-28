@@ -11,7 +11,7 @@ import webpack from 'next/dist/compiled/webpack/webpack-lib.js';
 // Define security headers for all routes
 const securityHeaders = [
   { key: 'X-DNS-Prefetch-Control', value: 'on' },
-  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+  { key: 'Strict-Transport-Security', value: 'max-age:63072000; includeSubDomains; preload' },
   { key: 'X-XSS-Protection', value: '1; mode=block' },
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -58,7 +58,6 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
         ]
-        
       }
     ];
   },
@@ -84,17 +83,29 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: true,
   webpack: (config, { dev, isServer }) => {
+    // Fix for remark module resolution issues
     config.resolve.alias['remark-github-blockquote-alert'] =
       require.resolve('remark-github-blockquote-alert');
+    
+    // Add module replacement plugin for consistent imports
     config.plugins.push(
       new webpack.NormalModuleReplacementPlugin(
         /^remark-github-blockquote-alert$/,
         require.resolve('remark-github-blockquote-alert')
       )
     );
+    
+    // Add resolver for preact-render-to-string to fix next-auth imports
+    config.resolve.alias['preact-render-to-string'] = 
+      require.resolve('preact-render-to-string');
+    
+    // Production-specific optimizations
     if (!dev && !isServer) {
+      // Enable React profiling in production
       config.resolve.alias['react-dom$'] = 'react-dom/profiling';
       config.resolve.alias['scheduler/tracing'] = 'scheduler/tracing-profiling';
+      
+      // Enhanced chunk optimization
       config.optimization = {
         ...config.optimization,
         minimize: true,
@@ -123,11 +134,21 @@ const nextConfig = {
     }
     return config;
   },
-  transpilePackages: ['remark-github-blockquote-alert', 'rehype-prism-plus'],
+  // Ensure proper transpilation of problematic packages
+  transpilePackages: [
+    'remark-github-blockquote-alert', 
+    'rehype-prism-plus',
+    'micromark',
+    'mdast-util-from-markdown'
+  ],
   experimental: {
-    optimizeCss: true,
+    // Disable optimizeCss to prevent PostCSS errors
+    optimizeCss: false,
+    // Configure font loaders properly
+    fontLoaders: [
+      { loader: '@next/font/google', options: { subsets: ['latin'] } },
+    ],
     optimizePackageImports: ['@mui/icons-material', '@mui/material', 'date-fns'],
-    // esmExternals: false,
   },
   // Enable SWC compiler with Emotion support
   compiler: {
