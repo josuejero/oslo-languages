@@ -1,7 +1,8 @@
-// src/components/blog/BlogEditor.tsx - Enhanced version
+// src/components/blog/BlogEditor.tsx
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import MDEditor from '@uiw/react-md-editor';
+import SimpleMDE from 'react-simplemde-editor';
+import "easymde/dist/easymde.min.css";
 import { FormField, Input, Select } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useBlog } from '@/utils/hooks/useBlog';
@@ -39,7 +40,7 @@ const STATUS_OPTIONS = [
   { value: 'published', label: 'Published' }
 ];
 
-export default function BlogEditor({ post, onSave, onCancel }: BlogEditorProps) {
+export default function BlogEditor({ post, onSave, onCancel, onPreview }: BlogEditorProps) {
   const [showPreview, setShowPreview] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -105,13 +106,21 @@ export default function BlogEditor({ post, onSave, onCancel }: BlogEditorProps) 
     }
   };
 
-  const handleContentChange = (value?: string) => {
-    setValue('content', value || '');
+  const handleContentChange = (value: string) => {
+    setValue('content', value);
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const tags = e.target.value.split(',').map(tag => tag.trim());
     setValue('tags', tags);
+  };
+
+  // SimpleMDE options
+  const editorOptions = {
+    autofocus: true,
+    spellChecker: false,
+    status: ['lines', 'words'],
+    minHeight: '400px',
   };
 
   return (
@@ -231,12 +240,10 @@ export default function BlogEditor({ post, onSave, onCancel }: BlogEditorProps) 
             dangerouslySetInnerHTML={{ __html: previewHtml }}
           />
         ) : (
-          <MDEditor
+          <SimpleMDE
             value={content}
             onChange={handleContentChange}
-            preview="edit"
-            height={400}
-            className="border rounded-md"
+            options={editorOptions}
           />
         )}
       </div>
