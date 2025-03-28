@@ -1,13 +1,20 @@
 // src/components/blog/BlogEditor.tsx
+"use client"
+
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import SimpleMDE from 'react-simplemde-editor';
-import "easymde/dist/easymde.min.css";
+import dynamic from 'next/dynamic';
 import { FormField, Input, Select } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useBlog } from '@/utils/hooks/useBlog';
 import { BlogPost } from '@/utils/blog';
 import OptimizedImage from '@/components/OptimizedImage';
+
+// Dynamically import SimpleMDE editor with SSR disabled
+const SimpleMDE = dynamic(
+  () => import('react-simplemde-editor').then((mod) => mod.default),
+  { ssr: false }
+);
 
 interface BlogEditorProps {
   post?: BlogPost;
@@ -44,6 +51,7 @@ export default function BlogEditor({ post, onSave, onCancel, onPreview }: BlogEd
   const [showPreview, setShowPreview] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [isMounted, setIsMounted] = useState(false);
   const { loading, error, createPost, updatePost, previewContent } = useBlog();
 
   const {
@@ -63,6 +71,11 @@ export default function BlogEditor({ post, onSave, onCancel, onPreview }: BlogEd
       coverImage: post?.coverImage
     }
   });
+
+  // Ensure component is mounted before rendering SimpleMDE
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Watch content for preview and image for preview
   const content = watch('content');
@@ -240,11 +253,18 @@ export default function BlogEditor({ post, onSave, onCancel, onPreview }: BlogEd
             dangerouslySetInnerHTML={{ __html: previewHtml }}
           />
         ) : (
-          <SimpleMDE
-            value={content}
-            onChange={handleContentChange}
-            options={editorOptions}
-          />
+          // Only render SimpleMDE when component is mounted client-side
+          isMounted && (
+            <>
+              {/* Import CSS for SimpleMDE here to avoid server-side import */}
+              <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css" />
+              <SimpleMDE
+                value={content}
+                onChange={handleContentChange}
+                options={editorOptions}
+              />
+            </>
+          )
         )}
       </div>
 
