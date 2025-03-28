@@ -1,9 +1,4 @@
-/**
- * Tailwind CSS configuration file for Oslo Languages.
- * This configuration defines a custom color palette that maps to CSS variables,
- * and extends the theme with additional spacing and screen breakpoints to improve responsiveness.
- */
-
+// tailwind.config.ts
 import type { Config } from 'tailwindcss';
 import typography from '@tailwindcss/typography';
 
@@ -75,6 +70,12 @@ const config: Config = {
        */
       ringColor: {
         DEFAULT: 'var(--color-focus-ring)',
+      },
+      // Add this section for ring offset colors
+      ringOffsetColor: {
+        'background-primary': 'var(--color-background-primary)',
+        'background-secondary': 'var(--color-background-secondary)',
+        'background-tertiary': 'var(--color-background-tertiary)',
       },
       outline: {
         focus: '2px solid var(--color-focus-outline)',

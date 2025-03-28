@@ -11,6 +11,18 @@
   :root {
     /* Default light mode colors are set in ThemeProvider */
     color-scheme: light;
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f9fafb;
+    --color-background-tertiary: #f3f4f6;
+    
+    --color-text-primary: #111827;
+    --color-text-secondary: #374151;
+    --color-text-tertiary: #6b7280;
+    --color-text-disabled: #9ca3af;
+    --color-text-inverse: #ffffff;
+    
+    --color-focus-ring: #3b82f6;
+    --color-focus-outline: #2563eb;
   }
 
   :root[data-theme='dark'] {
