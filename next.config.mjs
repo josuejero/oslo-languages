@@ -127,7 +127,7 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['@mui/icons-material', '@mui/material', 'date-fns'],
-    esmExternals: false,
+    // esmExternals: false,
   },
   // Enable SWC compiler with Emotion support
   compiler: {
