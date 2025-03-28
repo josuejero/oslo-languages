@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .ring-offset-background-primary {
+    --tw-ring-offset-color: var(--color-background-primary);
+  }
+  .ring-offset-background-secondary {
+    --tw-ring-offset-color: var(--color-background-secondary);
+  }
+  .ring-offset-background-tertiary {
+    --tw-ring-offset-color: var(--color-background-tertiary);
+  }
+}
+
 @layer base {
   /* Set base font size for consistency across browsers */
   html {
