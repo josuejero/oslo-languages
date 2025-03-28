@@ -144,10 +144,6 @@ const nextConfig = {
   experimental: {
     // Disable optimizeCss to prevent PostCSS errors
     optimizeCss: false,
-    // Configure font loaders properly
-    fontLoaders: [
-      { loader: '@next/font/google', options: { subsets: ['latin'] } },
-    ],
     optimizePackageImports: ['@mui/icons-material', '@mui/material', 'date-fns'],
   },
   // Enable SWC compiler with Emotion support

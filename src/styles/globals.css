@@ -2,7 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom utility classes */
 @layer utilities {
+  /* Background colors */
+  .bg-background-primary {
+    background-color: var(--color-background-primary);
+  }
+  .bg-background-secondary {
+    background-color: var(--color-background-secondary);
+  }
+  .bg-background-tertiary {
+    background-color: var(--color-background-tertiary);
+  }
+  /* Text colors */
+  .text-text-primary {
+    color: var(--color-text-primary);
+  }
+  .text-text-secondary {
+    color: var(--color-text-secondary);
+  }
+  .text-text-tertiary {
+    color: var(--color-text-tertiary);
+  }
+  .text-text-disabled {
+    color: var(--color-text-disabled);
+  }
+  .text-text-inverse {
+    color: var(--color-text-inverse);
+  }
+  /* Ring utilities */
+  .ring-focus-ring {
+    --tw-ring-color: var(--color-focus-ring);
+  }
   .ring-offset-background-primary {
     --tw-ring-offset-color: var(--color-background-primary);
   }
@@ -11,6 +42,43 @@
   }
   .ring-offset-background-tertiary {
     --tw-ring-offset-color: var(--color-background-tertiary);
+  }
+  /* Action colors */
+  .text-action-primary {
+    color: var(--color-action-primary);
+  }
+  /* Define a base hover color class – then apply it in a separate rule */
+  .text-action-primaryHover {
+    color: var(--color-action-primaryHover);
+  }
+  /* Border colors */
+  .border-border-default {
+    border-color: var(--color-border-default);
+  }
+  .bg-border-default {
+    background-color: var(--color-border-default);
+  }
+  .bg-border-hover {
+    background-color: var(--color-border-hover);
+  }
+  /* Status colors */
+  .text-status-successText {
+    color: var(--color-status-successText);
+  }
+  .text-status-errorText {
+    color: var(--color-status-errorText);
+  }
+  .text-status-warningText {
+    color: var(--color-status-warningText);
+  }
+  .bg-status-success {
+    background-color: var(--color-status-success);
+  }
+  .bg-status-error {
+    background-color: var(--color-status-error);
+  }
+  .bg-status-warning {
+    background-color: var(--color-status-warning);
   }
 }
 
@@ -35,10 +103,23 @@
     
     --color-focus-ring: #3b82f6;
     --color-focus-outline: #2563eb;
+
+    /* Additional custom color definitions */
+    --color-action-primary: #3b82f6;
+    --color-action-primaryHover: #2563eb;
+    --color-border-default: #d1d5db;
+    --color-border-hover: #9ca3af;
+    --color-status-successText: #16a34a;
+    --color-status-errorText: #dc2626;
+    --color-status-warningText: #f59e0b;
+    --color-status-success: #22c55e;
+    --color-status-error: #ef4444;
+    --color-status-warning: #fbbf24;
   }
 
   :root[data-theme='dark'] {
     color-scheme: dark;
+    /* Optionally override dark mode colors here */
   }
 
   /* Base focus styles */
@@ -56,7 +137,7 @@
     @apply bg-background-primary text-text-primary;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    line-height: 1.6; /* Added for improved readability */
+    line-height: 1.6;
   }
 
   /* Headings: uniform bold style and primary text color */
@@ -71,8 +152,11 @@
 
   /* Links styling */
   a {
-    @apply text-action-primary hover:text-action-primaryHover;
+    @apply text-action-primary;
     text-underline-offset: 0.2em;
+  }
+  a:hover {
+    @apply text-action-primaryHover;
   }
 
   /* Focus styles for interactive elements */
@@ -182,8 +266,7 @@
   }
 }
 
-/* Add this to src/styles/globals.css */
-
+/* Keyframe animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -248,7 +331,7 @@
   animation: spin 1s linear infinite;
 }
 
-/* Apply animation delay variations */
+/* Animation delay utilities */
 .delay-100 {
   animation-delay: 0.1s;
 }
