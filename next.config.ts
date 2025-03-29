@@ -1,7 +1,11 @@
+// next.config.ts
 import withBundleAnalyzer from '@next/bundle-analyzer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import type { NextConfig } from 'next';
+import type { Configuration } from 'webpack';
+
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -35,12 +39,8 @@ const securityHeaders = [
   }
 ];
 
-/**
- * Next.js configuration object.
- *
- * @type {import('next').NextConfig}
- */
-const nextConfig = {
+// Define the Next.js configuration
+const nextConfig: NextConfig = {
   trailingSlash: false,
   reactStrictMode: true,
   poweredByHeader: false,
@@ -71,7 +71,7 @@ const nextConfig = {
     ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    formats: ['image/avif', 'image/webp'],
+    formats: ['image/avif', 'image/webp'] as const, // Adding 'as const' to fix the type issue
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
@@ -82,9 +82,11 @@ const nextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: true,
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config: Configuration, { dev, isServer }: { dev: boolean; isServer: boolean }) => { // Adding type annotations here
     
     // Add resolver for preact-render-to-string to fix next-auth imports
+    config.resolve = config.resolve || {};
+    config.resolve.alias = config.resolve.alias || {};
     config.resolve.alias['preact-render-to-string'] = 
       require.resolve('preact-render-to-string');
     
