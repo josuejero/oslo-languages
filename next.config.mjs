@@ -83,17 +83,6 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: true,
   webpack: (config, { dev, isServer }) => {
-    // Fix for remark module resolution issues
-    config.resolve.alias['remark-github-blockquote-alert'] =
-      require.resolve('remark-github-blockquote-alert');
-    
-    // Add module replacement plugin for consistent imports
-    config.plugins.push(
-      new webpack.NormalModuleReplacementPlugin(
-        /^remark-github-blockquote-alert$/,
-        require.resolve('remark-github-blockquote-alert')
-      )
-    );
     
     // Add resolver for preact-render-to-string to fix next-auth imports
     config.resolve.alias['preact-render-to-string'] = 
