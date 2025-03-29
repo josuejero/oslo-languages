@@ -43,7 +43,7 @@
     "src/types/**/*.d.ts",
     "jest.esm.config.cjs",
     ".next/types/**/*.ts"
-  ],
+, "next.config.ts"  ],
   "exclude": [
     "node_modules"
   ]

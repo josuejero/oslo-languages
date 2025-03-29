@@ -87,15 +87,14 @@ const nextConfig: NextConfig = {
     // Add resolver for preact-render-to-string to fix next-auth imports
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
-    config.resolve.alias['preact-render-to-string'] = 
-      require.resolve('preact-render-to-string');
+    (config.resolve.alias as Record<string, string | string[]>)['preact-render-to-string'] = require.resolve('preact-render-to-string');
     
     // Production-specific optimizations
     if (!dev && !isServer) {
       // Enable React profiling in production
-      config.resolve.alias['react-dom$'] = 'react-dom/profiling';
-      config.resolve.alias['scheduler/tracing'] = 'scheduler/tracing-profiling';
-      
+      (config.resolve.alias as Record<string, string | string[]>)['react-dom$'] = 'react-dom/profiling';
+      (config.resolve.alias as Record<string, string | string[]>)['scheduler/tracing'] = 'scheduler/tracing-profiling';
+
       // Enhanced chunk optimization
       config.optimization = {
         ...config.optimization,

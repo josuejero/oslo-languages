@@ -8,6 +8,41 @@ const debug = (message: string, data: Record<string, unknown> = {}) => {
   console.log(`[NextAuth Debug] ${message}`, data);
 };
 
+// Define our custom user interface
+interface CustomUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+// Extend the built-in NextAuth types
+declare module "next-auth" {
+  interface User {
+    role?: string;
+  }
+  
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      role?: string;
+    }
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    user?: {
+      id: string;
+      email: string;
+      name: string;
+      role?: string;
+    }
+  }
+}
+
 export default NextAuth({
   providers: [
     CredentialsProvider({
@@ -90,13 +125,26 @@ export default NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.user = user;
+        // Safe assignment with user containing the required fields
+        token.user = {
+          id: user.id,
+          email: user.email || '',
+          name: user.name || '',
+          role: (user as any).role || 'user' // Default to 'user' if role is missing
+        };
       }
       return token;
     },
     async session({ session, token }) {
-      // Add user to session
-      session.user = token.user;
+      // Add user to session with proper typing
+      if (token.user) {
+        session.user = {
+          id: token.user.id,
+          email: token.user.email,
+          name: token.user.name,
+          role: token.user.role
+        };
+      }
       return session;
     },
     // Add redirect callback to prevent loops
