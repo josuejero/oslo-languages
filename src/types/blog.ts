@@ -15,7 +15,7 @@ import {
 } from '@/modules/blog/types';
 
 // Re-export all types to maintain backward compatibility
-export type{
+export type {
   BlogPost,
   BlogPostPreview,
   BlogFilterOptions,

@@ -17,5 +17,6 @@ export { BlogError };
 
 /**
  * @deprecated This file will be removed in a future version.
- * Please update your imports to use '@/modules/blog/operations' directly.
+ * Please update your imports to use '@/modules/blog/operations', '@/modules/blog/types', 
+ * or '@/modules/blog/hooks' directly as appropriate.
  */
