@@ -290,7 +290,7 @@ export default function BlogFilter({
           <select
             id="status"
             value={filters.status}
-            onChange={(e) => handleFilterChange('status', e.target.value as FilterState['status'])}
+            onChange={(e) => handleFilterChange('status', e.target.value as FilterState['status'] || 'all')}
             className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All</option>

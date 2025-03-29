@@ -5,8 +5,14 @@ export {
   AlertDescription,
 } from './alert';
 
-// Remove these non-existent exports:
-// AlertDialog,
-// AlertDialogContent,
-// AlertDialogTitle,
-// AlertDialogAction
+export {
+  Card,
+  CardHeader,
+  CardContent,
+} from './card';
+
+export {
+  FormField,
+  Input,
+  Select
+} from './form';

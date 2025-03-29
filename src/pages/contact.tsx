@@ -1,6 +1,6 @@
 // src/pages/contact.tsx
 import { generateMetadata } from '@/utils/schema';
-import ContactForm from '@/components/widgets/ContactForm';
+import ContactForm from '@/components/contact/ContactForm';
 import Layout from '@/components/layout/Layout';
 import { MapPin, Phone, Mail, Clock, ExternalLink } from 'lucide-react';
 import Link from 'next/link';

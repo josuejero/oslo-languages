@@ -1,8 +1,7 @@
-import { BlogPost } from "@/modules/blog/types";
 import path from 'path';
 import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
-import { BlogPost } from '@/utils/blog-operations';
+import { BlogPost } from "@/types/blog"; // Import from central location
 
 const POSTS_DIR = path.join(process.cwd(), 'content/posts');
 const DRAFTS_DIR = path.join(process.cwd(), 'content/drafts');
