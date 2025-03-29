@@ -1,5 +1,5 @@
 // src/utils/__tests__/contact-api-test.ts
-import { logger } from '../logger';
+import { logger } from '@/utils/logger';
 
 interface TestContactData {
   name: string;

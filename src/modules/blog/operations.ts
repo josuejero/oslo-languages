@@ -618,7 +618,7 @@ export function extractCategories(posts: BlogPost[]): Array<{ name: string; coun
   const categoryCount = new Map<string, { name: string; count: number; slug: string }>();
   
   posts.forEach((post: any) => {
-    post.categories.forEach(category => {
+    post.categories.forEach((category: string) => {
       const slug = category.toLowerCase().replace(/\s+/g, '-');
       
       if (!categoryCount.has(slug)) {

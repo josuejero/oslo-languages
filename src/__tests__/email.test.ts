@@ -1,5 +1,5 @@
 // src/utils/__tests__/test-email.ts
-import { sendContactEmail } from '../email';
+import { sendContactEmail } from '@/utils/email';
 
 interface SendGridError {
   response?: {

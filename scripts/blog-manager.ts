@@ -2,6 +2,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
 import { BlogPost } from "@/types/blog"; // Import from central location
+import fs from 'fs/promises'
 
 const POSTS_DIR = path.join(process.cwd(), 'content/posts');
 const DRAFTS_DIR = path.join(process.cwd(), 'content/drafts');
