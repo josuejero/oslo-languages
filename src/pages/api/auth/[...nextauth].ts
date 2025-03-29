@@ -123,7 +123,7 @@ export default NextAuth({
             });
             
             // Validate hash format before comparison
-            if (!storedHash.startsWith('$2')) {
+            if (!storedHash.startsWith('$2a$') && !storedHash.startsWith('$2b$')) {
               debug('Invalid hash format', {
                 hashStart: storedHash.substring(0, 4)
               });
