@@ -163,12 +163,12 @@ export async function createPost(post: Partial<BlogPost>): Promise<BlogPost> {
       excerpt: post.excerpt || '',
       author: post.author || 'Anonymous',
       date: now,
-      publishedAt: post.status === 'published' ? now : undefined,
+      publishedAt: post.status === 'published' ? now : null,
       updatedAt: now,
       status: post.status || 'draft',
       categories: post.categories || [],
       tags: post.tags || [],
-      coverImage: post.coverImage,
+      coverImage: post.coverImage || undefined,
       readingTime: calculateReadingTime(post.content || ''),
       searchableContent: `${post.title} ${post.excerpt} ${post.content}`.toLowerCase()
     };
@@ -232,7 +232,7 @@ export async function updatePost(slug: string, updates: Partial<BlogPost>): Prom
       updatedAt: new Date().toISOString(),
       publishedAt: updates.status === 'published' 
         ? (existingPost.publishedAt || new Date().toISOString())
-        : existingPost.publishedAt,
+        : (existingPost.publishedAt || null),
       content: updates.content ? DOMPurify.sanitize(updates.content) : existingPost.content,
       readingTime: updates.content 
         ? calculateReadingTime(updates.content)
@@ -368,15 +368,15 @@ export async function getPostBySlug(slug: string): Promise<BlogPost> {
       slug,
       title: data.title,
       content: htmlContent,
-      excerpt: data.excerpt,
-      author: data.author,
+      excerpt: data.excerpt || '',
+      author: data.author || 'Anonymous',
       date: data.date,
-      publishedAt: data.publishedAt,
-      updatedAt: data.updatedAt,
+      publishedAt: data.publishedAt || null,
+      updatedAt: data.updatedAt || null,
       status: data.status || status,
-      categories: data.categories || [],
-      tags: data.tags || [],
-      coverImage: data.coverImage,
+      categories: Array.isArray(data.categories) ? data.categories : [],
+      tags: Array.isArray(data.tags) ? data.tags : [],
+      coverImage: data.coverImage || null,
       readingTime: data.readingTime || calculateReadingTime(content),
       searchableContent: `${data.title} ${data.excerpt} ${content}`.toLowerCase()
     };

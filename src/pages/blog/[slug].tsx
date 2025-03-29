@@ -61,9 +61,20 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       };
     }
 
+    const serializedPost = {
+      ...post,
+      // Handle potentially undefined properties
+      publishedAt: post.publishedAt || null,
+      updatedAt: post.updatedAt || null,
+      coverImage: post.coverImage || null,
+      readingTime: post.readingTime || null,
+      categories: Array.isArray(post.categories) ? post.categories : [],
+      tags: Array.isArray(post.tags) ? post.tags : []
+    };
+
     return {
       props: {
-        post
+        post: serializedPost
       },
       revalidate: 3600 // Revalidate every hour
     };
