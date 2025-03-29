@@ -1,4 +1,4 @@
-// src/components/widgets/ContactForm.tsx
+// src/components/contact/ContactForm.tsx
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logger } from '@/utils/logger';
@@ -33,7 +33,7 @@ export default function ContactForm() {
     defaultValues: formValues
   });
 
-  // Animated validation feedback
+  // Get styled validation classes based on field state
   const getInputStyles = (fieldName: keyof FormData) => {
     const isDirty = dirtyFields[fieldName];
     const isTouched = touchedFields[fieldName];

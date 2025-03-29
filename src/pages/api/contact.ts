@@ -13,14 +13,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
 ) {
-  // Debug logging
-  console.log('API Route Hit:', {
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-    body: req.body
-  });
-
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -40,14 +32,17 @@ export default async function handler(
   }
 
   try {
-    // Log the raw body
-    console.log('Raw request body:', req.body);
-
     const { name, email, subject, message } = req.body;
 
     // Validate required fields
     if (!name || !email || !subject || !message) {
-      console.log('Validation failed - missing fields:', { name, email, subject, message });
+      logger.info('Validation failed - missing fields', { 
+        name: !!name, 
+        email: !!email, 
+        subject: !!subject, 
+        message: !!message 
+      });
+      
       return res.status(400).json({
         success: false,
         error: 'All fields are required'
@@ -57,7 +52,8 @@ export default async function handler(
     // Email validation
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     if (!emailRegex.test(email)) {
-      console.log('Invalid email:', email);
+      logger.info('Invalid email', { email });
+      
       return res.status(400).json({
         success: false,
         error: 'Invalid email address'
@@ -65,16 +61,12 @@ export default async function handler(
     }
 
     // Send email
-    if (process.env.SENDGRID_API_KEY) {
-      await sendContactEmail({
-        name,
-        email,
-        subject,
-        message
-      });
-    } else {
-      console.log('SendGrid API key not found - skipping email send');
-    }
+    await sendContactEmail({
+      name,
+      email,
+      subject,
+      message
+    });
 
     // Log success
     logger.info('Contact form submitted successfully', {
@@ -90,8 +82,7 @@ export default async function handler(
 
   } catch (error) {
     // Log error with full details
-    console.error('Contact form error:', error);
-    logger.error('Contact form error:', {
+    logger.error('Contact form error', {
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined
     });
