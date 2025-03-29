@@ -55,7 +55,7 @@ export async function handler(req: NextRequest) {
       try {
         const posts = await getAllPosts();
         const tags = posts.reduce((acc, post) => {
-          post.tags.forEach(tag => {
+          post.tags.forEach((tag: string) => {
             const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
             acc[tagSlug] = acc[tagSlug] || { name: tag, count: 0, slug: tagSlug };
             acc[tagSlug].count++;

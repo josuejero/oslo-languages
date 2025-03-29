@@ -133,7 +133,7 @@ export default function BlogList({
             <BlogFilter
               categories={[]} // You should pass actual categories here
               tags={[]} // You should pass actual tags here
-              onFilter={(filters: any) => handleFilterChange(filters)}
+              onFilter={handleFilterChange}
             />
           </div>
           

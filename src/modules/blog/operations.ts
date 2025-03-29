@@ -617,7 +617,7 @@ export async function searchPosts(options: BlogFilterOptions): Promise<{
 export function extractCategories(posts: BlogPost[]): Array<{ name: string; count: number; slug: string }> {
   const categoryCount = new Map<string, { name: string; count: number; slug: string }>();
   
-  posts.forEach(post => {
+  posts.forEach((post: any) => {
     post.categories.forEach(category => {
       const slug = category.toLowerCase().replace(/\s+/g, '-');
       
@@ -640,8 +640,8 @@ export function extractCategories(posts: BlogPost[]): Array<{ name: string; coun
 export function extractTags(posts: BlogPost[]): Array<{ name: string; count: number; slug: string }> {
   const tagCount = new Map<string, { name: string; count: number; slug: string }>();
   
-  posts.forEach(post => {
-    post.tags.forEach(tag => {
+  posts.forEach((post: any) => {
+    post.tags.forEach((tag: string) => {
       const slug = tag.toLowerCase().replace(/\s+/g, '-');
       
       if (!tagCount.has(slug)) {

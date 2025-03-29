@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BlogList from '@/components/blog/BlogList';
+// Updated import: BlogManager is now imported from the admin folder
 import BlogManager from '@/components/admin/BlogManager';
-import BlogFilter from '@/components/blog/BlogFilter'; // Updated import
+import BlogSearch from '@/components/blog/BlogFilter'; // New component import
 import { useBlog } from '@/utils/hooks/useBlog';
-import { Alert, AlertDescription } from '@/components/common/Alert'; // Updated import
-import LoadingSpinner from '@/components/common/LoadingSpinner'; // Updated import
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { logger } from '@/utils/logger';
 
 const POSTS_PER_PAGE = 9;
@@ -23,6 +24,7 @@ export const metadata = {
   title: 'Blog | Oslo Languages',
   description: 'Read our latest articles about language learning, Norwegian culture, and more.',
 };
+
 
 /**
  * BlogPage component renders the main blog page.
@@ -70,34 +72,21 @@ export default function BlogPage({
     fetchPosts();
   }, [currentPage, currentCategory, currentTag, currentQuery, searchPosts]);
 
-  // Handle filter changes
-  const handleFilterChange = (filters: any) => {
-    // Construct query string based on filters
-    const params = new URLSearchParams();
-    if (filters.search) params.set('q', filters.search);
-    if (filters.category) params.set('category', filters.category);
-    if (filters.tag) params.set('tag', filters.tag);
-    
-    router.push(`/blog?${params.toString()}`);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Blog</h1>
-        
-        {/* Use BlogFilter with proper props */}
-        <BlogFilter
-          categories={initialCategories || []}
-          tags={initialTags || []}
-          initialFilters={{
-            search: currentQuery,
-            category: currentCategory,
-            tag: currentTag
-          }}
-          compact={true}
-          onFilter={handleFilterChange}
-          className="w-64"
+        {/* Render BlogSearch with proper type annotations for callback parameters */}
+        <!-- <BlogSearch
+          search={currentQuery}
+          category={currentCategory}
+          tag={currentTag}
+          sortBy="date-desc" // Default sort value; adjust as needed
+          onSearchChange={(value: string) => router.push(`/blog?q=${value}`)}
+          onCategoryChange={(value: string) => router.push(`/blog?category=${value}`)}
+          onTagChange={(value: string) => router.push(`/blog?tag=${value}`)}
+          onSortChange={(value: string) => router.push(`/blog?sortBy=${value}`)}
+          className="w-64" --> 
         />
       </div>
 

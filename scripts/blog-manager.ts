@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import { BlogPost } from "@/modules/blog/types";
 import path from 'path';
 import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';

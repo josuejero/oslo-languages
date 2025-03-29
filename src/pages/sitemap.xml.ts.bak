@@ -38,9 +38,9 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     const categories = new Set<string>();
     const tags = new Set<string>();
     
-    posts.forEach((post: any) => {
-      post.categories.forEach((cat: string) => categories.add(cat.toLowerCase().replace(/\s+/g, '-')));
-      post.tags.forEach((tag: string) => tags.add(tag.toLowerCase().replace(/\s+/g, '-')));
+    posts.forEach(post => {
+      post.categories.forEach(cat => categories.add(cat.toLowerCase().replace(/\s+/g, '-')));
+      post.tags.forEach(tag => tags.add(tag.toLowerCase().replace(/\s+/g, '-')));
     });
 
     // Generate complete sitemap XML
@@ -63,7 +63,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   </url>`).join('')}
   
   <!-- Blog posts -->
-  ${posts.map((post: any) => `
+  ${posts.map(post => `
   <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
     <lastmod>${post.updatedAt || post.publishedAt || post.date}</lastmod>
