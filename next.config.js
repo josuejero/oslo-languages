@@ -1,12 +1,8 @@
-// next.config.ts
+// next.config.mjs
 import withBundleAnalyzer from '@next/bundle-analyzer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
-import type { NextConfig } from 'next';
-import type { Configuration } from 'webpack';
 
-const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Use Next.js's compiled webpack
@@ -40,7 +36,7 @@ const securityHeaders = [
 ];
 
 // Define the Next.js configuration
-const nextConfig: NextConfig = {
+const nextConfig = {
   trailingSlash: false,
   reactStrictMode: true,
   poweredByHeader: false,
@@ -71,7 +67,7 @@ const nextConfig: NextConfig = {
     ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    formats: ['image/avif', 'image/webp'] as const, // Adding 'as const' to fix the type issue
+    formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;"
@@ -82,18 +78,23 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: true,
-  webpack: (config: Configuration, { dev, isServer }: { dev: boolean; isServer: boolean }) => { // Adding type annotations here
-    
+  webpack: (config, { dev, isServer }) => { 
     // Add resolver for preact-render-to-string to fix next-auth imports
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
-    (config.resolve.alias as Record<string, string | string[]>)['preact-render-to-string'] = require.resolve('preact-render-to-string');
+    
+    // Use dynamic import() instead of require
+    const resolvePreactRenderToString = async () => {
+      return (await import('preact-render-to-string')).default;
+    };
+    
+    config.resolve.alias['preact-render-to-string'] = resolvePreactRenderToString;
     
     // Production-specific optimizations
     if (!dev && !isServer) {
       // Enable React profiling in production
-      (config.resolve.alias as Record<string, string | string[]>)['react-dom$'] = 'react-dom/profiling';
-      (config.resolve.alias as Record<string, string | string[]>)['scheduler/tracing'] = 'scheduler/tracing-profiling';
+      config.resolve.alias['react-dom$'] = 'react-dom/profiling';
+      config.resolve.alias['scheduler/tracing'] = 'scheduler/tracing-profiling';
 
       // Enhanced chunk optimization
       config.optimization = {
@@ -142,8 +143,10 @@ const nextConfig: NextConfig = {
   }
 };
 
-const withAnalyzer = withBundleAnalyzer({
+// Initialize BundleAnalyzer with options
+const analyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
-export default withAnalyzer(nextConfig);
+// Export the final config
+export default analyzer(nextConfig);
