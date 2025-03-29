@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Alert, AlertDescription } from '@/components/ui';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useBlog } from '@/utils/hooks/useBlog';
 import { BlogPost } from '@/utils/blog';
 

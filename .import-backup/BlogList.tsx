@@ -5,7 +5,7 @@ import { useBlog } from '@/utils/hooks/useBlog';
 import BlogFilter from './BlogFilter';
 import BlogPagination from './BlogPagination';
 import { Alert, AlertDescription } from '@/components/ui';
-import { LoadingSpinner } from '@/components/ui';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import OptimizedImage from '@/components/OptimizedImage';
 import type { BlogPost } from '@/modules/blog/types';
 

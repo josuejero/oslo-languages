@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { BlogPost } from '@/utils/blog';
 import OptimizedImage from '@/components/OptimizedImage';
 import { useBlog } from '@/utils/hooks/useBlog';
-import { Alert, AlertDescription } from '@/components/ui';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface BlogPreviewProps {
   post?: BlogPost;

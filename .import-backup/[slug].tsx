@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBlog } from '@/utils/hooks/useBlog';
 import dynamic from 'next/dynamic';
-import { Alert, AlertDescription } from '@/components/ui';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BlogPost } from '@/utils/blog';
 
 // Dynamically import BlogEditor to prevent SSR issues

@@ -14,6 +14,11 @@ interface InputProps extends React.ComponentPropsWithoutRef<'input'> {
   hint?: string;
 }
 
+interface TextareaProps extends React.ComponentPropsWithoutRef<'textarea'> {
+  error?: string;
+  hint?: string;
+}
+
 interface SelectProps extends React.ComponentPropsWithoutRef<'select'> {
   error?: string;
   hint?: string;
@@ -96,6 +101,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 );
 
 Input.displayName = 'Input';
+
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className = '', error, ...props }, ref) => {
+    return (
+      <textarea
+        ref={ref}
+        className={`
+          w-full px-4 py-2 border rounded-md 
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+          disabled:bg-gray-100 disabled:text-gray-500
+          ${error ? 'border-red-500' : 'border-gray-300'}
+          ${className}
+        `}
+        {...props}
+      />
+    );
+  }
+);
+
+Textarea.displayName = 'Textarea';
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ className = '', error, options, ...props }, ref) => {

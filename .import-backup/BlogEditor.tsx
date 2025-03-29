@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import dynamic from 'next/dynamic';
-import { FormField, Input, Select } from '@/components/ui';
+import { FormField, Input, Select } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui';
 import { useBlog } from '@/utils/hooks/useBlog';
 import { BlogPost } from '@/utils/blog';

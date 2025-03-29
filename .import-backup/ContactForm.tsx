@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logger } from '@/utils/logger';
-import { Alert, AlertDescription } from '@/components/ui';
+import { Alert, AlertDescription } from '@/components/ui/';
 import { Send, RefreshCw } from 'lucide-react';
 
 type FormData = {

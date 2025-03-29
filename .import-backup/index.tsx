@@ -7,7 +7,7 @@ import BlogManager from '@/components/admin/BlogManager';
 import BlogFilter from '@/components/blog/BlogFilter'; // Updated import
 import { useBlog } from '@/utils/hooks/useBlog';
 import { Alert, AlertDescription } from '@/components/ui'; // Updated import
-import { LoadingSpinner } from '@/components/ui'; // Updated import
+import LoadingSpinner from '@/components/common/LoadingSpinner'; // Updated import
 import { logger } from '@/utils/logger';
 
 const POSTS_PER_PAGE = 9;

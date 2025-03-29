@@ -2,6 +2,7 @@
 import React from 'react';
 import { CheckCircle, AlertCircle, InfoIcon, AlertTriangle } from 'lucide-react';
 
+// Alert Component
 interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info';
   className?: string;
@@ -51,6 +52,7 @@ export function Alert({
   );
 }
 
+// Alert Title Component
 export function AlertTitle({ 
   children, 
   className = '', 
@@ -66,6 +68,7 @@ export function AlertTitle({
   );
 }
 
+// Alert Description Component
 export function AlertDescription({ 
   children, 
   className = '', 

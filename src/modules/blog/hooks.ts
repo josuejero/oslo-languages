@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useCallback } from 'react';
 import type { BlogPost, BlogFilterOptions } from './types';
 import { logger } from '@/utils/logger';

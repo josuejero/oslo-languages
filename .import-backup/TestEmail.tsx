@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, AlertDescription } from '@/components/ui';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function TestEmail() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');

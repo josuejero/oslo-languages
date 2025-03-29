@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert } from '@/components/ui';
+import { Alert } from '@/components/ui/alert';
 import { logger } from '@/utils/logger';
 import BlogManager from '@/components/admin/BlogManager';
 

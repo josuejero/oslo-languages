@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { signIn, getCsrfToken, getProviders } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { Alert, AlertDescription } from '@/components/ui';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
