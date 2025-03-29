@@ -3,14 +3,8 @@ import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 
-interface NextAuthUser {
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-}
-
 // Debug function for auth-related logs
-const debug = (message: unknown, data = {}) => {
+const debug = (message: string, data: Record<string, unknown> = {}) => {
   console.log(`[NextAuth Debug] ${message}`, data);
 };
 
@@ -22,7 +16,7 @@ export default NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         try {
           // Check for credentials
           if (!credentials?.email || !credentials?.password) {
@@ -30,12 +24,15 @@ export default NextAuth({
             return null;
           }
           
-          // Get environment variables
+          // Get environment variables - add better error handling
           const adminEmail = process.env.ADMIN_EMAIL;
           const storedHash = process.env.ADMIN_PASSWORD_HASH;
           
           if (!adminEmail || !storedHash) {
-            debug('Auth failed: Missing environment variables');
+            debug('Auth failed: Missing environment variables', { 
+              hasAdminEmail: !!adminEmail, 
+              hasStoredHash: !!storedHash 
+            });
             return null;
           }
           
@@ -68,13 +65,13 @@ export default NextAuth({
             return null;
           } catch (bcryptError) {
             debug('Password verification error', {
-              errorMessage: bcryptError instanceof Error ? bcryptError.message : String(bcryptError)
+              error: bcryptError instanceof Error ? bcryptError.message : String(bcryptError)
             });
             return null;
           }
         } catch (error) {
           debug('Unexpected error during authentication', {
-            errorMessage: error instanceof Error ? error.message : String(error)
+            error: error instanceof Error ? error.message : String(error)
           });
           return null;
         }
@@ -85,20 +82,6 @@ export default NextAuth({
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  cookies: {
-    sessionToken: {
-      name:
-        process.env.NODE_ENV === 'production'
-          ? '__Secure-next-auth.session-token'
-          : 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production'
-      }
-    }
   },
   pages: {
     signIn: '/admin/login',
@@ -112,9 +95,22 @@ export default NextAuth({
       return token;
     },
     async session({ session, token }) {
-      // Cast token.user to NextAuthUser or undefined to satisfy TypeScript
-      session.user = token.user as NextAuthUser | undefined;
+      // Add user to session
+      session.user = token.user;
       return session;
+    },
+    // Add redirect callback to prevent loops
+    async redirect({ url, baseUrl }) {
+      // If the URL starts with the base URL, allow it
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      // For relative URLs, prepend the base URL
+      else if (url.startsWith('/')) {
+        return new URL(url, baseUrl).toString();
+      }
+      // Default fallback to the base URL
+      return baseUrl;
     }
   },
   debug: process.env.NODE_ENV === 'development',
