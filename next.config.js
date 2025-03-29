@@ -84,11 +84,9 @@ const nextConfig = {
     config.resolve.alias = config.resolve.alias || {};
     
     // Use dynamic import() instead of require
-    const resolvePreactRenderToString = async () => {
-      return (await import('preact-render-to-string')).default;
-    };
+
     
-    config.resolve.alias['preact-render-to-string'] = resolvePreactRenderToString;
+    config.resolve.alias['preact-render-to-string'] = 'preact-render-to-string';
     
     // Production-specific optimizations
     if (!dev && !isServer) {
