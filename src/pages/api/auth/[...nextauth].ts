@@ -1,11 +1,18 @@
-// src/pages/api/auth/[...nextauth].ts
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 
-// Debug function for auth-related logs
+// Enhanced debug function for auth-related logs with more detail
 const debug = (message: string, data: Record<string, unknown> = {}) => {
-  console.log(`[NextAuth Debug] ${message}`, data);
+  console.log(`[NextAuth Debug] ${message}`, {
+    ...data,
+    timestamp: new Date().toISOString(),
+    env: {
+      hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
+      hasNextAuthUrl: !!process.env.NEXTAUTH_URL,
+      nodeEnv: process.env.NODE_ENV
+    }
+  });
 };
 
 // Define our custom user interface
@@ -43,6 +50,89 @@ declare module "next-auth/jwt" {
   }
 }
 
+// More detailed credentials authorization function
+async function authorizeCredentials(credentials: Record<string, any> | undefined) {
+  try {
+    // Check for credentials
+    if (!credentials?.email || !credentials?.password) {
+      debug('Auth failed: Missing credentials', { 
+        hasEmail: !!credentials?.email, 
+        hasPassword: !!credentials?.password 
+      });
+      return null;
+    }
+    
+    // Log environment variables status in detail
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const storedHash = process.env.ADMIN_PASSWORD_HASH;
+    
+    debug('Environment variables check', { 
+      adminEmail: adminEmail ? `${adminEmail.substring(0, 3)}...` : undefined, 
+      storedHashLength: storedHash?.length || 0,
+      storedHashPresent: !!storedHash
+    });
+    
+    if (!adminEmail || !storedHash) {
+      debug('Auth failed: Missing environment variables', { 
+        hasAdminEmail: !!adminEmail, 
+        hasStoredHash: !!storedHash,
+        adminEmailLength: adminEmail?.length || 0,
+        storedHashLength: storedHash?.length || 0
+      });
+      return null;
+    }
+    
+    // Compare email (case insensitive) with detailed logging
+    if (credentials.email.toLowerCase() !== adminEmail.toLowerCase()) {
+      debug('Auth failed: Email mismatch', {
+        attemptEmail: credentials.email.toLowerCase(),
+        configEmail: adminEmail.toLowerCase()
+      });
+      return null;
+    }
+    
+    // Verify password with detailed error handling
+    try {
+      debug('Attempting password verification', { 
+        passwordLength: credentials.password.length,
+        hashLength: storedHash.length 
+      });
+      
+      const isValid = await bcrypt.compare(
+        credentials.password,
+        storedHash
+      );
+      
+      debug('Password validation result', { isValid });
+      
+      if (isValid) {
+        debug('Authentication successful');
+        return {
+          id: '1',
+          email: credentials.email,
+          name: 'Admin',
+          role: 'admin'
+        };
+      }
+      
+      debug('Authentication failed - password mismatch');
+      return null;
+    } catch (bcryptError) {
+      debug('Password verification error', {
+        error: bcryptError instanceof Error ? bcryptError.message : String(bcryptError),
+        hashFormat: storedHash.substring(0, 10) + '...'
+      });
+      return null;
+    }
+  } catch (error) {
+    debug('Unexpected error during authentication', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    return null;
+  }
+}
+
 export default NextAuth({
   providers: [
     CredentialsProvider({
@@ -51,66 +141,7 @@ export default NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
-        try {
-          // Check for credentials
-          if (!credentials?.email || !credentials?.password) {
-            debug('Auth failed: Missing credentials');
-            return null;
-          }
-          
-          // Get environment variables - add better error handling
-          const adminEmail = process.env.ADMIN_EMAIL;
-          const storedHash = process.env.ADMIN_PASSWORD_HASH;
-          
-          if (!adminEmail || !storedHash) {
-            debug('Auth failed: Missing environment variables', { 
-              hasAdminEmail: !!adminEmail, 
-              hasStoredHash: !!storedHash 
-            });
-            return null;
-          }
-          
-          // Compare email (case insensitive)
-          if (credentials.email.toLowerCase() !== adminEmail.toLowerCase()) {
-            debug('Auth failed: Email mismatch');
-            return null;
-          }
-          
-          // Verify password
-          try {
-            const isValid = await bcrypt.compare(
-              credentials.password,
-              storedHash
-            );
-            
-            debug('Password validation:', { isValid });
-            
-            if (isValid) {
-              debug('Authentication successful');
-              return {
-                id: '1',
-                email: credentials.email,
-                name: 'Admin',
-                role: 'admin'
-              };
-            }
-            
-            debug('Authentication failed - password mismatch');
-            return null;
-          } catch (bcryptError) {
-            debug('Password verification error', {
-              error: bcryptError instanceof Error ? bcryptError.message : String(bcryptError)
-            });
-            return null;
-          }
-        } catch (error) {
-          debug('Unexpected error during authentication', {
-            error: error instanceof Error ? error.message : String(error)
-          });
-          return null;
-        }
-      }
+      authorize: authorizeCredentials
     })
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -125,18 +156,16 @@ export default NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        // Safe assignment with user containing the required fields
         token.user = {
           id: user.id,
           email: user.email || '',
           name: user.name || '',
-          role: (user as any).role || 'user' // Default to 'user' if role is missing
+          role: (user as any).role || 'user'
         };
       }
       return token;
     },
     async session({ session, token }) {
-      // Add user to session with proper typing
       if (token.user) {
         session.user = {
           id: token.user.id,
@@ -147,19 +176,25 @@ export default NextAuth({
       }
       return session;
     },
-    // Add redirect callback to prevent loops
     async redirect({ url, baseUrl }) {
-      // If the URL starts with the base URL, allow it
       if (url.startsWith(baseUrl)) {
         return url;
-      }
-      // For relative URLs, prepend the base URL
-      else if (url.startsWith('/')) {
+      } else if (url.startsWith('/')) {
         return new URL(url, baseUrl).toString();
       }
-      // Default fallback to the base URL
       return baseUrl;
     }
   },
   debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, ...message) {
+      console.error('[next-auth][error]', code, ...message);
+    },
+    warn(code, ...message) {
+      console.warn('[next-auth][warn]', code, ...message);
+    },
+    debug(code, ...message) {
+      console.log('[next-auth][debug]', code, ...message);
+    }
+  }
 });
