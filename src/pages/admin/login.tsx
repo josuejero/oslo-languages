@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { signIn, getCsrfToken, getProviders, SignInResponse } from 'next-auth/react';
-import { useRouter } from 'next/router';
+import { signIn, getCsrfToken, getProviders } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui';
 import { logger } from '@/utils/logger';
 
@@ -11,28 +11,35 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [debugInfo, setDebugInfo] = useState<Record<string, unknown>>({});
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // Show error from URL if present
   useEffect(() => {
-    // Handle error from query parameter
-    if (router.query.error) {
+    // If searchParams is null, exit early to avoid TS errors.
+    if (!searchParams) return;
+
+    const errorParam = searchParams.get('error');
+    const errorDesc = searchParams.get('error_description');
+    if (errorParam) {
       const errorMap: Record<string, string> = {
         'CredentialsSignin': 'Invalid email or password. Please try again.',
         'SessionRequired': 'Please sign in to access this page.',
         'AccessDenied': 'You do not have permission to access this page.',
-        'Default': `Authentication error: ${router.query.error}`
+        'CallbackRouteError': 'There was a problem with the login callback.',
+        'OAuthSignin': 'Error in OAuth sign in process.',
+        'OAuthCallback': 'Error in OAuth callback process.',
+        'Default': `Authentication error: ${errorParam}`
       };
 
-      const errorMessage = errorMap[router.query.error as string] || errorMap.Default;
+      const errorMessage = errorMap[errorParam] || errorMap.Default;
       setError(errorMessage);
-      
+
       logger.error('Login error from URL:', { 
-        error: router.query.error,
-        message: errorMessage
+        error: errorParam,
+        message: errorMessage,
+        errorDetails: errorDesc || 'No additional details'
       });
     }
     
-    // Load CSRF token and providers for debugging
     const loadAuthInfo = async () => {
       try {
         const [csrfToken, providers] = await Promise.all([
@@ -42,18 +49,24 @@ export default function AdminLogin() {
         
         const authInfo = {
           csrfToken: csrfToken ? 'Present' : 'Missing',
-          providers: providers ? Object.keys(providers) : 'None found'
+          providers: providers ? Object.keys(providers) : 'None found',
+          adminEmailConfigured: process.env.NEXT_PUBLIC_ADMIN_EMAIL ? 'Yes (public)' : 'Not in public env',
+          nextAuthUrl: process.env.NEXT_PUBLIC_BASE_URL || 'Not configured in public env',
         };
         
         setDebugInfo(authInfo);
         logger.info('Auth Debug Info:', authInfo);
       } catch (e) {
-        logger.error('Failed to load auth info:', { error: e });
+        logger.error('Failed to load auth info:', { 
+          error: e instanceof Error ? e.message : String(e),
+          stack: e instanceof Error ? e.stack : undefined 
+        });
+        setDebugInfo({ error: 'Failed to load auth info' });
       }
     };
     
     loadAuthInfo();
-  }, [router.query]);
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,26 +75,39 @@ export default function AdminLogin() {
     
     logger.info('Login attempt:', { 
       email, 
-      passwordLength: password.length 
+      passwordLength: password.length,
+      timestamp: new Date().toISOString()
     });
 
     try {
-      // Try multiple strategies if needed
       const result = await signIn('credentials', {
         redirect: false,
         email,
         password,
         callbackUrl: '/admin'
-      }) as SignInResponse | null;
+      });
       
-      logger.info('SignIn result:', { result });
+      logger.info('SignIn result:', {
+        success: !result?.error,
+        hasUrl: !!result?.url,
+        errorType: result?.error || 'none',
+        statusCode: result?.status
+      });
 
       if (result?.error) {
-        logger.error('Login error from result:', { error: result.error });
+        logger.error('Login error from result:', { 
+          error: result.error,
+          status: result.status
+        });
         
-        // Map error codes to user-friendly messages
         const errorMap: Record<string, string> = {
           'CredentialsSignin': 'Invalid email or password. Please try again.',
+          'SessionRequired': 'Session required to access this page.',
+          'AccessDenied': 'Access denied - you don\'t have permission.',
+          'EmailSignin': 'Problem sending the sign-in email.',
+          'EmailNotVerified': 'Your email address has not been verified.',
+          'Configuration': 'Server configuration error.',
+          'Verification': 'Token verification failed.',
           'Default': `Authentication error: ${result.error}`
         };
         
@@ -90,13 +116,16 @@ export default function AdminLogin() {
         logger.info('Login successful, redirecting to:', { url: result.url });
         router.push(result.url);
       } else {
-        setError('Unknown error occurred during sign in');
+        setError('Unknown error occurred during sign in - no URL returned');
         logger.error('Unexpected signin result format:', { result });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setError(`Login failed: ${errorMessage}`);
-      logger.error('Login exception:', { error });
+      logger.error('Login exception:', { 
+        error: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
+      });
     } finally {
       setLoading(false);
     }
@@ -109,6 +138,9 @@ export default function AdminLogin() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Admin Login
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Sign in to access the admin dashboard
+          </p>
         </div>
         
         {error && (
@@ -163,11 +195,12 @@ export default function AdminLogin() {
             </button>
           </div>
           
-          {/* Debug Info - only in development */}
-          {process.env.NODE_ENV === 'development' && Object.keys(debugInfo).length > 0 && (
+          {process.env.NODE_ENV === 'development' && (
             <div className="mt-4 p-3 border border-gray-300 rounded-md bg-gray-50">
               <h3 className="text-sm font-medium text-gray-700">Debug Info:</h3>
-              <pre className="mt-1 text-xs text-gray-600">{JSON.stringify(debugInfo, null, 2)}</pre>
+              <pre className="mt-1 text-xs text-gray-600 overflow-auto max-h-32">
+                {JSON.stringify(debugInfo, null, 2)}
+              </pre>
             </div>
           )}
         </form>

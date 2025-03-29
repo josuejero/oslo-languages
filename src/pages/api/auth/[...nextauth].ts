@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
 import { logger } from '@/utils/logger';
 
 // Module augmentation to add custom properties to Session and JWT
@@ -27,7 +28,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-// Enhanced debug function with timestamps and more context
+// Enhanced debug function with timestamps and detailed environment context
 const debug = (message: string, data: Record<string, unknown> = {}): void => {
   logger.info(`[NextAuth] ${message}`, {
     ...data,
@@ -35,7 +36,21 @@ const debug = (message: string, data: Record<string, unknown> = {}): void => {
     env: {
       hasNextAuthSecret: !!process.env.NEXTAUTH_SECRET,
       hasNextAuthUrl: !!process.env.NEXTAUTH_URL,
-      nodeEnv: process.env.NODE_ENV
+      nodeEnv: process.env.NODE_ENV,
+      ...(process.env.NODE_ENV === 'development'
+          ? {
+              adminEmail: process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.substring(0, 3) + '...' : undefined,
+              hashFirstChars: process.env.ADMIN_PASSWORD_HASH ? process.env.ADMIN_PASSWORD_HASH.substring(0, 10) + '...' : undefined,
+              hashLength: process.env.ADMIN_PASSWORD_HASH ? process.env.ADMIN_PASSWORD_HASH.length : 0,
+              envFiles: ['.env', '.env.local'].filter(file => {
+                try {
+                  return fs.existsSync(file);
+                } catch {
+                  return false;
+                }
+              })
+            }
+          : {})
     }
   });
 };
@@ -50,7 +65,7 @@ export default NextAuth({
       },
       async authorize(credentials) {
         try {
-          // Basic validation
+          // Basic validation with enhanced logging
           if (!credentials?.email || !credentials?.password) {
             debug('Auth failed: Missing credentials', { 
               hasEmail: !!credentials?.email, 
@@ -59,14 +74,23 @@ export default NextAuth({
             return null;
           }
           
-          // Environment variables check with detailed logging
+          // Extended environment variables check
           const adminEmail = process.env.ADMIN_EMAIL;
           const storedHash = process.env.ADMIN_PASSWORD_HASH;
           
           debug('Environment variables check', { 
             adminEmail: adminEmail ? `${adminEmail.substring(0, 3)}...` : undefined, 
             storedHashLength: storedHash?.length || 0,
-            storedHashPresent: !!storedHash
+            storedHashPrefix: storedHash ? storedHash.substring(0, 10) : '',
+            storedHashComplete: storedHash || '',
+            storedHashPresent: !!storedHash,
+            envFiles: ['.env', '.env.local'].filter(file => {
+              try {
+                return fs.existsSync(file);
+              } catch {
+                return false;
+              }
+            })
           });
           
           if (!adminEmail || !storedHash) {
@@ -77,28 +101,44 @@ export default NextAuth({
             return null;
           }
           
-          // Case insensitive email comparison
-          if (credentials.email.toLowerCase() !== adminEmail.toLowerCase()) {
+          // Detailed email comparison (case insensitive)
+          const inputEmail = credentials.email.toLowerCase();
+          const configEmail = adminEmail.toLowerCase();
+          if (inputEmail !== configEmail) {
             debug('Auth failed: Email mismatch', {
-              attemptEmail: credentials.email.toLowerCase(),
-              configEmail: adminEmail.toLowerCase()
+              attemptEmail: inputEmail,
+              configEmail: configEmail,
+              emailMatch: inputEmail === configEmail
             });
             return null;
           }
           
-          // Better error handling for bcrypt comparison
+          // Comprehensive bcrypt verification
           try {
             debug('Attempting password verification', { 
               passwordLength: credentials.password.length,
-              hashLength: storedHash.length 
+              hashLength: storedHash.length,
+              hashType: storedHash.startsWith('$2a$') ? 'BCrypt' : 'Unknown',
+              hashRounds: storedHash.startsWith('$2a$') ? storedHash.substring(4, 6) : 'Unknown'
             });
+            
+            // Validate hash format before comparison
+            if (!storedHash.startsWith('$2')) {
+              debug('Invalid hash format', {
+                hashStart: storedHash.substring(0, 4)
+              });
+              return null;
+            }
             
             const isValid = await bcrypt.compare(
               credentials.password,
               storedHash
             );
             
-            debug('Password validation result', { isValid });
+            debug('Password validation result', { 
+              isValid,
+              inputPasswordFirstChar: credentials.password.substring(0, 1) + '...'
+            });
             
             if (isValid) {
               debug('Authentication successful');
@@ -115,6 +155,7 @@ export default NextAuth({
           } catch (bcryptError) {
             debug('Password verification error', {
               error: bcryptError instanceof Error ? bcryptError.message : String(bcryptError),
+              stack: bcryptError instanceof Error ? bcryptError.stack?.slice(0, 100) : undefined,
               hashFormat: storedHash.substring(0, 10) + '...'
             });
             return null;
@@ -122,7 +163,7 @@ export default NextAuth({
         } catch (error) {
           debug('Unexpected error during authentication', {
             error: error instanceof Error ? error.message : String(error),
-            stack: error instanceof Error ? error.stack : undefined
+            stack: error instanceof Error ? error.stack?.slice(0, 100) : undefined
           });
           return null;
         }
@@ -132,11 +173,11 @@ export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60 // 30 days
   },
   pages: {
     signIn: '/admin/login',
-    error: '/admin/login',
+    error: '/admin/login'
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -163,11 +204,8 @@ export default NextAuth({
       }
       return session;
     },
-    // Fix redirect loop issues
     async redirect({ url, baseUrl }) {
       debug('Redirect callback', { url, baseUrl });
-      
-      // Only redirect to relative URLs or URLs on the same domain
       if (url.startsWith(baseUrl)) {
         return url;
       } else if (url.startsWith('/')) {

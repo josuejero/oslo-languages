@@ -18,7 +18,8 @@
     "blog:list": "tsx scripts/blog-cli.ts list",
     "blog:delete": "tsx scripts/blog-cli.ts delete",
     "postinstall": "patch-package",
-    "test:email": "tsx src/utils/__tests__/test-email.ts"
+    "test:email": "tsx src/utils/__tests__/test-email.ts",
+    "fix-admin-password": "node scripts/fix-admin-password.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.26.9",
