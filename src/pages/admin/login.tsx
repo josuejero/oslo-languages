@@ -1,47 +1,58 @@
-// src/pages/admin/login.tsx
 import { useState, useEffect } from 'react';
-import { signIn, getCsrfToken, getProviders } from 'next-auth/react';
+import { signIn, getCsrfToken, getProviders, SignInResponse } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { Alert, AlertDescription } from '@/components/ui';
+import { logger } from '@/utils/logger';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>({});
+  const [debugInfo, setDebugInfo] = useState<Record<string, unknown>>({});
   const router = useRouter();
 
   // Show error from URL if present
   useEffect(() => {
+    // Handle error from query parameter
     if (router.query.error) {
-      setError(`Error: ${router.query.error}`);
-      console.log('Login error from URL:', router.query.error);
+      const errorMap: Record<string, string> = {
+        'CredentialsSignin': 'Invalid email or password. Please try again.',
+        'SessionRequired': 'Please sign in to access this page.',
+        'AccessDenied': 'You do not have permission to access this page.',
+        'Default': `Authentication error: ${router.query.error}`
+      };
+
+      const errorMessage = errorMap[router.query.error as string] || errorMap.Default;
+      setError(errorMessage);
+      
+      logger.error('Login error from URL:', { 
+        error: router.query.error,
+        message: errorMessage
+      });
     }
     
     // Load CSRF token and providers for debugging
-    const loadDebugInfo = async () => {
+    const loadAuthInfo = async () => {
       try {
         const [csrfToken, providers] = await Promise.all([
           getCsrfToken(),
           getProviders()
         ]);
         
-        setDebugInfo({
+        const authInfo = {
           csrfToken: csrfToken ? 'Present' : 'Missing',
           providers: providers ? Object.keys(providers) : 'None found'
-        });
+        };
         
-        console.log('Auth Debug Info:', {
-          csrfToken: csrfToken ? 'Present' : 'Missing',
-          providers
-        });
+        setDebugInfo(authInfo);
+        logger.info('Auth Debug Info:', authInfo);
       } catch (e) {
-        console.error('Failed to load debug info:', e);
+        logger.error('Failed to load auth info:', { error: e });
       }
     };
     
-    loadDebugInfo();
+    loadAuthInfo();
   }, [router.query]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,33 +60,43 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
     
-    console.log('Login attempt:', { email, passwordLength: password.length });
+    logger.info('Login attempt:', { 
+      email, 
+      passwordLength: password.length 
+    });
 
     try {
-      // Try to sign in
+      // Try multiple strategies if needed
       const result = await signIn('credentials', {
         redirect: false,
         email,
         password,
         callbackUrl: '/admin'
-      });
+      }) as SignInResponse | null;
       
-      console.log('SignIn result:', result);
+      logger.info('SignIn result:', { result });
 
       if (result?.error) {
-        setError(result.error);
-        console.error('Login error from result:', result.error);
+        logger.error('Login error from result:', { error: result.error });
+        
+        // Map error codes to user-friendly messages
+        const errorMap: Record<string, string> = {
+          'CredentialsSignin': 'Invalid email or password. Please try again.',
+          'Default': `Authentication error: ${result.error}`
+        };
+        
+        setError(errorMap[result.error] || errorMap.Default);
       } else if (result?.url) {
-        console.log('Login successful, redirecting to:', result.url);
+        logger.info('Login successful, redirecting to:', { url: result.url });
         router.push(result.url);
       } else {
-        setError('Unknown error occurred');
-        console.error('Unexpected result format:', result);
+        setError('Unknown error occurred during sign in');
+        logger.error('Unexpected signin result format:', { result });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setError(errorMessage);
-      console.error('Login exception:', error);
+      setError(`Login failed: ${errorMessage}`);
+      logger.error('Login exception:', { error });
     } finally {
       setLoading(false);
     }
