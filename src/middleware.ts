@@ -13,6 +13,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Skip middleware for auth-related routes to prevent authentication issues
+  if (request.nextUrl.pathname.startsWith('/api/auth/') || 
+      request.nextUrl.pathname.includes('admin/login')) {
+    logger.info(`Skipping middleware for auth route: ${request.nextUrl.pathname}`);
+    return NextResponse.next();
+  }
+
   // Your other middleware logic here
   return NextResponse.next();
 }

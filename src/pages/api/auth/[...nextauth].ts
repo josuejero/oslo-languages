@@ -233,13 +233,25 @@ export default NextAuth({
       return session;
     },
     async redirect({ url, baseUrl }) {
-      debug('Redirect callback', { url, baseUrl });
-      if (url.startsWith(baseUrl)) {
-        return url;
-      } else if (url.startsWith('/')) {
-        return new URL(url, baseUrl).toString();
-      }
-      return baseUrl;
+      debug('Redirect callback', { url, baseUrl, originalUrl: url });
+     
+     // Handle admin dashboard redirection specifically
+     if (url.includes('/admin') && !url.includes('/admin/login')) {
+       debug('Admin dashboard redirection', { targetUrl: url });
+       return url;
+     }
+     
+     // Default redirect handling
+     if (url.startsWith(baseUrl)) {
+       return url;
+     } else if (url.startsWith('/')) {
+       const fullUrl = new URL(url, baseUrl).toString();
+       debug('Converted relative URL', { from: url, to: fullUrl });
+       return fullUrl;
+     }
+     
+     debug('Using default baseUrl redirect', { to: baseUrl });
+     return baseUrl;
     }
   },
   debug: process.env.NODE_ENV === 'development',

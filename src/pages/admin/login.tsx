@@ -80,12 +80,23 @@ export default function AdminLogin() {
     });
 
     try {
-      const result = await signIn('credentials', {
-        redirect: false,
-        email,
-        password,
-        callbackUrl: '/admin'
-      });
+      // Use direct redirect for admin path
+     const adminPageUrl = '/admin';
+     const callbackUrl = `${window.location.origin}${adminPageUrl}`;
+     
+     logger.info('SignIn parameters:', {
+       email,
+       passwordLength: password.length,
+       callbackUrl,
+       redirect: false
+     });
+     
+     const result = await signIn('credentials', {
+       redirect: false,
+       email,
+       password,
+       callbackUrl
+     });
       
       logger.info('SignIn result:', {
         success: !result?.error,
@@ -113,8 +124,13 @@ export default function AdminLogin() {
         
         setError(errorMap[result.error] || errorMap.Default);
       } else if (result?.url) {
-        logger.info('Login successful, redirecting to:', { url: result.url });
-        router.push(result.url);
+        logger.info('Login successful, redirecting to:', { 
+                   resultUrl: result.url,
+                   expectedUrl: callbackUrl
+                 });
+                 
+                 // Force the redirection to admin route
+                 window.location.href = adminPageUrl;
       } else {
         setError('Unknown error occurred during sign in - no URL returned');
         logger.error('Unexpected signin result format:', { result });
