@@ -130,7 +130,7 @@ export default function AdminLogin() {
                  });
                  
                  // Force the redirection to admin route
-                 window.location.href = adminPageUrl;
+                 router.push(adminPageUrl);
       } else {
         setError('Unknown error occurred during sign in - no URL returned');
         logger.error('Unexpected signin result format:', { result });

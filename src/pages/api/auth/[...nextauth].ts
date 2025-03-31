@@ -203,6 +203,17 @@ export default NextAuth({
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60 // 30 days
   },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        httpOnly: true
+      }
+    }
+  },
   pages: {
     signIn: '/admin/login',
     error: '/admin/login'
