@@ -201,7 +201,8 @@ export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60 // 30 days
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   cookies: {
     sessionToken: {
@@ -244,25 +245,18 @@ export default NextAuth({
       return session;
     },
     async redirect({ url, baseUrl }) {
-      debug('Redirect callback', { url, baseUrl, originalUrl: url });
-     
-     // Handle admin dashboard redirection specifically
-     if (url.includes('/admin') && !url.includes('/admin/login')) {
-       debug('Admin dashboard redirection', { targetUrl: url });
-       return url;
-     }
-     
-     // Default redirect handling
-     if (url.startsWith(baseUrl)) {
-       return url;
-     } else if (url.startsWith('/')) {
-       const fullUrl = new URL(url, baseUrl).toString();
-       debug('Converted relative URL', { from: url, to: fullUrl });
-       return fullUrl;
-     }
-     
-     debug('Using default baseUrl redirect', { to: baseUrl });
-     return baseUrl;
+      // Force admin URL for admin pages
+      if (url.includes('/admin') && !url.includes('/admin/login')) {
+        return `${baseUrl}/admin`;
+      }
+      
+      // For other URLs, use standard logic
+      if (url.startsWith(baseUrl)) {
+        return url;
+      } else if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      return baseUrl;
     }
   },
   debug: process.env.NODE_ENV === 'development',

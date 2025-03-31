@@ -1,30 +1,30 @@
 // src/pages/admin.tsx
-import { Metadata } from 'next';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import AdminDashboard from '@/components/admin/AdminDashboard';
- import { useSession } from 'next-auth/react';
- import { useRouter } from 'next/navigation';
- import { useEffect } from 'react';
- import { LoadingSpinner } from '@/components/ui';
-
-export const metadata: Metadata = {
-  title: 'Admin Dashboard | Oslo Languages',
-  description: 'Admin dashboard for Oslo Languages website management',
-  robots: {
-    index: false,
-    follow: false
-  }
-};
+import { LoadingSpinner } from '@/components/ui';
 
 export default function AdminPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  
-  useEffect(() => {
-    // If authentication fails, redirect to login
-    if (status === 'unauthenticated') {
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      // This ensures the redirect happens on the client side properly
       router.push('/admin/login');
-    }
-  }, [status, router]);
+    },
+  });
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+  
+  // Ensure we're running on client-side to avoid hydration issues
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
+  // Don't render anything during SSR to avoid flashes
+  if (!isClient) {
+    return null;
+  }
   
   // Show loading state while checking authentication
   if (status === 'loading') {
@@ -40,6 +40,20 @@ export default function AdminPage() {
     return <AdminDashboard />;
   }
   
-  // Return empty div while redirecting
-  return <div></div>;
+  // This shouldn't render given the onUnauthenticated callback,
+  // but included as a fallback
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <h1 className="text-xl font-bold mb-2">Authentication Required</h1>
+        <p className="mb-4">Please log in to access the admin dashboard.</p>
+        <button 
+          onClick={() => router.push('/admin/login')}
+          className="px-4 py-2 bg-blue-600 text-white rounded"
+        >
+          Go to Login
+        </button>
+      </div>
+    </div>
+  );
 }

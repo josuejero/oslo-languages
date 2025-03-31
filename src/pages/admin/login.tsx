@@ -68,6 +68,9 @@ export default function AdminLogin() {
     loadAuthInfo();
   }, [searchParams]);
 
+// src/pages/admin/login.tsx - Partial fix for the handleSubmit function
+// Replace just the handleSubmit function in your existing file
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -80,31 +83,26 @@ export default function AdminLogin() {
     });
 
     try {
-      // Use direct redirect for admin path
-     const adminPageUrl = '/admin';
-     const callbackUrl = `${window.location.origin}${adminPageUrl}`;
-     
-     logger.info('SignIn parameters:', {
-       email,
-       passwordLength: password.length,
-       callbackUrl,
-       redirect: false
-     });
-     
-     const result = await signIn('credentials', {
-       redirect: false,
-       email,
-       password,
-       callbackUrl
-     });
+      // Use callbackUrl parameter for where to redirect after login
+      const callbackUrl = '/admin';
       
-      logger.info('SignIn result:', {
-        success: !result?.error,
-        hasUrl: !!result?.url,
-        errorType: result?.error || 'none',
-        statusCode: result?.status
+      logger.info('SignIn parameters:', {
+        email,
+        passwordLength: password.length,
+        callbackUrl,
+        // Change to redirect: true to let NextAuth handle it
+        redirect: true
       });
-
+      
+      const result = await signIn('credentials', {
+        redirect: true,
+        email,
+        password,
+        callbackUrl
+      });
+      
+      // With redirect: true, the code below only runs if there's an error,
+      // as successful authentication will automatically redirect
       if (result?.error) {
         logger.error('Login error from result:', { 
           error: result.error,
@@ -123,17 +121,6 @@ export default function AdminLogin() {
         };
         
         setError(errorMap[result.error] || errorMap.Default);
-      } else if (result?.url) {
-        logger.info('Login successful, redirecting to:', { 
-                   resultUrl: result.url,
-                   expectedUrl: callbackUrl
-                 });
-                 
-                 // Force the redirection to admin route
-                 router.push(adminPageUrl);
-      } else {
-        setError('Unknown error occurred during sign in - no URL returned');
-        logger.error('Unexpected signin result format:', { result });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
