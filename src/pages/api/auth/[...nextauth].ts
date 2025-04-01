@@ -278,6 +278,12 @@ export default NextAuth({
         logger.info('Allowing credentials callback to proceed');
         return url;
       }
+
+        // NEW: Handle admin login page case specifically to prevent loops
+    if (url.endsWith('/admin/login')) {
+      logger.info('Admin login page detected, allowing component to handle redirects');
+      return url;
+    }
       
       // CRITICAL FIX: Only redirect exact /admin path, not anything that contains /admin
       if (url.endsWith('/admin') || url === `${baseUrl}/admin`){

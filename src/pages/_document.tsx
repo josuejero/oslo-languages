@@ -15,6 +15,37 @@ export default function Document() {
         // Helper script to detect and fix redirection loops
         console.log("Admin page redirection helper loaded");
         
+        // NEW: Loop detection logic for login page
+        if (window.location.pathname === "/admin/login") {
+          const loginAttempts = sessionStorage.getItem("loginLoopCount") || "0";
+          const count = parseInt(loginAttempts)  1;
+          sessionStorage.setItem("loginLoopCount", count.toString());
+          
+          // If we detect more than 3 refreshes in under 3 seconds, break the loop
+          if (count > 3 && (new Date().getTime() - (parseInt(sessionStorage.getItem("loginLoopStart") || "0")) < 3000)) {
+            console.warn("Detected potential login redirect loop, breaking the cycle");
+            // Clean up all redirect-related flags
+            sessionStorage.removeItem("adminLoginAttempt");
+            sessionStorage.removeItem("adminLoginTime");
+            sessionStorage.removeItem("forceAdminRedirect");
+            sessionStorage.removeItem("loginLoopCount");
+            sessionStorage.removeItem("loginLoopStart");
+            // Force to home page to break the loop
+            if (window.location.pathname !== "/") {
+              window.location.replace("/");
+            }
+          }
+          
+          // Start tracking time if this is the first attempt
+          if (count === 1) {
+            sessionStorage.setItem("loginLoopStart", new Date().getTime().toString());
+          }
+        } else {
+          // Reset loop detection when not on login page
+          sessionStorage.removeItem("loginLoopCount");
+          sessionStorage.removeItem("loginLoopStart");
+        }
+        
         // Check for specific login case
         if (window.location.pathname === "/admin/login") {
           // If we have a session and should be at admin page

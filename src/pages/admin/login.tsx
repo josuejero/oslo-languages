@@ -23,7 +23,14 @@ export default function AdminLogin() {
       });
       
       // Direct, forced navigation to admin page
-      window.location.replace('/admin');
+          // Use router for more predictable navigation without refreshing the page
+    router.replace('/admin');
+    
+    // Clean up any potential redirect flags to prevent loops
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('adminLoginAttempt');
+      sessionStorage.removeItem('forceAdminRedirect');
+    }
     }
   }, [status, session]);
 
@@ -137,14 +144,11 @@ useEffect(() => {
         // Set a flag indicating successful auth
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('adminLoginTime', Date.now().toString());
-          sessionStorage.setItem('forceAdminRedirect', 'true');
         }
         
         // Give a slight delay to allow session to be established
-        setTimeout(() => {
-          logger.info('Delayed redirect to admin dashboard');
-          window.location.replace('/admin');
-        }, 500);
+              logger.info('Redirecting to admin dashboard via router');
+              router.replace('/admin');
         return;
       }
       

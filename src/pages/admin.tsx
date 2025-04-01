@@ -118,16 +118,18 @@ export default function AdminPage() {
           sessionStorage.removeItem('adminLoginAttempt');
           sessionStorage.removeItem('adminLoginTime');
           sessionStorage.removeItem('forceAdminRedirect');
+                  sessionStorage.removeItem('loginLoopCount');
+        sessionStorage.removeItem('loginLoopStart');
         }
         
       } else if (status === 'loading') {
         logger.warn('Session still loading after delay');
         // Don't redirect while loading
-      } else {
+      } else if (status === 'unauthenticated') {
         logger.warn('No valid session after delay, redirecting to login');
-        router.push('/admin/login');
+        router.replace('/admin/login');
       }
-    }, 800); // Increased delay to give the session more time to establish
+    }, 1000); // Increased delay to give the session more time to establish
   }, [status, session, router]);
   
   // Don't render during SSR
