@@ -1,57 +1,39 @@
-// src/pages/admin.tsx - Enhanced with detailed logging
 import { useState, useEffect } from 'react';
-import { useSession, signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import { LoadingSpinner } from '@/components/ui';
 import { logger } from '@/utils/logger';
 
 export default function AdminPage() {
+  const router = useRouter();
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
       logger.info('Session not authenticated, redirecting to login page');
-      // This ensures the redirect happens on the client side properly
       router.push('/admin/login');
     },
   });
-  const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    // Check if we have a valid session
-    if (status === 'authenticated') {
-      logger.info('Admin page loaded with valid session', {
-        user: session.user.email
-      });
-      
-      // Clear any session storage flags we might have set
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('adminLoginAttempt');
-      }
-    }
-  }, [status, session]);
 
+  // Log session status and clear login attempt flag if necessary
   useEffect(() => {
-    logger.info('Admin page - Session status:', { 
-      status, 
+    logger.info('Admin page - Session status:', {
+      status,
       hasSession: !!session,
-      userEmail: session?.user?.email || 'none'
+      userEmail: session?.user?.email || 'none',
     });
-    
-    // Check for adminLoginAttempt flag - this helps break redirect loops
+
     if (typeof window !== 'undefined') {
       const loginAttempt = sessionStorage.getItem('adminLoginAttempt');
       if (loginAttempt) {
         const timestamp = parseInt(loginAttempt);
         const now = Date.now();
-        logger.info('Found recent login attempt', { 
-          timestamp, 
+        logger.info('Found recent login attempt', {
+          timestamp,
           timeSince: now - timestamp,
-          isRecent: (now - timestamp) < 10000 // 10 seconds
+          isRecent: (now - timestamp) < 10000, // 10 seconds
         });
-        
-        // If we have a recent login attempt and we're already at the admin page
-        // with a valid session, clear the flag to prevent future redirects
         if (status === 'authenticated' && (now - timestamp) < 10000) {
           logger.info('Clearing adminLoginAttempt flag');
           sessionStorage.removeItem('adminLoginAttempt');
@@ -59,37 +41,18 @@ export default function AdminPage() {
       }
     }
   }, [session, status]);
-  
-  // Log every render of the admin page with detailed state
-  logger.info('Admin page rendering', {
-    status,
-    hasSession: !!session,
-    sessionUser: session?.user?.email || 'none',
-    sessionExpiry: session?.expires || 'unknown',
-    isClient,
-    timestamp: new Date().toISOString(),
-    url: typeof window !== 'undefined' ? window.location.href : 'server-side',
-    sessionStorageFlags: typeof window !== 'undefined' ? {
-      adminLoginAttempt: sessionStorage.getItem('adminLoginAttempt') || 'not set',
-      adminLoginTime: sessionStorage.getItem('adminLoginTime') || 'not set',
-      forceAdminRedirect: sessionStorage.getItem('forceAdminRedirect') || 'not set'
-    } : 'server-side'
-  });
-  
-  // Check for force redirect flag from login page
+
+  // Check for force redirect flag from the login page
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const forceRedirect = sessionStorage.getItem('forceAdminRedirect');
       const loginTime = sessionStorage.getItem('adminLoginTime');
-      
       logger.info('Checking force redirect flags', {
         forceRedirect,
         loginTime,
         currentTime: Date.now(),
-        timeSinceLogin: loginTime ? Date.now() - parseInt(loginTime) : 'no login time'
+        timeSinceLogin: loginTime ? Date.now() - parseInt(loginTime) : 'no login time',
       });
-      
-      // If forcing redirect and this is admin login page, clear flags
       if (forceRedirect === 'true' && window.location.pathname === '/admin/login') {
         logger.info('Force redirect flag found on login page, redirecting to admin dashboard');
         sessionStorage.removeItem('forceAdminRedirect');
@@ -97,48 +60,60 @@ export default function AdminPage() {
       }
     }
   }, []);
-  
-  // Handle client-side initialization
-// src/pages/admin.tsx
-// Replace the useEffect for client-side initialization with:
 
+  // Client-side initialization and final session flag cleanup
   useEffect(() => {
     setIsClient(true);
     logger.info('Client-side initialization complete in admin page');
-    
-    // Give more time for the session to be properly established
+
     setTimeout(() => {
       if (status === 'authenticated') {
         logger.info('Confirmed authenticated session after delay', {
-          email: session?.user?.email || 'unknown'
+          email: session?.user?.email || 'unknown',
         });
-        
-        // Clear any redirect flags now that we're successfully at the dashboard
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('adminLoginAttempt');
           sessionStorage.removeItem('adminLoginTime');
           sessionStorage.removeItem('forceAdminRedirect');
-                  sessionStorage.removeItem('loginLoopCount');
-        sessionStorage.removeItem('loginLoopStart');
+          sessionStorage.removeItem('loginLoopCount');
+          sessionStorage.removeItem('loginLoopStart');
         }
-        
       } else if (status === 'loading') {
         logger.warn('Session still loading after delay');
-        // Don't redirect while loading
       } else if (status === 'unauthenticated') {
         logger.warn('No valid session after delay, redirecting to login');
         router.replace('/admin/login');
       }
-    }, 1000); // Increased delay to give the session more time to establish
+    }, 1000); // Increased delay for session establishment
   }, [status, session, router]);
-  
+
+  // Log every render with detailed state
+  useEffect(() => {
+    logger.info('Admin page rendering', {
+      status,
+      hasSession: !!session,
+      sessionUser: session?.user?.email || 'none',
+      sessionExpiry: session?.expires || 'unknown',
+      isClient,
+      timestamp: new Date().toISOString(),
+      url: typeof window !== 'undefined' ? window.location.href : 'server-side',
+      sessionStorageFlags: typeof window !== 'undefined'
+        ? {
+            adminLoginAttempt: sessionStorage.getItem('adminLoginAttempt') || 'not set',
+            adminLoginTime: sessionStorage.getItem('adminLoginTime') || 'not set',
+            forceAdminRedirect: sessionStorage.getItem('forceAdminRedirect') || 'not set',
+          }
+        : 'server-side',
+    });
+  });
+
   // Don't render during SSR
   if (!isClient) {
     logger.info('Skipping render during SSR');
     return null;
   }
-  
-  // Show loading state
+
+  // Loading state
   if (status === 'loading') {
     logger.info('Rendering loading state');
     return (
@@ -147,11 +122,10 @@ export default function AdminPage() {
       </div>
     );
   }
-  
-  // Show dashboard if authenticated
+
+  // Render dashboard if authenticated
   if (status === 'authenticated') {
     logger.info('User authenticated, rendering admin dashboard');
-    // Clear any redirect flags now that we're successfully at the dashboard
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('adminLoginAttempt');
       sessionStorage.removeItem('adminLoginTime');
@@ -159,15 +133,15 @@ export default function AdminPage() {
     }
     return <AdminDashboard />;
   }
-  
-  // Fallback (should not normally be reached)
+
+  // Fallback UI (should not normally be reached)
   logger.warn('Fallback case reached in admin page - user not authenticated');
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
         <h1 className="text-xl font-bold mb-2">Authentication Required</h1>
         <p className="mb-4">Please log in to access the admin dashboard.</p>
-        <button 
+        <button
           onClick={() => {
             logger.info('Login button clicked in fallback UI');
             router.push('/admin/login');

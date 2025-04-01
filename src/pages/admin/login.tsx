@@ -5,7 +5,6 @@ import { Alert, AlertDescription } from '@/components/ui';
 import { logger } from '@/utils/logger';
 
 export default function AdminLogin() {
-  // Add session check
   const { data: session, status } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,109 +14,86 @@ export default function AdminLogin() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Redirect to dashboard if already authenticated
   useEffect(() => {
-    // If user is already authenticated, redirect to admin dashboard
     if (status === 'authenticated') {
       logger.info('User already authenticated, redirecting to dashboard', {
-        user: session.user.email
+        user: session.user.email,
       });
-      
-      // Direct, forced navigation to admin page
-          // Use router for more predictable navigation without refreshing the page
-    router.replace('/admin');
-    
-    // Clean up any potential redirect flags to prevent loops
-    if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('adminLoginAttempt');
-      sessionStorage.removeItem('forceAdminRedirect');
-    }
-    }
-  }, [status, session]);
+      router.replace('/admin');
 
+      // Clean up potential redirect flags to prevent loops
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('adminLoginAttempt');
+        sessionStorage.removeItem('forceAdminRedirect');
+      }
+    }
+  }, [status, session, router]);
+
+  // Handle query string errors and load auth info for debugging
   useEffect(() => {
-    // If searchParams is null, exit early to avoid TS errors.
     if (!searchParams) return;
 
     const errorParam = searchParams.get('error');
     const errorDesc = searchParams.get('error_description');
     if (errorParam) {
       const errorMap: Record<string, string> = {
-        'CredentialsSignin': 'Invalid email or password. Please try again.',
-        'SessionRequired': 'Please sign in to access this page.',
-        'AccessDenied': 'You do not have permission to access this page.',
-        'CallbackRouteError': 'There was a problem with the login callback.',
-        'OAuthSignin': 'Error in OAuth sign in process.',
-        'OAuthCallback': 'Error in OAuth callback process.',
-        'Default': `Authentication error: ${errorParam}`
+        CredentialsSignin: 'Invalid email or password. Please try again.',
+        SessionRequired: 'Please sign in to access this page.',
+        AccessDenied: 'You do not have permission to access this page.',
+        CallbackRouteError: 'There was a problem with the login callback.',
+        OAuthSignin: 'Error in OAuth sign in process.',
+        OAuthCallback: 'Error in OAuth callback process.',
+        Default: `Authentication error: ${errorParam}`,
       };
 
       const errorMessage = errorMap[errorParam] || errorMap.Default;
       setError(errorMessage);
-
-      logger.error('Login error from URL:', { 
+      logger.error('Login error from URL:', {
         error: errorParam,
         message: errorMessage,
-        errorDetails: errorDesc || 'No additional details'
+        errorDetails: errorDesc || 'No additional details',
       });
     }
-    
+
     const loadAuthInfo = async () => {
       try {
         const [csrfToken, providers] = await Promise.all([
           getCsrfToken(),
-          getProviders()
+          getProviders(),
         ]);
-        
         const authInfo = {
           csrfToken: csrfToken ? 'Present' : 'Missing',
           providers: providers ? Object.keys(providers) : 'None found',
-          adminEmailConfigured: process.env.NEXT_PUBLIC_ADMIN_EMAIL ? 'Yes (public)' : 'Not in public env',
+          adminEmailConfigured: process.env.NEXT_PUBLIC_ADMIN_EMAIL
+            ? 'Yes (public)'
+            : 'Not in public env',
           nextAuthUrl: process.env.NEXT_PUBLIC_BASE_URL || 'Not configured in public env',
         };
-        
         setDebugInfo(authInfo);
         logger.info('Auth Debug Info:', authInfo);
       } catch (e) {
-        logger.error('Failed to load auth info:', { 
+        logger.error('Failed to load auth info:', {
           error: e instanceof Error ? e.message : String(e),
-          stack: e instanceof Error ? e.stack : undefined 
+          stack: e instanceof Error ? e.stack : undefined,
         });
         setDebugInfo({ error: 'Failed to load auth info' });
       }
     };
-    
+
     loadAuthInfo();
   }, [searchParams]);
 
-// src/pages/admin/login.tsx - Partial fix for the handleSubmit function
-// Replace just the handleSubmit function in your existing file
-
-// src/pages/admin/login.tsx - Updated handleSubmit function
-useEffect(() => {
-  // If user is already authenticated, redirect to admin dashboard
-  if (status === 'authenticated') {
-    logger.info('User already authenticated, redirecting to dashboard', {
-      user: session.user.email
-    });
-    
-    // Direct, forced navigation to admin page
-    window.location.replace('/admin');
-  }
-}, [status, session]);
-
-// Update handleSubmit function to use a more direct approach
-// src/pages/admin/login.tsx
-// Replace the handleSubmit function with:
-
+  // Updated handleSubmit function using a direct approach
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
-    logger.info('Login attempt:', { 
-      email, 
+
+    logger.info('Login attempt:', {
+      email,
       passwordLength: password.length,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -125,38 +101,38 @@ useEffect(() => {
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('adminLoginAttempt', Date.now().toString());
       }
-      
+
       const result = await signIn('credentials', {
         redirect: false,
         email,
-        password
+        password,
       });
-      
-      logger.info('SignIn result:', { 
+
+      logger.info('SignIn result:', {
         ok: result?.ok,
         error: result?.error,
-        status: result?.status
+        status: result?.status,
       });
-      
+
       if (result?.ok) {
         logger.info('Authentication successful, setting redirect flag');
-        
-        // Set a flag indicating successful auth
+
+        // Store login time in session storage
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('adminLoginTime', Date.now().toString());
         }
-        
-        // Give a slight delay to allow session to be established
-              logger.info('Redirecting to admin dashboard via router');
-              router.replace('/admin');
+
+        // Give a slight delay to allow session to be established, then navigate
+        logger.info('Redirecting to admin dashboard via router');
+        router.replace('/admin');
         return;
       }
-      
+
       setError(result?.error || 'Failed to sign in');
       logger.error('Sign in failed:', { error: result?.error });
-      
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unexpected error occurred';
       setError(errorMessage);
       logger.error('Login error:', { error: errorMessage });
     } finally {
@@ -175,13 +151,13 @@ useEffect(() => {
             Sign in to access the admin dashboard
           </p>
         </div>
-        
+
         {error && (
           <Alert variant="destructive" className="my-4">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -227,7 +203,7 @@ useEffect(() => {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
-          
+
           {process.env.NODE_ENV === 'development' && (
             <div className="mt-4 p-3 border border-gray-300 rounded-md bg-gray-50">
               <h3 className="text-sm font-medium text-gray-700">Debug Info:</h3>

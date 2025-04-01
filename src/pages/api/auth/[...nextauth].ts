@@ -38,19 +38,25 @@ const debug = (message: string, data: Record<string, unknown> = {}): void => {
       hasNextAuthUrl: !!process.env.NEXTAUTH_URL,
       nodeEnv: process.env.NODE_ENV,
       ...(process.env.NODE_ENV === 'development'
-          ? {
-              adminEmail: process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.substring(0, 3) + '...' : undefined,
-              hashFirstChars: process.env.ADMIN_PASSWORD_HASH ? process.env.ADMIN_PASSWORD_HASH.substring(0, 10) + '...' : undefined,
-              hashLength: process.env.ADMIN_PASSWORD_HASH ? process.env.ADMIN_PASSWORD_HASH.length : 0,
-              envFiles: ['.env', '.env.local'].filter(file => {
-                try {
-                  return fs.existsSync(file);
-                } catch {
-                  return false;
-                }
-              })
-            }
-          : {})
+        ? {
+            adminEmail: process.env.ADMIN_EMAIL
+              ? process.env.ADMIN_EMAIL.substring(0, 3) + '...'
+              : undefined,
+            hashFirstChars: process.env.ADMIN_PASSWORD_HASH
+              ? process.env.ADMIN_PASSWORD_HASH.substring(0, 10) + '...'
+              : undefined,
+            hashLength: process.env.ADMIN_PASSWORD_HASH
+              ? process.env.ADMIN_PASSWORD_HASH.length
+              : 0,
+            envFiles: ['.env', '.env.local'].filter(file => {
+              try {
+                return fs.existsSync(file);
+              } catch {
+                return false;
+              }
+            })
+          }
+        : {})
     }
   });
 };
@@ -67,19 +73,19 @@ export default NextAuth({
         try {
           // Basic validation with enhanced logging
           if (!credentials?.email || !credentials?.password) {
-            debug('Auth failed: Missing credentials', { 
-              hasEmail: !!credentials?.email, 
-              hasPassword: !!credentials?.password 
+            debug('Auth failed: Missing credentials', {
+              hasEmail: !!credentials?.email,
+              hasPassword: !!credentials?.password
             });
             return null;
           }
-          
+
           // Extended environment variables check
           const adminEmail = process.env.ADMIN_EMAIL;
           const storedHash = process.env.ADMIN_PASSWORD_HASH;
-          
-          debug('Environment variables check', { 
-            adminEmail: adminEmail ? `${adminEmail.substring(0, 3)}...` : undefined, 
+
+          debug('Environment variables check', {
+            adminEmail: adminEmail ? `${adminEmail.substring(0, 3)}...` : undefined,
             storedHashLength: storedHash?.length || 0,
             storedHashPrefix: storedHash ? storedHash.substring(0, 10) : '',
             storedHashComplete: storedHash || '',
@@ -92,7 +98,7 @@ export default NextAuth({
               }
             })
           });
-          
+
           const plainPassword = process.env.ADMIN_PASSWORD;
           if (plainPassword && credentials.password === plainPassword) {
             debug('Plain password authentication used');
@@ -105,13 +111,13 @@ export default NextAuth({
           }
 
           if (!adminEmail || !storedHash) {
-            debug('Auth failed: Missing environment variables', { 
-              hasAdminEmail: !!adminEmail, 
+            debug('Auth failed: Missing environment variables', {
+              hasAdminEmail: !!adminEmail,
               hasStoredHash: !!storedHash
             });
             return null;
           }
-          
+
           // Detailed email comparison (case insensitive)
           const inputEmail = credentials.email.toLowerCase();
           const configEmail = adminEmail.toLowerCase();
@@ -123,16 +129,18 @@ export default NextAuth({
             });
             return null;
           }
-          
+
           // Comprehensive bcrypt verification
           try {
-            debug('Attempting password verification', { 
+            debug('Attempting password verification', {
               passwordLength: credentials.password.length,
               hashLength: storedHash.length,
               hashType: storedHash.startsWith('$2a$') ? 'BCrypt' : 'Unknown',
-              hashRounds: storedHash.startsWith('$2a$') ? storedHash.substring(4, 6) : 'Unknown'
+              hashRounds: storedHash.startsWith('$2a$')
+                ? storedHash.substring(4, 6)
+                : 'Unknown'
             });
-            
+
             // Validate hash format before comparison
             if (!storedHash.startsWith('$2a$') && !storedHash.startsWith('$2b$')) {
               debug('Invalid hash format', {
@@ -146,17 +154,14 @@ export default NextAuth({
               });
               return null;
             }
-            
-            const isValid = await bcrypt.compare(
-              credentials.password,
-              storedHash
-            );
-            
-            debug('Password validation result', { 
+
+            const isValid = await bcrypt.compare(credentials.password, storedHash);
+
+            debug('Password validation result', {
               isValid,
               inputPasswordFirstChar: credentials.password.substring(0, 1) + '...'
             });
-            
+
             if (isValid) {
               debug('Authentication successful');
               return {
@@ -177,7 +182,7 @@ export default NextAuth({
                 role: 'admin'
               };
             }
-            
+
             debug('Authentication failed - password mismatch');
             return null;
           } catch (bcryptError) {
@@ -202,7 +207,7 @@ export default NextAuth({
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
+    updateAge: 24 * 60 * 60 // 24 hours
   },
   cookies: {
     sessionToken: {
@@ -221,14 +226,13 @@ export default NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      // Store user data in the JWT token
-           logger.info('JWT callback', {
-               hasUser: !!user,
-               tokenId: token.sub || 'none',
-               userId: user?.id || 'none',
-               userEmail: user?.email ? `${user.email.substring(0, 3)}...` : 'none',
-               timestamp: new Date().toISOString()
-             });
+      logger.info('JWT callback', {
+        hasUser: !!user,
+        tokenId: token.sub || 'none',
+        userId: user?.id || 'none',
+        userEmail: user?.email ? `${user.email.substring(0, 3)}...` : 'none',
+        timestamp: new Date().toISOString()
+      });
       if (user) {
         token.user = {
           id: user.id,
@@ -240,16 +244,15 @@ export default NextAuth({
       return token;
     },
     async session({ session, token }) {
-      // Pass user data from JWT token to the session
-      
-           logger.info('Session callback', {
-               hasToken: !!token,
-               tokenId: token.sub || 'none',
-               userEmail: session?.user?.email ? `${session.user.email.substring(0, 3)}...` : 'none',
-               expires: session?.expires || 'none',
-               timestamp: new Date().toISOString()
-             });
-
+      logger.info('Session callback', {
+        hasToken: !!token,
+        tokenId: token.sub || 'none',
+        userEmail: session?.user?.email
+          ? `${session.user.email.substring(0, 3)}...`
+          : 'none',
+        expires: session?.expires || 'none',
+        timestamp: new Date().toISOString()
+      });
       if (token.user) {
         session.user = {
           id: token.user.id,
@@ -260,8 +263,6 @@ export default NextAuth({
       }
       return session;
     },
-// Inside the redirect callback
-// Updated redirect callback
     async redirect({ url, baseUrl }) {
       logger.info(`Redirect callback called with URL: ${url}`);
       logger.info('Detailed redirect info:', {
@@ -272,25 +273,25 @@ export default NextAuth({
         isLoginUrl: url.includes('/login'),
         urlPath: url.replace(baseUrl, '')
       });
-      
+
       // Allow credential callbacks to proceed without interference
       if (url.includes('/api/auth/callback/credentials')) {
         logger.info('Allowing credentials callback to proceed');
         return url;
       }
 
-        // NEW: Handle admin login page case specifically to prevent loops
-    if (url.endsWith('/admin/login')) {
-      logger.info('Admin login page detected, allowing component to handle redirects');
-      return url;
-    }
-      
-      // CRITICAL FIX: Only redirect exact /admin path, not anything that contains /admin
-      if (url.endsWith('/admin') || url === `${baseUrl}/admin`){
+      // Handle admin login page case specifically to prevent loops
+      if (url.endsWith('/admin/login')) {
+        logger.info('Admin login page detected, allowing component to handle redirects');
+        return url;
+      }
+
+      // Only redirect exact /admin path, not anything that contains /admin
+      if (url.endsWith('/admin') || url === `${baseUrl}/admin`) {
         logger.info('Direct admin URL detected, allowing it to proceed');
         return `${baseUrl}/admin`;
       }
-      
+
       // Standard redirect logic
       if (url.startsWith(baseUrl)) {
         logger.info(`URL starts with baseUrl: ${url}`);
