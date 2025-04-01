@@ -1,31 +1,21 @@
-// src/middleware.ts
+// src/middleware.ts (ES Modules version)
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { logger } from '@/utils/logger';
 
 export function middleware(request: NextRequest) {
-  // Log all middleware processing
-  logger.info(`Middleware processing: ${request.nextUrl.pathname}`);
+  // Skip middleware processing for authentication routes completely
+  if (request.nextUrl.pathname.startsWith('/api/auth') || 
+      request.nextUrl.pathname.startsWith('/admin')) {
+    return NextResponse.next();
+  }
 
-    // Skip middleware processing for admin routes to avoid redirection issues
-    if (request.nextUrl.pathname.startsWith('/admin')) {
-      logger.info('Skipping middleware for admin route');
-      return NextResponse.next();
-    }
-
-  // Core logic remains the same, but we'll rely on the improved matcher pattern
+  // Process other routes normally
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for:
-     * - API routes (/api/*)
-     * - Next.js static files (_next/static/*)
-     * - Next.js image optimization files (_next/image/*)
-     * - Favicon (favicon.ico)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
   ],
 };

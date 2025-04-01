@@ -1,5 +1,6 @@
+// src/pages/admin/login.tsx (ES Modules version)
 import { useState, useEffect } from 'react';
-import { signIn, getCsrfToken, getProviders, useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui';
 import { logger } from '@/utils/logger';
@@ -10,131 +11,60 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<Record<string, unknown>>({});
   const router = useRouter();
   const searchParams = useSearchParams();
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (status === 'authenticated') {
-      logger.info('User already authenticated, redirecting to dashboard', {
-        user: session.user.email,
-      });
+      logger.info('User already authenticated, redirecting to dashboard');
       router.replace('/admin');
-
-      // Clean up potential redirect flags to prevent loops
-      if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('adminLoginAttempt');
-        sessionStorage.removeItem('forceAdminRedirect');
-      }
     }
   }, [status, session, router]);
 
-  // Handle query string errors and load auth info for debugging
+  // Handle query string errors
   useEffect(() => {
     if (!searchParams) return;
 
     const errorParam = searchParams.get('error');
-    const errorDesc = searchParams.get('error_description');
     if (errorParam) {
       const errorMap: Record<string, string> = {
         CredentialsSignin: 'Invalid email or password. Please try again.',
         SessionRequired: 'Please sign in to access this page.',
         AccessDenied: 'You do not have permission to access this page.',
-        CallbackRouteError: 'There was a problem with the login callback.',
-        OAuthSignin: 'Error in OAuth sign in process.',
-        OAuthCallback: 'Error in OAuth callback process.',
         Default: `Authentication error: ${errorParam}`,
       };
 
       const errorMessage = errorMap[errorParam] || errorMap.Default;
       setError(errorMessage);
-      logger.error('Login error from URL:', {
-        error: errorParam,
-        message: errorMessage,
-        errorDetails: errorDesc || 'No additional details',
-      });
+      logger.error('Login error from URL:', { error: errorParam });
     }
-
-    const loadAuthInfo = async () => {
-      try {
-        const [csrfToken, providers] = await Promise.all([
-          getCsrfToken(),
-          getProviders(),
-        ]);
-        const authInfo = {
-          csrfToken: csrfToken ? 'Present' : 'Missing',
-          providers: providers ? Object.keys(providers) : 'None found',
-          adminEmailConfigured: process.env.NEXT_PUBLIC_ADMIN_EMAIL
-            ? 'Yes (public)'
-            : 'Not in public env',
-          nextAuthUrl: process.env.NEXT_PUBLIC_BASE_URL || 'Not configured in public env',
-        };
-        setDebugInfo(authInfo);
-        logger.info('Auth Debug Info:', authInfo);
-      } catch (e) {
-        logger.error('Failed to load auth info:', {
-          error: e instanceof Error ? e.message : String(e),
-          stack: e instanceof Error ? e.stack : undefined,
-        });
-        setDebugInfo({ error: 'Failed to load auth info' });
-      }
-    };
-
-    loadAuthInfo();
   }, [searchParams]);
 
-  // Updated handleSubmit function using a direct approach
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Simple login submission function
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    logger.info('Login attempt:', {
-      email,
-      passwordLength: password.length,
-      timestamp: new Date().toISOString(),
-    });
-
     try {
-      // Store login attempt timestamp in session storage
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('adminLoginAttempt', Date.now().toString());
-      }
-
       const result = await signIn('credentials', {
         redirect: false,
         email,
         password,
       });
 
-      logger.info('SignIn result:', {
-        ok: result?.ok,
-        error: result?.error,
-        status: result?.status,
-      });
-
       if (result?.ok) {
-        logger.info('Authentication successful, setting redirect flag');
-
-        // Store login time in session storage
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('adminLoginTime', Date.now().toString());
-        }
-
-        // Give a slight delay to allow session to be established, then navigate
-        logger.info('Redirecting to admin dashboard via router');
+        // Successfully authenticated, simply redirect to admin page
         router.replace('/admin');
         return;
       }
 
       setError(result?.error || 'Failed to sign in');
-      logger.error('Sign in failed:', { error: result?.error });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'An unexpected error occurred';
       setError(errorMessage);
-      logger.error('Login error:', { error: errorMessage });
     } finally {
       setLoading(false);
     }
@@ -203,15 +133,6 @@ export default function AdminLogin() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
-
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-4 p-3 border border-gray-300 rounded-md bg-gray-50">
-              <h3 className="text-sm font-medium text-gray-700">Debug Info:</h3>
-              <pre className="mt-1 text-xs text-gray-600 overflow-auto max-h-32">
-                {JSON.stringify(debugInfo, null, 2)}
-              </pre>
-            </div>
-          )}
         </form>
       </div>
     </div>
