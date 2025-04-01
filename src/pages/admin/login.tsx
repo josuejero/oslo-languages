@@ -99,6 +99,9 @@ useEffect(() => {
 }, [status, session]);
 
 // Update handleSubmit function to use a more direct approach
+// src/pages/admin/login.tsx
+// Replace the handleSubmit function with:
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -111,9 +114,13 @@ useEffect(() => {
     });
 
     try {
-      // Remove the gateway approach - direct sign in
+      // Store login attempt timestamp in session storage
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('adminLoginAttempt', Date.now().toString());
+      }
+      
       const result = await signIn('credentials', {
-        redirect: false,  // Handle redirect manually for better control
+        redirect: false,
         email,
         password
       });
@@ -125,16 +132,29 @@ useEffect(() => {
       });
       
       if (result?.ok) {
-        logger.info('Authentication successful, forcing navigation to admin');
+        logger.info('Authentication successful, setting redirect flag');
         
-        // Most direct possible navigation - forced browser redirect
-        window.location.replace('/admin');
+        // Set a flag indicating successful auth
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('adminLoginTime', Date.now().toString());
+          sessionStorage.setItem('forceAdminRedirect', 'true');
+        }
+        
+        // Give a slight delay to allow session to be established
+        setTimeout(() => {
+          logger.info('Delayed redirect to admin dashboard');
+          window.location.replace('/admin');
+        }, 500);
         return;
       }
       
-      // Error handling remains the same...
+      setError(result?.error || 'Failed to sign in');
+      logger.error('Sign in failed:', { error: result?.error });
+      
     } catch (error) {
-      // Error handling remains the same...
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(errorMessage);
+      logger.error('Login error:', { error: errorMessage });
     } finally {
       setLoading(false);
     }

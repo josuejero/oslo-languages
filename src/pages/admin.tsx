@@ -99,23 +99,35 @@ export default function AdminPage() {
   }, []);
   
   // Handle client-side initialization
+// src/pages/admin.tsx
+// Replace the useEffect for client-side initialization with:
+
   useEffect(() => {
     setIsClient(true);
     logger.info('Client-side initialization complete in admin page');
     
-    // Check for valid session after a brief delay
+    // Give more time for the session to be properly established
     setTimeout(() => {
       if (status === 'authenticated') {
         logger.info('Confirmed authenticated session after delay', {
           email: session?.user?.email || 'unknown'
         });
+        
+        // Clear any redirect flags now that we're successfully at the dashboard
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('adminLoginAttempt');
+          sessionStorage.removeItem('adminLoginTime');
+          sessionStorage.removeItem('forceAdminRedirect');
+        }
+        
       } else if (status === 'loading') {
         logger.warn('Session still loading after delay');
+        // Don't redirect while loading
       } else {
         logger.warn('No valid session after delay, redirecting to login');
         router.push('/admin/login');
       }
-    }, 300);
+    }, 800); // Increased delay to give the session more time to establish
   }, [status, session, router]);
   
   // Don't render during SSR

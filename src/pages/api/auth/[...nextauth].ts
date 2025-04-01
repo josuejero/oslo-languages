@@ -280,7 +280,7 @@ export default NextAuth({
       }
       
       // CRITICAL FIX: Only redirect exact /admin path, not anything that contains /admin
-      if (url === `${baseUrl}/admin` || url === '/admin') {
+      if (url.endsWith('/admin') || url === `${baseUrl}/admin`){
         logger.info('Direct admin URL detected, allowing it to proceed');
         return `${baseUrl}/admin`;
       }
