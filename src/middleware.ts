@@ -7,6 +7,12 @@ export function middleware(request: NextRequest) {
   // Log all middleware processing
   logger.info(`Middleware processing: ${request.nextUrl.pathname}`);
 
+    // Skip middleware processing for admin routes to avoid redirection issues
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      logger.info('Skipping middleware for admin route');
+      return NextResponse.next();
+    }
+
   // Core logic remains the same, but we'll rely on the improved matcher pattern
   return NextResponse.next();
 }

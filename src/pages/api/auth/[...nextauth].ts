@@ -222,6 +222,13 @@ export default NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       // Store user data in the JWT token
+           logger.info('JWT callback', {
+               hasUser: !!user,
+               tokenId: token.sub || 'none',
+               userId: user?.id || 'none',
+               userEmail: user?.email ? `${user.email.substring(0, 3)}...` : 'none',
+               timestamp: new Date().toISOString()
+             });
       if (user) {
         token.user = {
           id: user.id,
@@ -234,6 +241,15 @@ export default NextAuth({
     },
     async session({ session, token }) {
       // Pass user data from JWT token to the session
+      
+           logger.info('Session callback', {
+               hasToken: !!token,
+               tokenId: token.sub || 'none',
+               userEmail: session?.user?.email ? `${session.user.email.substring(0, 3)}...` : 'none',
+               expires: session?.expires || 'none',
+               timestamp: new Date().toISOString()
+             });
+
       if (token.user) {
         session.user = {
           id: token.user.id,
@@ -244,18 +260,40 @@ export default NextAuth({
       }
       return session;
     },
+// Inside the redirect callback
+// Updated redirect callback
     async redirect({ url, baseUrl }) {
-      // Force admin URL for admin pages
-      if (url.includes('/admin') && !url.includes('/admin/login')) {
+      logger.info(`Redirect callback called with URL: ${url}`);
+      logger.info('Detailed redirect info:', {
+        url,
+        baseUrl,
+        isApiUrl: url.includes('/api/auth'),
+        isAdminUrl: url.includes('/admin'),
+        isLoginUrl: url.includes('/login'),
+        urlPath: url.replace(baseUrl, '')
+      });
+      
+      // Allow credential callbacks to proceed without interference
+      if (url.includes('/api/auth/callback/credentials')) {
+        logger.info('Allowing credentials callback to proceed');
+        return url;
+      }
+      
+      // CRITICAL FIX: Only redirect exact /admin path, not anything that contains /admin
+      if (url === `${baseUrl}/admin` || url === '/admin') {
+        logger.info('Direct admin URL detected, allowing it to proceed');
         return `${baseUrl}/admin`;
       }
       
-      // For other URLs, use standard logic
+      // Standard redirect logic
       if (url.startsWith(baseUrl)) {
+        logger.info(`URL starts with baseUrl: ${url}`);
         return url;
       } else if (url.startsWith('/')) {
+        logger.info(`URL starts with slash, returning: ${baseUrl}${url}`);
         return `${baseUrl}${url}`;
       }
+      logger.info(`Fallback case, returning baseUrl: ${baseUrl}`);
       return baseUrl;
     }
   },

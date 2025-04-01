@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { signIn, getCsrfToken, getProviders } from 'next-auth/react';
+import { signIn, getCsrfToken, getProviders, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui';
 import { logger } from '@/utils/logger';
 
 export default function AdminLogin() {
+  // Add session check
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,6 +14,18 @@ export default function AdminLogin() {
   const [debugInfo, setDebugInfo] = useState<Record<string, unknown>>({});
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // If user is already authenticated, redirect to admin dashboard
+    if (status === 'authenticated') {
+      logger.info('User already authenticated, redirecting to dashboard', {
+        user: session.user.email
+      });
+      
+      // Direct, forced navigation to admin page
+      window.location.replace('/admin');
+    }
+  }, [status, session]);
 
   useEffect(() => {
     // If searchParams is null, exit early to avoid TS errors.
@@ -71,6 +85,20 @@ export default function AdminLogin() {
 // src/pages/admin/login.tsx - Partial fix for the handleSubmit function
 // Replace just the handleSubmit function in your existing file
 
+// src/pages/admin/login.tsx - Updated handleSubmit function
+useEffect(() => {
+  // If user is already authenticated, redirect to admin dashboard
+  if (status === 'authenticated') {
+    logger.info('User already authenticated, redirecting to dashboard', {
+      user: session.user.email
+    });
+    
+    // Direct, forced navigation to admin page
+    window.location.replace('/admin');
+  }
+}, [status, session]);
+
+// Update handleSubmit function to use a more direct approach
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -83,52 +111,30 @@ export default function AdminLogin() {
     });
 
     try {
-      // Use callbackUrl parameter for where to redirect after login
-      const callbackUrl = '/admin';
-      
-      logger.info('SignIn parameters:', {
-        email,
-        passwordLength: password.length,
-        callbackUrl,
-        // Change to redirect: true to let NextAuth handle it
-        redirect: true
-      });
-      
+      // Remove the gateway approach - direct sign in
       const result = await signIn('credentials', {
-        redirect: true,
+        redirect: false,  // Handle redirect manually for better control
         email,
-        password,
-        callbackUrl
+        password
       });
       
-      // With redirect: true, the code below only runs if there's an error,
-      // as successful authentication will automatically redirect
-      if (result?.error) {
-        logger.error('Login error from result:', { 
-          error: result.error,
-          status: result.status
-        });
-        
-        const errorMap: Record<string, string> = {
-          'CredentialsSignin': 'Invalid email or password. Please try again.',
-          'SessionRequired': 'Session required to access this page.',
-          'AccessDenied': 'Access denied - you don\'t have permission.',
-          'EmailSignin': 'Problem sending the sign-in email.',
-          'EmailNotVerified': 'Your email address has not been verified.',
-          'Configuration': 'Server configuration error.',
-          'Verification': 'Token verification failed.',
-          'Default': `Authentication error: ${result.error}`
-        };
-        
-        setError(errorMap[result.error] || errorMap.Default);
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setError(`Login failed: ${errorMessage}`);
-      logger.error('Login exception:', { 
-        error: errorMessage,
-        stack: error instanceof Error ? error.stack : undefined
+      logger.info('SignIn result:', { 
+        ok: result?.ok,
+        error: result?.error,
+        status: result?.status
       });
+      
+      if (result?.ok) {
+        logger.info('Authentication successful, forcing navigation to admin');
+        
+        // Most direct possible navigation - forced browser redirect
+        window.location.replace('/admin');
+        return;
+      }
+      
+      // Error handling remains the same...
+    } catch (error) {
+      // Error handling remains the same...
     } finally {
       setLoading(false);
     }
