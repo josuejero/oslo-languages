@@ -10,12 +10,10 @@ const nextConfig = {
       'avatars.githubusercontent.com',
       'picsum.photos',
       'fastly.picsum.photos'
-    ],
+    ]
   },
-  // Simplified webpack config
-  webpack: (config) => { 
-    return config;
-  },
-}
+  // Simplified webpack configuration: simply return the default config
+  webpack: (config) => config,
+};
 
 module.exports = nextConfig;

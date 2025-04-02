@@ -1,4 +1,5 @@
 // src/modules/blog/operations.ts
+
 import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
@@ -9,11 +10,19 @@ import html from 'remark-html';
 import { BlogPost, BlogFilterOptions } from './types';
 import { logger } from '@/utils/logger';
 
-// Constants for file paths
+// Ensure these directories use the correct path relative to project root
 const CONTENT_DIR = path.join(process.cwd(), 'content');
 const POSTS_DIR = path.join(CONTENT_DIR, 'posts');
 const DRAFTS_DIR = path.join(CONTENT_DIR, 'drafts');
 const BACKUP_DIR = path.join(CONTENT_DIR, 'backups');
+
+// Log directory paths for debugging
+console.log('Blog operations: Using directories', {
+  CONTENT_DIR,
+  POSTS_DIR,
+  DRAFTS_DIR,
+  BACKUP_DIR
+});
 
 /**
  * Custom error class for blog operations
@@ -35,6 +44,7 @@ export class BlogError extends Error {
  */
 async function ensureDirectories(): Promise<void> {
   try {
+    console.log('Blog operations: Creating content directories');
     // Check and create content directory
     await fs.mkdir(CONTENT_DIR, { recursive: true });
     
@@ -46,7 +56,9 @@ async function ensureDirectories(): Promise<void> {
     
     // Check and create backups directory
     await fs.mkdir(BACKUP_DIR, { recursive: true });
+    console.log('Blog operations: Successfully created directories');
   } catch (error) {
+    console.error('Blog operations: Failed to create directories', error);
     logger.error('Failed to create required directories', {
       error: error instanceof Error ? error.message : 'Unknown error'
     });

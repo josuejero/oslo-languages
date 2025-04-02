@@ -28,11 +28,21 @@ interface EmailData {
 }
 
 export async function sendContactEmail(data: EmailData): Promise<void> {
+  console.log('email.ts: Attempting to send email', { to: data.email, subject: data.subject });
+
+  // Skip actual email sending if testing environment
+  if (process.env.SKIP_EMAIL_VERIFICATION === 'true') {
+    console.log('email.ts: Skipping email send because SKIP_EMAIL_VERIFICATION is true');
+    return;
+  }
+
   if (!process.env.SENDGRID_API_KEY) {
+    console.error('email.ts: SendGrid API key is not configured');
     throw new EmailError('SendGrid API key is not configured', 500);
   }
 
   if (!process.env.EMAIL_FROM || !process.env.EMAIL_TO) {
+    console.error('email.ts: Email sender or recipient not configured');
     throw new EmailError('Email sender or recipient not configured', 500);
   }
 
@@ -67,24 +77,21 @@ ${data.message}
 
   try {
     const [response] = await sgMail.send(msg);
-    
+
     if (response.statusCode >= 400) {
-      throw new EmailError(
-        'Failed to send email',
-        response.statusCode
-      );
+      throw new EmailError('Failed to send email', response.statusCode);
     }
 
-    logger.info('Email sent successfully', { 
+    logger.info('Email sent successfully', {
       to: process.env.EMAIL_TO,
       from: data.email,
       subject: data.subject
     });
   } catch (error) {
-    const statusCode = error instanceof EmailError 
-      ? error.statusCode 
-      : (error && typeof error === 'object' && 'code' in error && typeof error.code === 'number' 
-          ? error.code 
+    const statusCode = error instanceof EmailError
+      ? error.statusCode
+      : (error && typeof error === 'object' && 'code' in error && typeof error.code === 'number'
+          ? error.code
           : 500);
 
     logger.error('Failed to send email', {
@@ -93,10 +100,6 @@ ${data.message}
       data: { ...data, message: '[truncated]' }
     });
 
-    throw new EmailError(
-      'Failed to send email',
-      statusCode,
-      error
-    );
+    throw new EmailError('Failed to send email', statusCode, error);
   }
 }
