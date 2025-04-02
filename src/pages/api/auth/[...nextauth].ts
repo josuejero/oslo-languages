@@ -1,4 +1,4 @@
-// src/pages/api/auth/[...nextauth].ts (ES Modules version)
+// src/pages/api/auth/[...nextauth].ts
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
@@ -59,30 +59,20 @@ export default NextAuth({
 
           // Get environment variables
           const adminEmail = process.env.ADMIN_EMAIL;
-          // Ensure we're using a properly formatted bcrypt hash
-          const storedHash = process.env.ADMIN_PASSWORD_HASH?.replace(/\./g, '/');
+          // Get password hash from environment, or use development password
+          const storedHash = process.env.ADMIN_PASSWORD_HASH;
+          const plainPassword = process.env.ADMIN_PASSWORD;
 
           debug('Environment variables check', {
             adminEmailPresent: !!adminEmail,
             storedHashPresent: !!storedHash,
+            plainPasswordPresent: !!plainPassword,
             hashFormat: storedHash?.startsWith('$2') ? 'valid bcrypt' : 'invalid format'
           });
 
-          // Allow plain password login in development
-          const plainPassword = process.env.ADMIN_PASSWORD;
-          if (plainPassword && credentials.password === plainPassword) {
-            debug('Plain password authentication used');
-            return {
-              id: '1',
-              email: credentials.email,
-              name: 'Admin',
-              role: 'admin'
-            };
-          }
-
           // Check required environment variables
-          if (!adminEmail || !storedHash) {
-            debug('Auth failed: Missing environment variables');
+          if (!adminEmail) {
+            debug('Auth failed: Missing admin email environment variable');
             return null;
           }
 
@@ -94,12 +84,10 @@ export default NextAuth({
             return null;
           }
 
-          // Verify password with bcrypt
-          try {
-            const isValid = await bcrypt.compare(credentials.password, storedHash);
-            
-            if (isValid) {
-              debug('Authentication successful');
+          // For development/testing, allow plain password authentication
+          if (process.env.NODE_ENV === 'development' && plainPassword) {
+            if (credentials.password === plainPassword) {
+              debug('Plain password authentication successful (development mode)');
               return {
                 id: '1',
                 email: credentials.email,
@@ -107,15 +95,33 @@ export default NextAuth({
                 role: 'admin'
               };
             }
-            
-            debug('Authentication failed - password mismatch');
-            return null;
-          } catch (bcryptError) {
-            debug('Password verification error', {
-              error: bcryptError instanceof Error ? bcryptError.message : String(bcryptError)
-            });
-            return null;
           }
+
+          // For production, require bcrypt hash
+          if (storedHash) {
+            try {
+              // Fix hash format if needed (replace periods with forward slashes)
+              const fixedHash = storedHash.replace(/\./g, '/');
+              const isValid = await bcrypt.compare(credentials.password, fixedHash);
+              
+              if (isValid) {
+                debug('Bcrypt password authentication successful');
+                return {
+                  id: '1',
+                  email: credentials.email,
+                  name: 'Admin',
+                  role: 'admin'
+                };
+              }
+            } catch (bcryptError) {
+              debug('Password verification error', {
+                error: bcryptError instanceof Error ? bcryptError.message : String(bcryptError)
+              });
+            }
+          }
+          
+          debug('Authentication failed - credentials invalid');
+          return null;
         } catch (error) {
           debug('Unexpected error during authentication', {
             error: error instanceof Error ? error.message : String(error)
@@ -157,15 +163,6 @@ export default NextAuth({
         };
       }
       return session;
-    },
-    async redirect({ url, baseUrl }) {
-      // Simplified redirect logic
-      if (url.startsWith(baseUrl)) {
-        return url;
-      } else if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
-      }
-      return baseUrl;
     }
   },
   debug: process.env.NODE_ENV === 'development'

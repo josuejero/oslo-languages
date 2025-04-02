@@ -1,5 +1,5 @@
-// src/pages/admin/login.tsx (ES Modules version)
-import { useState, useEffect } from 'react';
+// src/pages/admin/login.tsx
+import { useState, useEffect, useCallback } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui';
@@ -11,16 +11,32 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Redirect to dashboard if already authenticated
+  // Improved redirect handler with state management
+  const redirectToAdmin = useCallback(() => {
+    if (redirecting) return; // Prevent multiple redirects
+    
+    setRedirecting(true);
+    logger.info('Redirecting to admin dashboard from login page');
+    
+    // Use window.location for a hard redirect to break potential loops
+    window.location.href = '/admin';
+  }, [redirecting]);
+
+  // Handle existing session
   useEffect(() => {
-    if (status === 'authenticated') {
-      logger.info('User already authenticated, redirecting to dashboard');
-      router.replace('/admin');
+    // Only redirect if we have a confirmed authenticated session
+    if (status === 'authenticated' && session?.user) {
+      logger.info('User already authenticated, redirecting to dashboard', {
+        user: session.user.email,
+        redirecting
+      });
+      redirectToAdmin();
     }
-  }, [status, session, router]);
+  }, [status, session, redirectToAdmin]);
 
   // Handle query string errors
   useEffect(() => {
@@ -41,13 +57,15 @@ export default function AdminLogin() {
     }
   }, [searchParams]);
 
-  // Simple login submission function
+  // Improved form submission with better error handling
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      logger.info('Attempting to sign in', { email });
+      
       const result = await signIn('credentials', {
         redirect: false,
         email,
@@ -55,20 +73,41 @@ export default function AdminLogin() {
       });
 
       if (result?.ok) {
-        // Successfully authenticated, simply redirect to admin page
-        router.replace('/admin');
+        logger.info('Sign in successful, redirecting to admin page');
+        
+        // Mark time of successful login to detect and break loops
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('adminLoginSuccess', Date.now().toString());
+        }
+        
+        // Use the redirect handler for consistency
+        redirectToAdmin();
         return;
       }
 
+      logger.error('Sign in failed', { error: result?.error });
       setError(result?.error || 'Failed to sign in');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'An unexpected error occurred';
+      logger.error('Exception during sign in', { errorMessage });
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
+  // If we're already redirecting, show a loading state
+  if (redirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+        <div className="text-center">
+          <h2 className="text-xl font-medium text-gray-900">Redirecting to admin dashboard...</h2>
+          <div className="mt-4 w-8 h-8 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
