@@ -1,5 +1,7 @@
-// src/pages/api/admin/check-auth.js
-export default function handler(req, res) {
+// src/pages/api/admin/check-auth.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   // Check for auth cookie
   const authCookie = req.cookies.admin_auth;
   

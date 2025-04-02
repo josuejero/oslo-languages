@@ -1,9 +1,10 @@
-// src/pages/api/admin/login.js
+// src/pages/api/admin/login.ts
+import { NextApiRequest, NextApiResponse } from 'next';
 import { serialize } from 'cookie';
 import bcrypt from 'bcryptjs';
 import { logger } from '@/utils/logger';
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });

@@ -1,8 +1,9 @@
-// src/pages/api/admin/logout.js
+// src/pages/api/admin/logout.ts
+import { NextApiRequest, NextApiResponse } from 'next';
 import { serialize } from 'cookie';
 import { logger } from '@/utils/logger';
 
-export default function handler(req, res) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
