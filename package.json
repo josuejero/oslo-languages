@@ -2,7 +2,7 @@
   "name": "oslo-languages-website",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
