@@ -2,13 +2,12 @@
 import withBundleAnalyzer from '@next/bundle-analyzer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Use Next.js's compiled webpack
 import webpack from 'next/dist/compiled/webpack/webpack-lib.js';
 
-// Define security headers for all routes
+// Define __dirname for ES modules
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Security headers configuration
 const securityHeaders = [
   { key: 'X-DNS-Prefetch-Control', value: 'on' },
   { key: 'Strict-Transport-Security', value: 'max-age:63072000; includeSubDomains; preload' },
@@ -35,7 +34,7 @@ const securityHeaders = [
   }
 ];
 
-// Define the Next.js configuration
+// Define Next.js configuration
 const nextConfig = {
   trailingSlash: false,
   reactStrictMode: true,
@@ -83,13 +82,11 @@ const nextConfig = {
   compress: true,
   productionBrowserSourceMaps: true,
   webpack: (config, { dev, isServer }) => { 
-    // Add resolver for preact-render-to-string to fix next-auth imports
+    // Ensure alias resolution for preact-render-to-string to fix next-auth imports
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
     
-    // Use dynamic import() instead of require
-
-    
+    // Use dynamic import() if needed (avoid require() in ES modules)
     config.resolve.alias['preact-render-to-string'] = 'preact-render-to-string';
     
     // Production-specific optimizations
@@ -150,5 +147,5 @@ const analyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
-// Export the final config
+// Export the final config using ES module syntax
 export default analyzer(nextConfig);
