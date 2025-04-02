@@ -34,6 +34,7 @@
     "bcryptjs": "^2.4.3",
     "clipboardy": "^4.0.0",
     "commander": "^11.1.0",
+    "cookie": "^1.0.2",
     "cookies-next": "^4.1.0",
     "cross-env": "^7.0.3",
     "date-fns": "^3.0.6",

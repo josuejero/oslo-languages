@@ -2,12 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { GetServerSideProps } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
-import BlogList from '@/components/blog/BlogList';
-import BlogManager from '@/components/admin/BlogManager';
 import BlogFilter from '@/components/blog/BlogFilter'; // Updated import
 import { useBlog } from '@/utils/hooks/useBlog';
 import { Alert, AlertDescription } from '@/components/ui'; // Updated import
-import { LoadingSpinner } from '@/components/ui'; // Updated import
 import { logger } from '@/utils/logger';
 
 const POSTS_PER_PAGE = 9;
@@ -108,16 +105,7 @@ export default function BlogPage({
       )}
       
       <div className="grid grid-cols-12 gap-8">
-        <main className="col-span-12">
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <LoadingSpinner />
-            </div>
-          ) : (
-            // Render the unified blog manager component to handle search, filtering, and pagination
-            <BlogManager posts={posts} />
-          )}
-        </main>
+
       </div>
     </div>
   );
