@@ -42,7 +42,11 @@ const nextConfig = {
   poweredByHeader: false,
   async redirects() {
     return [
-      { source: '/admin', destination: '/admin/login', permanent: true }
+      {
+        source: '/admin',
+        destination: '/admin/dashboard',
+        permanent: true
+      }
     ];
   },
   async headers() {

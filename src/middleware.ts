@@ -5,9 +5,11 @@ import { logger } from '@/utils/logger';
 
 export function middleware(request: NextRequest) {
   // Check if request is for admin pages (except login)
-  if (request.nextUrl.pathname.startsWith('/admin') && 
-      !request.nextUrl.pathname.startsWith('/admin/login')) {
-    
+  if (
+    (request.nextUrl.pathname.startsWith('/admin') && 
+     !request.nextUrl.pathname.startsWith('/admin/login')) ||
+    request.nextUrl.pathname === '/admin'
+  ) {
     // Check for auth cookie
     const authCookie = request.cookies.get('admin_auth');
     
@@ -28,6 +30,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/admin',
     '/admin/:path*'
   ],
 };

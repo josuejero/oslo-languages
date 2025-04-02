@@ -28,8 +28,9 @@ export default function AdminLogin() {
       const data = await response.json();
       
       if (response.ok) {
-        logger.info('Login successful, redirecting to admin page');
-        router.push('/admin');
+        logger.info('Login successful, redirecting to admin dashboard');
+        // Update this path to go to the dashboard
+        router.push('/admin/dashboard');
       } else {
         setError(data.message || 'Login failed');
       }
