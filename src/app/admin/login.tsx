@@ -15,8 +15,10 @@ export default function AdminLogin() {
     setLoading(true);
     setError("");
     
-    // Simple password check - in production, you would use a secure authentication method
+    // Simple password check - in production, use a secure auth method
     if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+      // Set a cookie to indicate the user is authenticated
+      document.cookie = "admin_authenticated=true; path=/; max-age=3600"; // 1 hour
       router.push("/admin/dashboard");
     } else {
       setError("Invalid password");
