@@ -1,5 +1,5 @@
 // src/app/blog/[slug]/page.tsx
-import type { Metadata } from "next";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -48,11 +48,12 @@ const blogPosts: Record<string, BlogPost> = {
   // Other blog posts would be defined here
 };
 
-type Props = {
-  params: { slug: string }
+type PageProps = {
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const post = blogPosts[params.slug];
   
   if (!post) {
@@ -68,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function BlogPost({ params }: Props) {
+export default function BlogPost({ params }: PageProps) {
   const post = blogPosts[params.slug];
   
   if (!post) {

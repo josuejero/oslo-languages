@@ -8,14 +8,15 @@ import dynamic from "next/dynamic";
 // Dynamically import a markdown editor
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
 
-type Props = {
+type PageProps = {
   params: {
     action: string;
     id: string;
   };
+  searchParams?: { [key: string]: string | string[] | undefined };
 };
 
-export default function BlogEditor({ params }: Props) {
+export default function BlogEditor({ params }: PageProps) {
   const router = useRouter();
   const isNewPost = params.action === "new";
   

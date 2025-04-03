@@ -1,16 +1,16 @@
 // src/app/api/blog/[id]/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getPostBySlug, deletePost } from '@/lib/blog';
 
-type RouteParams = {
-  params: {
-    id: string;
-  };
-};
+// type RouteParams = {
+//   params: {
+//     id: string;
+//   };
+// };
 
 export async function GET(
-  request: Request,
-  { params }:  RouteParams 
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const post = getPostBySlug(params.id);
@@ -32,8 +32,8 @@ export async function GET(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: RouteParams
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     const id = parseInt(params.id);
