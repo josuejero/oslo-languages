@@ -1,7 +1,10 @@
 // src/app/api/contact/route.ts
 import { NextResponse } from 'next/server';
+import sgMail from '@sendgrid/mail';
 
-// This would later use SendGrid for email sending
+// Set your SendGrid API key
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -15,10 +18,29 @@ export async function POST(request: Request) {
       );
     }
     
-    // For now, just log the data (will be replaced with SendGrid)
-    console.log('Contact form submission:', { name, email, subject, message });
+    // Prepare email
+    const msg = {
+      to: process.env.ADMIN_EMAIL || 'admin@example.com',
+      from: process.env.FROM_EMAIL || 'noreply@oslolanguages.com',
+      subject: `Contact Form: ${subject}`,
+      text: `
+        Name: ${name}
+        Email: ${email}
+        
+        Message:
+        ${message}
+      `,
+      html: `
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Subject:</strong> ${subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, '<br>')}</p>
+      `,
+    };
     
-    // In a real implementation, you would send email via SendGrid here
+    // Send email
+    await sgMail.send(msg);
     
     return NextResponse.json(
       { message: 'Contact form submitted successfully' },
