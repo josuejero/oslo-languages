@@ -48,12 +48,12 @@ const blogPosts: Record<string, BlogPost> = {
   // Other blog posts would be defined here
 };
 
-type PageProps = {
+type Props = {
   params: { slug: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = blogPosts[params.slug];
   
   if (!post) {
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default function BlogPost({ params }: PageProps) {
+export default function BlogPost({ params }: Props) {
   const post = blogPosts[params.slug];
   
   if (!post) {
