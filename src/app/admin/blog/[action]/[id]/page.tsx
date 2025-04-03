@@ -9,7 +9,10 @@ import dynamic from "next/dynamic";
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
 
 type Props = {
-  params: { action: "new" | "edit"; id?: string };
+  params: {
+    action: string;
+    id: string;
+  };
 };
 
 export default function BlogEditor({ params }: Props) {

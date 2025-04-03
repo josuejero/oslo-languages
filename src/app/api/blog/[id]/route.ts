@@ -2,9 +2,15 @@
 import { NextResponse } from 'next/server';
 import { getPostBySlug, deletePost } from '@/lib/blog';
 
+type RouteParams = {
+  params: {
+    id: string;
+  };
+};
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }:  RouteParams 
 ) {
   try {
     const post = getPostBySlug(params.id);
@@ -27,7 +33,7 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     const id = parseInt(params.id);
