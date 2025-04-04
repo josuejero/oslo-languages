@@ -1,39 +1,27 @@
-// src/app/admin/pages/edit/[pageId]/page.tsx
+// src/app/admin/pages/edit/[pageId]/editor-client.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
-// Dynamically import the markdown editor component
+// Dynamically import the markdown editor
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
 
-export default function PageEditor() {
-  // Get route parameters directly from the pathname
+export default function EditorClient({ pageId }: { pageId: string }) {
   const router = useRouter();
-  const [pageId, setPageId] = useState<string>("");
-  
-  // Use state for content management
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   
-  // Extract the pageId from the URL on component mount
   useEffect(() => {
-    // Parse pageId from the URL pathname
-    const path = window.location.pathname;
-    const segments = path.split('/');
-    const id = segments[segments.length - 1];
-    setPageId(id);
-    
-    // Fetch initial content based on pageId
     setIsLoading(true);
     
-    // Simulate API call with timeout
+    // Mock data for demonstration
     setTimeout(() => {
       setContent("# Welcome to Oslo Languages\n\nWe offer high-quality language courses...");
       setIsLoading(false);
     }, 500);
-  }, []);
+  }, [pageId]);
   
   const handleContentChange = (value: string) => {
     setContent(value);
@@ -48,7 +36,7 @@ export default function PageEditor() {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-8">
-        Edit {pageId ? pageId.charAt(0).toUpperCase() + pageId.slice(1) : ""} Page
+        Edit {pageId.charAt(0).toUpperCase() + pageId.slice(1)} Page
       </h1>
       
       {isLoading ? (

@@ -1,18 +1,20 @@
-// src/app/layout.tsx
+// layout.tsx
+// Purpose: Sets up the root layout, defines global metadata, and imports valid Google Fonts in Next.js
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Roboto_Mono } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import "./globals.css";
 
-// Configure your Google fonts as normal
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Configure your Google fonts here
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
   subsets: ["latin"],
 });
 
@@ -59,7 +61,7 @@ export default function RootLayout({
 
       {/* 2. Layout body starts here */}
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${inter.variable} ${robotoMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <Header />
         <main className="flex-grow">{children}</main>
