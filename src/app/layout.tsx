@@ -1,6 +1,4 @@
-// layout.tsx
-// Purpose: Sets up the root layout, defines global metadata, and imports valid Google Fonts in Next.js
-
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import Header from "@/components/layout/Header";
@@ -31,7 +29,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* 1. Insert custom <head> content here */}
       <head>
         <script
           type="application/ld+json"
@@ -59,12 +56,13 @@ export default function RootLayout({
         />
       </head>
 
-      {/* 2. Layout body starts here */}
       <body
         className={`${inter.variable} ${robotoMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <Header />
-        <main className="flex-grow">{children}</main>
+        <main id="main-content" className="flex-grow">
+          {children}
+        </main>
         <Footer />
       </body>
     </html>
