@@ -9,8 +9,8 @@ export default function Header() {
         {/* Logo / Site Name */}
         <Link
           href="/"
-          className="text-2xl font-heading tracking-tight hover:opacity-90 transition-all"
-          aria-label="Back to Home"
+          className="text-2xl font-bold tracking-tight hover:opacity-90 transition-all"
+          aria-label="Oslo Languages"
         >
           Oslo Languages
         </Link>

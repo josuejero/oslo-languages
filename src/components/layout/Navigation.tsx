@@ -155,7 +155,7 @@ export default function Navigation() {
         aria-orientation="vertical"
         aria-labelledby="mobile-menu-button"
       >
-        <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg rounded-md border mt-2">
+          <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg rounded-md border mt-2">
           {navigationLinks.map(({ href, label }) => (
             <Link
               key={href}
