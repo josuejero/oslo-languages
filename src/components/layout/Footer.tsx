@@ -2,28 +2,85 @@
 import Link from 'next/link';
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-gray-800 text-white p-6">
-      <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row justify-between">
-          <div className="mb-6 md:mb-0">
-            <h2 className="text-lg font-semibold mb-2">Oslo Languages</h2>
-            <p className="text-gray-300">Quality language education in Oslo</p>
-          </div>
+    <footer
+      className="bg-gradient-to-r from-purple-900 via-indigo-900 to-gray-900 text-white mt-auto"
+      aria-label="Site footer"
+    >
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* About Column */}
           <div>
-            <h3 className="text-md font-semibold mb-2">Quick Links</h3>
-            <ul className="space-y-1">
-              <li><Link href="/" className="text-gray-300 hover:text-white">Home</Link></li>
-              <li><Link href="/about" className="text-gray-300 hover:text-white">About</Link></li>
-              <li><Link href="/courses" className="text-gray-300 hover:text-white">Courses</Link></li>
-              <li><Link href="/blog" className="text-gray-300 hover:text-white">Blog</Link></li>
-              <li><Link href="/contact" className="text-gray-300 hover:text-white">Contact</Link></li>
-              <li><Link href="/legal" className="text-gray-300 hover:text-white">Legal</Link></li>
+            <h3 className="text-sm font-semibold tracking-wide uppercase mb-4">
+              About Oslo Languages
+            </h3>
+            <p className="leading-relaxed text-gray-200">
+              Dedicated to providing quality language education in Oslo.
+              We offer courses in Norwegian, English, Spanish, and more.
+            </p>
+          </div>
+
+          {/* Quick Links Column */}
+          <div>
+            <h3 className="text-sm font-semibold tracking-wide uppercase mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  href="/courses"
+                  className="hover:underline transition-colors duration-300"
+                >
+                  Our Courses
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacy-policy"
+                  className="hover:underline transition-colors duration-300"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms-of-service"
+                  className="hover:underline transition-colors duration-300"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="hover:underline transition-colors duration-300"
+                >
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact Info Column */}
+          <div>
+            <h3 className="text-sm font-semibold tracking-wide uppercase mb-4">
+              Contact Info
+            </h3>
+            <ul className="space-y-2 text-gray-200">
+              <li>Email: contact@oslolanguages.no</li>
+              <li>Phone: (47) XXX XX XXX</li>
+              <li>Address: Oslo, Norway</li>
             </ul>
           </div>
         </div>
-        <div className="mt-8 pt-4 border-t border-gray-700 text-center text-sm text-gray-400">
-          &copy; {new Date().getFullYear()} Oslo Languages. All rights reserved.
+
+        {/* Copyright Section */}
+        <div className="border-t border-white/20 mt-8 py-4">
+          <p className="text-center text-sm text-gray-300">
+            &copy; {currentYear} Oslo Languages. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

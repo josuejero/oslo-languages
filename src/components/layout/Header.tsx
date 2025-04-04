@@ -1,19 +1,23 @@
 // src/components/layout/Header.tsx
 import Link from 'next/link';
+import Navigation from './Navigation';
 
 export default function Header() {
   return (
-    <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
-      <h1 className="text-xl font-bold">Oslo Languages</h1>
-      <nav>
-        <ul className="flex space-x-4">
-          <li><Link href="/">Home</Link></li>
-          <li><Link href="/about">About</Link></li>
-          <li><Link href="/courses">Courses</Link></li>
-          <li><Link href="/blog">Blog</Link></li>
-          <li><Link href="/contact">Contact</Link></li>
-        </ul>
-      </nav>
+    <header className="bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-800 text-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
+        {/* Logo / Site Name */}
+        <Link
+          href="/"
+          className="text-2xl font-heading tracking-tight hover:opacity-90 transition-all"
+          aria-label="Back to Home"
+        >
+          Oslo Languages
+        </Link>
+
+        {/* Navigation Component */}
+        <Navigation />
+      </div>
     </header>
   );
 }
