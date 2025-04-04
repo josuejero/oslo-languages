@@ -16,6 +16,8 @@ export default [
       parser: typescriptParser,
       parserOptions: {
         project: "./tsconfig.json",
+        ecmaVersion: "latest",
+        sourceType: "module",
       },
     },
     rules: {

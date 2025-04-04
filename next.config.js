@@ -8,6 +8,10 @@ const nextConfig = {
   env: {
     SENDGRID_VALIDATION_DISABLED: process.env.NODE_ENV === 'development' ? 'true' : 'false',
   },
+  eslint: {
+    // Use the new ESLint configuration
+    ignoreDuringBuilds: false,
+  },
 };
 
 module.exports = nextConfig;
