@@ -5,6 +5,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #3B82F6; /* Blue color from your design */
+  --primary-dark: #2563EB;
+  --accent: #FCD34D; /* Yellow accent */
+  --text-light: #FFFFFF;
+  --section-bg-light: #F9FAFB;
+  --section-bg-blue: linear-gradient(to right, #3B82F6, #4F46E5);
+}
+
+section {
+  transition: background-color 0.5s ease;
 }
 
 @theme inline {
@@ -22,9 +32,12 @@
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
+  margin: 0;
+  padding: 0;
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 
 /* Reusable component classes to reduce redundancy */

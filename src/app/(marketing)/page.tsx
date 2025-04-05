@@ -1,3 +1,4 @@
+// Modify src/app/(marketing)/page.tsx
 import Link from "next/link";
 import Image from "next/image";
 import Container from "@/components/common/layout/Container";
@@ -9,16 +10,16 @@ import NewsletterSignup from '@/components/features/NewsletterSignup';
 export default function Home() {
   return (
     <Container containerSize="wide" padding="none">
-      {/* Enhanced Hero Section with Gradient */}
+      {/* Hero Section with Enhanced Gradient */}
       <section className="relative overflow-hidden py-20 md:py-28">
-        {/* Background with gradient overlay */}
+        {/* Replace black background with a blue gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 opacity-90"></div>
         
-        {/* Animated floating shapes */}
+        {/* Animated floating shapes for visual interest */}
         <div className="absolute right-0 bottom-0 w-64 h-64 bg-white/10 rounded-full blur-xl animate-float"></div>
         <div className="absolute left-20 top-20 w-32 h-32 bg-yellow-200/10 rounded-full blur-xl animate-float-delay"></div>
         
-        {/* Static background pattern */}
+        {/* Background pattern */}
         <div className="absolute inset-0 opacity-10" style={{ 
           backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", 
           backgroundSize: "20px 20px" 
@@ -50,12 +51,9 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
-        {/* Decorative elements */}
-        <div className="hidden md:block absolute right-0 bottom-0 w-1/3 h-2/3 bg-blue-800 opacity-20 rounded-tl-full animate-float"></div>
       </section>
       
-      {/* Enhanced Testimonials Section */}
+      {/* Testimonials Section - Light Background */}
       <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-6">
           <AnimateOnScroll animation="animate-fadeIn">
@@ -75,7 +73,7 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Enhanced Features/Courses Section */}
+      {/* Course Features Section - White Background */}
       <section className="py-20 bg-background-primary">
         <div className="container mx-auto px-6">
           <AnimateOnScroll animation="animate-fadeIn">
@@ -132,9 +130,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Newsletter Section */}
+      {/* Newsletter Section - Light Gray Background */}
       <AnimateOnScroll animation="animate-fadeIn">
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-6">
             <div className="max-w-2xl mx-auto">
               <NewsletterSignup />
@@ -143,7 +141,7 @@ export default function Home() {
         </section>
       </AnimateOnScroll>
 
-      {/* Enhanced CTA Section */}
+      {/* CTA Section - Blue Gradient (No Black) */}
       <section className="py-20 bg-gradient-to-r from-blue-700 to-indigo-800 text-white relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">

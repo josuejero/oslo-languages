@@ -1,3 +1,4 @@
+// Modify tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -36,7 +37,7 @@ module.exports = {
         },
       },
       colors: {
-        // Main colors
+        // Main colors that match your design
         'text-primary': '#171717',
         'text-secondary': '#4B5563',
         'text-tertiary': '#9CA3AF',
@@ -45,12 +46,6 @@ module.exports = {
         'background-secondary': '#F9FAFB',
         'action-primary': '#3B82F6',
         'action-primaryHover': '#2563EB',
-        'border-default': '#E5E7EB',
-        'focus-ring': '#93C5FD',
-        'status-success': '#10B981',
-        'status-error': '#EF4444',
-        'status-warning': '#F59E0B',
-        'status-info': '#3B82F6',
       },
     },
   },
