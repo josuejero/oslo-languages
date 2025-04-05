@@ -1,38 +1,48 @@
-// src/app/admin/pages/edit/[pageId]/page.tsx
+// src/app/admin/blog/[action]/[id]/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
+import MarkdownEditor from "@/components/common/editor/MarkdownEditor";
 
-// Dynamically import the markdown editor component
-const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
-
-export default function PageEditor() {
+export default function BlogPostEditor() {
   // Get route parameters directly from the pathname
   const router = useRouter();
-  const [pageId, setPageId] = useState<string>("");
+  const [postId, setPostId] = useState<string>("");
+  const [action, setAction] = useState<string>("edit"); // Default to edit
   
   // Use state for content management
+  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   
-  // Extract the pageId from the URL on component mount
+  // Extract the postId and action from the URL on component mount
   useEffect(() => {
-    // Parse pageId from the URL pathname
+    // Parse postId from the URL pathname
     const path = window.location.pathname;
     const segments = path.split('/');
     const id = segments[segments.length - 1];
-    setPageId(id);
+    const actionType = segments[segments.length - 2];
     
-    // Fetch initial content based on pageId
+    setPostId(id);
+    setAction(actionType);
+    
+    // Fetch initial content based on postId if we're editing
     setIsLoading(true);
     
-    // Simulate API call with timeout
-    setTimeout(() => {
-      setContent("# Welcome to Oslo Languages\n\nWe offer high-quality language courses...");
+    if (actionType === "edit") {
+      // Simulate API call with timeout
+      setTimeout(() => {
+        setTitle("Sample Blog Post");
+        setContent("# Welcome to Oslo Languages\n\nThis is a sample blog post content...");
+        setCategory("Norwegian");
+        setIsLoading(false);
+      }, 500);
+    } else {
+      // For new posts, just set loading to false
       setIsLoading(false);
-    }, 500);
+    }
   }, []);
   
   const handleContentChange = (value: string) => {
@@ -41,14 +51,15 @@ export default function PageEditor() {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Saving page content:", content);
+    // Add implementation to save the blog post
+    console.log("Saving blog post:", { title, content, category });
     router.push("/admin/dashboard");
   };
   
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-8">
-        Edit {pageId ? pageId.charAt(0).toUpperCase() + pageId.slice(1) : ""} Page
+        {action === "edit" ? "Edit" : "Create"} Blog Post
       </h1>
       
       {isLoading ? (
@@ -56,16 +67,47 @@ export default function PageEditor() {
       ) : (
         <form onSubmit={handleSubmit} className="max-w-4xl">
           <div className="mb-6">
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-              Page Content
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+              Post Title
             </label>
-            <SimpleMDE 
-              value={content} 
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+          
+          <div className="mb-6">
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+              Category
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            >
+              <option value="">Select a category</option>
+              <option value="Norwegian">Norwegian</option>
+              <option value="English">English</option>
+              <option value="Spanish">Spanish</option>
+              <option value="School News">School News</option>
+            </select>
+          </div>
+          
+          <div className="mb-6">
+            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+              Post Content
+            </label>
+            <MarkdownEditor
+              id="content"
+              value={content}
               onChange={handleContentChange}
-              options={{
-                autofocus: true,
-                spellChecker: true,
-              }}
+              placeholder="Write your blog post content here..."
             />
           </div>
           
@@ -81,7 +123,7 @@ export default function PageEditor() {
               type="submit"
               className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
-              Save Changes
+              {action === "edit" ? "Update" : "Publish"} Post
             </button>
           </div>
         </form>

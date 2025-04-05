@@ -1,12 +1,8 @@
-// src/app/admin/pages/edit/[pageId]/editor-client.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-
-// Dynamically import the markdown editor to prevent SSR issues
-const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
+import MarkdownEditor from "@/components/common/editor/MarkdownEditor";
 
 interface EditorClientProps {
   pageId: string;
@@ -53,13 +49,11 @@ export default function EditorClient({ pageId }: EditorClientProps) {
             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
               Page Content
             </label>
-            <SimpleMDE 
-              value={content} 
+            <MarkdownEditor
+              id="content"
+              value={content}
               onChange={handleContentChange}
-              options={{
-                autofocus: true,
-                spellChecker: true,
-              }}
+              placeholder="Enter page content here..."
             />
           </div>
           

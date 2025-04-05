@@ -1,27 +1,36 @@
-// src/app/admin/pages/edit/[pageId]/editor-client.tsx
+// src/components/features/admin/PageEditor.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
+import MarkdownEditor from "@/components/common/editor/MarkdownEditor";
 
-// Dynamically import the markdown editor
-const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
+export interface PageEditorProps {
+  pageId: string;
+  initialContent?: string;
+  onSave?: (content: string) => Promise<void>;
+}
 
-export default function EditorClient({ pageId }: { pageId: string }) {
+export default function PageEditor({
+  pageId,
+  initialContent = "",
+  onSave
+}: PageEditorProps) {
   const router = useRouter();
-  const [content, setContent] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [content, setContent] = useState(initialContent);
+  const [isLoading, setIsLoading] = useState(!initialContent);
   
   useEffect(() => {
-    setIsLoading(true);
-    
-    // Mock data for demonstration
-    setTimeout(() => {
-      setContent("# Welcome to Oslo Languages\n\nWe offer high-quality language courses...");
-      setIsLoading(false);
-    }, 500);
-  }, [pageId]);
+    if (!initialContent) {
+      setIsLoading(true);
+      
+      // Mock data for demonstration purposes
+      setTimeout(() => {
+        setContent("# Welcome to Oslo Languages\n\nWe offer high-quality language courses...");
+        setIsLoading(false);
+      }, 500);
+    }
+  }, [initialContent]);
   
   const handleContentChange = (value: string) => {
     setContent(value);
@@ -29,8 +38,20 @@ export default function EditorClient({ pageId }: { pageId: string }) {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Saving page content:", content);
-    router.push("/admin/dashboard");
+    
+    try {
+      if (onSave) {
+        await onSave(content);
+      } else {
+        // Fallback implementation if no onSave handler is provided
+        console.log("Saving page content:", content);
+      }
+      
+      router.push("/admin/dashboard");
+    } catch (error) {
+      console.error("Error saving content:", error);
+      // Handle error (show error message to user)
+    }
   };
   
   return (
@@ -47,13 +68,12 @@ export default function EditorClient({ pageId }: { pageId: string }) {
             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
               Page Content
             </label>
-            <SimpleMDE 
-              value={content} 
+            <MarkdownEditor
+              id="content"
+              value={content}
               onChange={handleContentChange}
-              options={{
-                autofocus: true,
-                spellChecker: true,
-              }}
+              placeholder="Edit page content here..."
+              className="min-h-[400px]"
             />
           </div>
           
