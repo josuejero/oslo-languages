@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Disable static rendering for the contact page
+  // Remove the experimental.serverActions flag as it's now default
   experimental: {
-    serverActions: true,
+    // Other experimental features can stay
   },
   // Optionally disable SendGrid API validation during development
   env: {

@@ -1,14 +1,5 @@
+// src/components/common/editor/MarkdownEditor.tsx
 "use client";
-
-import dynamic from "next/dynamic";
-
-// Import the type but use dynamic import for the component
-
-// Dynamically import the component to prevent SSR issues
-const SimpleMDE = dynamic<any>(
-  () => import("react-simplemde-editor") as Promise<any>,
-  { ssr: false }
-);
 
 interface MarkdownEditorProps {
   id?: string;
@@ -20,8 +11,8 @@ interface MarkdownEditorProps {
 }
 
 /**
- * A reusable markdown editor component that wraps react-simplemde-editor
- * with proper TypeScript typings and SSR handling
+ * A simple textarea replacement for the markdown editor
+ * This can be used as a temporary solution until react-simplemde-editor is installed
  */
 export default function MarkdownEditor({
   id = "markdown-editor",
@@ -33,34 +24,14 @@ export default function MarkdownEditor({
 }: MarkdownEditorProps) {
   return (
     <div className={className}>
-      <SimpleMDE
+      <textarea
         id={id}
         value={value}
-        onChange={onChange}
-        options={{
-          autofocus,
-          spellChecker: true,
-          placeholder,
-          status: ["lines", "words", "cursor"],
-          toolbar: [
-            "bold",
-            "italic",
-            "heading",
-            "|",
-            "quote",
-            "unordered-list",
-            "ordered-list",
-            "|",
-            "link",
-            "image",
-            "|",
-            "preview",
-            "side-by-side",
-            "fullscreen",
-            "|",
-            "guide",
-          ],
-        }}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        autoFocus={autofocus}
+        className="w-full h-64 p-4 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        style={{ minHeight: "400px" }}
       />
     </div>
   );
