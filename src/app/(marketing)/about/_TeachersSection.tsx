@@ -1,5 +1,7 @@
-// pages/about/_TeachersSection.tsx
-import React from 'react';
+// src/app/(marketing)/about/TeachersSectionClient.tsx
+'use client'; // Mark this file as a Client Component
+
+import { useState } from 'react';
 import OptimizedImage from '@/components/common/media/OptimizedImage';
 
 interface Teacher {
@@ -10,17 +12,14 @@ interface Teacher {
   languages: string[];
 }
 
-interface TeachersSectionProps {
+interface TeachersSectionClientProps {
   teachers: Teacher[];
-  activeTeacher: number | null;
-  setActiveTeacher: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
-const TeachersSection: React.FC<TeachersSectionProps> = ({
-  teachers,
-  activeTeacher,
-  setActiveTeacher,
-}) => {
+export default function TeachersSectionClient({ teachers }: TeachersSectionClientProps) {
+  // Local state for teacher card hover
+  const [activeTeacher, setActiveTeacher] = useState<number | null>(null);
+
   return (
     <section className="py-20 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <div className="container mx-auto px-6">
@@ -63,7 +62,6 @@ const TeachersSection: React.FC<TeachersSectionProps> = ({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
                 </div>
-
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-1 text-text-primary">
                     {teacher.name}
@@ -90,6 +88,4 @@ const TeachersSection: React.FC<TeachersSectionProps> = ({
       </div>
     </section>
   );
-};
-
-export default TeachersSection;
+}

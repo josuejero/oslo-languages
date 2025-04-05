@@ -1,3 +1,5 @@
+'use client';
+
 // src/components/OptimizedImage.tsx
 import { useState, useEffect } from 'react';
 import Image, { ImageProps } from 'next/image';
