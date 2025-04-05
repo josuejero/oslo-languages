@@ -1,78 +1,127 @@
-// src/app/page.tsx
 import Link from "next/link";
-import CourseCard from "@/components/ui/CourseCard";
-
-// Sample data - these would eventually come from your CMS or API
-const courses = [
-  {
-    title: "Norwegian for Beginners",
-    level: "A1-A2",
-    description: "Perfect for newcomers to Norway. Learn essential vocabulary and basic conversation.",
-    slug: "norwegian-beginners",
-    imageUrl: "/images/norwegian.jpg"
-  },
-  {
-    title: "Business English",
-    level: "B1-C1",
-    description: "Improve your professional English skills for the workplace.",
-    slug: "business-english",
-    imageUrl: "/images/english.jpg"
-  },
-  {
-    title: "Spanish Conversation",
-    level: "A2-B2",
-    description: "Practice your Spanish speaking skills in real-life scenarios.",
-    slug: "spanish-conversation",
-    imageUrl: "/images/spanish.jpg"
-  }
-];
+import OptimizedImage from '@/components/OptimizedImage';
+import Testimonials from '@/components/widgets/Testimonials';
+import { features } from '@/data';
 
 export default function Home() {
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative h-[70vh] bg-gray-900">
-        <div className="absolute inset-0 bg-black/50 z-10"></div>
-        <div className="relative z-20 container mx-auto px-4 h-full flex flex-col items-center justify-center text-white text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">Learn Languages in Oslo</h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-2xl">Norwegian, English, and Spanish courses tailored to your needs</p>
-          <Link 
-            href="/contact" 
-            className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-8 rounded-full text-lg transition-colors"
-          >
-            Inquire Now
-          </Link>
+    <div className="flex flex-col min-h-screen">
+      
+      {/* Enhanced Hero Section with Gradient */}
+      <section className="relative overflow-hidden py-20 md:py-28">
+        {/* Background with gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 opacity-90"></div>
+        
+        {/* Static background pattern */}
+        <div className="absolute inset-0 opacity-10" style={{ 
+          backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", 
+          backgroundSize: "20px 20px" 
+        }}></div>
+        
+        <div className="container relative mx-auto px-6 z-10">
+          <div className="max-w-3xl">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white leading-tight animate-fadeIn">
+              Learn Languages in the 
+              <span className="block text-yellow-300">Heart of Oslo</span>
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 text-blue-100 animate-fadeIn delay-200">
+              Join Oslo&apos;s premier language school offering Norwegian, English, Spanish and more.
+              Expert teachers, flexible schedules, and proven learning methods.
+            </p>
+            <div className="animate-fadeIn delay-300">
+              <Link 
+                href="/courses"
+                className="inline-block bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:bg-yellow-300 hover:text-blue-800 transform hover:-translate-y-1 transition-all duration-300"
+              >
+                Explore Our Courses
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+        {/* Decorative elements */}
+        <div className="hidden md:block absolute right-0 bottom-0 w-1/3 h-2/3 bg-blue-800 opacity-20 rounded-tl-full animate-float"></div>
+      </section>
+      
+      {/* Enhanced Testimonials Section */}
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-text-primary animate-fadeIn">
+            What Our Students Say
+          </h2>
+          <p className="text-center text-text-secondary mb-12 max-w-2xl mx-auto animate-fadeIn delay-100">
+            Hear from some of our students who have transformed their language abilities with us
+          </p>
+          <Testimonials />
         </div>
       </section>
-
-      {/* Courses Overview */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center">Our Language Courses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {courses.map((course, index) => (
-              <CourseCard key={index} {...course} />
+      
+      {/* Enhanced Features/Courses Section */}
+      <section className="py-20 bg-background-primary">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-text-primary animate-fadeIn">
+            Our Language Courses
+          </h2>
+          <p className="text-center text-text-secondary mb-16 max-w-2xl mx-auto animate-fadeIn delay-100">
+            Choose from our variety of language courses designed to help you achieve fluency,
+            enhance your career, or simply explore a new culture
+          </p>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <div 
+                key={index}
+                className="bg-background-primary p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-t-4 border-action-primary group hover:-translate-y-2 animate-fadeIn"
+                style={{ animationDelay: `${(index + 1) * 100}ms` }}
+              >
+                <div className="w-16 h-16 mb-6 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
+                  <OptimizedImage
+                    src={feature.icon}
+                    alt={feature.title}
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-text-primary group-hover:text-action-primary transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-text-secondary group-hover:text-text-primary transition-colors duration-300">
+                  {feature.description}
+                </p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center">What Our Students Say</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <p className="italic mb-4">&quot;The Norwegian course helped me integrate into society quickly. The teachers are incredibly supportive and the methods are effective.&quot;</p>
-              <p className="font-semibold">- Maria, Student from Spain</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow">
-              <p className="italic mb-4">&quot;I&apos;ve tried many language schools, but Oslo Languages stands out because of their conversation-focused approach. I can finally speak English confidently at work.&quot;</p>
-              <p className="font-semibold">- Lars, Business Professional</p>
+      {/* Enhanced CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-700 to-indigo-800 text-white">
+        <div className="container mx-auto px-6 text-center">
+          <div className="max-w-3xl mx-auto animate-fadeIn">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Ready to Start Your Language Journey?
+            </h2>
+            <p className="text-xl text-blue-100 mb-10">
+              Contact us today to discuss your language learning goals and find the perfect course for you.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                href="/contact"
+                className="bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold hover:bg-yellow-300 hover:text-blue-800 transition-all duration-300 shadow-lg transform hover:-translate-y-1"
+              >
+                Contact Us
+              </Link>
+              <Link
+                href="/courses" 
+                className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300"
+              >
+                View Courses
+              </Link>
             </div>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

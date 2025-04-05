@@ -80,12 +80,13 @@ export default function Navigation() {
 
   return (
     <nav aria-label="Main navigation" className="relative">
-    <a
-      href="#main-content"
-      className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white text-blue-600 p-2 z-50"
-    >
-      Skip to main content
-    </a>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white text-blue-600 p-2 z-50"
+      >
+        Skip to main content
+      </a>
+
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex space-x-4">
@@ -155,7 +156,7 @@ export default function Navigation() {
         aria-orientation="vertical"
         aria-labelledby="mobile-menu-button"
       >
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg rounded-md border mt-2">
+        <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg rounded-md border mt-2">
           {navigationLinks.map(({ href, label }) => (
             <Link
               key={href}

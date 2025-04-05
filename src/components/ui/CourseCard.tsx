@@ -23,7 +23,9 @@ export default function CourseCard({
   ctaPath = `/contact?course=${slug}`
 }: CourseCardProps) {
   return (
-    <div className="card flex flex-col h-full">
+    // Added transition-all and animate-fadeIn classes for animation
+    // Using bg-background-secondary instead of direct color
+    <div className="card flex flex-col h-full transition-all duration-300 hover:shadow-lg animate-fadeIn">
       <div className="relative h-48 w-full">
         <Image 
           src={imageUrl} 
@@ -36,16 +38,20 @@ export default function CourseCard({
       <div className="p-4 flex-grow flex flex-col">
         <div className="mb-auto">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold text-lg text-gray-800">{title}</h3>
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+            {/* Using text-text-primary instead of direct color */}
+            <h3 className="font-semibold text-lg text-text-primary">{title}</h3>
+            {/* Using custom color variables for badge */}
+            <span className="bg-status-success text-text-inverse text-xs px-2 py-1 rounded-full">
               {level}
             </span>
           </div>
-          <p className="text-gray-600 mb-4">{description}</p>
+          {/* Using text-text-secondary instead of direct color */}
+          <p className="text-text-secondary mb-4">{description}</p>
         </div>
         <Link 
           href={ctaPath}
-          className="btn-primary text-center"
+          className="bg-action-primary hover:bg-action-primaryHover text-text-inverse text-center py-2 px-4 rounded 
+                     transition-all duration-300 hover:-translate-y-1 transform focus:ring-2 focus:ring-focus-ring focus:outline-none"
         >
           {ctaText}
         </Link>
