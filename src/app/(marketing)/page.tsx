@@ -1,16 +1,22 @@
 import Link from "next/link";
-import OptimizedImage from '@/components/common/media/OptimizedImage';
-import Testimonials from '@/components/features/Testimonials';
+import Image from "next/image";
+import Container from "@/components/common/layout/Container";
 import { features } from '@/data';
+import AnimateOnScroll from '@/components/common/animation/AnimateOnScroll';
+import Testimonials from '@/components/features/Testimonials';
+import NewsletterSignup from '@/components/features/NewsletterSignup';
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
-      
+    <Container containerSize="wide" padding="none">
       {/* Enhanced Hero Section with Gradient */}
       <section className="relative overflow-hidden py-20 md:py-28">
         {/* Background with gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 opacity-90"></div>
+        
+        {/* Animated floating shapes */}
+        <div className="absolute right-0 bottom-0 w-64 h-64 bg-white/10 rounded-full blur-xl animate-float"></div>
+        <div className="absolute left-20 top-20 w-32 h-32 bg-yellow-200/10 rounded-full blur-xl animate-float-delay"></div>
         
         {/* Static background pattern */}
         <div className="absolute inset-0 opacity-10" style={{ 
@@ -22,7 +28,12 @@ export default function Home() {
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white leading-tight animate-fadeIn">
               Learn Languages in the 
-              <span className="block text-yellow-300">Heart of Oslo</span>
+              <span className="block text-yellow-300 relative">
+                Heart of Oslo
+                <svg className="absolute -bottom-2 left-0 w-full h-2 text-yellow-300" viewBox="0 0 200 8" preserveAspectRatio="none">
+                  <path d="M0,5 C50,0 150,0 200,5" fill="none" stroke="currentColor" strokeWidth="3"></path>
+                </svg>
+              </span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-blue-100 animate-fadeIn delay-200">
               Join Oslo&apos;s premier language school offering Norwegian, English, Spanish and more.
@@ -31,9 +42,10 @@ export default function Home() {
             <div className="animate-fadeIn delay-300">
               <Link 
                 href="/courses"
-                className="inline-block bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:bg-yellow-300 hover:text-blue-800 transform hover:-translate-y-1 transition-all duration-300"
+                className="group inline-block bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:bg-yellow-300 hover:text-blue-800 transform hover:-translate-y-1 transition-all duration-300"
               >
                 Explore Our Courses
+                <span className="inline-block ml-2 transform group-hover:translate-x-1 transition-transform">→</span>
               </Link>
             </div>
           </div>
@@ -46,12 +58,19 @@ export default function Home() {
       {/* Enhanced Testimonials Section */}
       <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-text-primary animate-fadeIn">
-            What Our Students Say
-          </h2>
-          <p className="text-center text-text-secondary mb-12 max-w-2xl mx-auto animate-fadeIn delay-100">
-            Hear from some of our students who have transformed their language abilities with us
-          </p>
+          <AnimateOnScroll animation="animate-fadeIn">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-text-primary relative">
+              <span className="relative inline-block">
+                What Our Students Say
+                <span className="absolute -bottom-2 left-1/4 right-1/4 h-1 bg-blue-500 rounded-full"></span>
+              </span>
+            </h2>
+          </AnimateOnScroll>
+          <AnimateOnScroll animation="animate-fadeIn" delay={100}>
+            <p className="text-center text-text-secondary mb-12 max-w-2xl mx-auto">
+              Hear from some of our students who have transformed their language abilities with us
+            </p>
+          </AnimateOnScroll>
           <Testimonials />
         </div>
       </section>
@@ -59,46 +78,82 @@ export default function Home() {
       {/* Enhanced Features/Courses Section */}
       <section className="py-20 bg-background-primary">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-text-primary animate-fadeIn">
-            Our Language Courses
-          </h2>
-          <p className="text-center text-text-secondary mb-16 max-w-2xl mx-auto animate-fadeIn delay-100">
-            Choose from our variety of language courses designed to help you achieve fluency,
-            enhance your career, or simply explore a new culture
-          </p>
+          <AnimateOnScroll animation="animate-fadeIn">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-text-primary">
+              Our Language Courses
+            </h2>
+          </AnimateOnScroll>
+          <AnimateOnScroll animation="animate-fadeIn" delay={100}>
+            <p className="text-center text-text-secondary mb-16 max-w-2xl mx-auto">
+              Choose from our variety of language courses designed to help you achieve fluency,
+              enhance your career, or simply explore a new culture
+            </p>
+          </AnimateOnScroll>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="bg-background-primary p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-t-4 border-action-primary group hover:-translate-y-2 animate-fadeIn"
-                style={{ animationDelay: `${(index + 1) * 100}ms` }}
+              <AnimateOnScroll 
+                key={index} 
+                animation="animate-fadeInUp" 
+                delay={(index + 1) * 100}
+                className="h-full"
               >
-                <div className="w-16 h-16 mb-6 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
-                  <OptimizedImage
-                    src={feature.icon}
-                    alt={feature.title}
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                  />
+                <div className="group bg-white p-8 rounded-xl shadow-lg hover:shadow-xl border-t-4 border-action-primary transition-all duration-300 hover:-translate-y-2 flex flex-col h-full">
+                  <div className="w-16 h-16 mb-6 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-all duration-300">
+                    <Image
+                      src={feature.icon}
+                      alt={feature.title}
+                      width={40}
+                      height={40}
+                      className="object-contain group-hover:scale-110 transition-all duration-300"
+                    />
+                  </div>
+                  <h3 className="text-xl font-bold mb-3 text-text-primary group-hover:text-action-primary transition-all duration-300">
+                    {feature.title}
+                  </h3>
+                  <p className="text-text-secondary group-hover:text-text-primary transition-all duration-300 mb-6">
+                    {feature.description}
+                  </p>
+                  <div className="mt-auto">
+                    <Link 
+                      href={`/courses#${feature.title.toLowerCase().replace(' ', '-')}`}
+                      className="inline-flex items-center text-blue-600 font-medium hover:text-blue-800 transition-all duration-300"
+                    >
+                      Learn more
+                      <svg className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </Link>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-text-primary group-hover:text-action-primary transition-colors duration-300">
-                  {feature.title}
-                </h3>
-                <p className="text-text-secondary group-hover:text-text-primary transition-colors duration-300">
-                  {feature.description}
-                </p>
-              </div>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Newsletter Section */}
+      <AnimateOnScroll animation="animate-fadeIn">
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-6">
+            <div className="max-w-2xl mx-auto">
+              <NewsletterSignup />
+            </div>
+          </div>
+        </section>
+      </AnimateOnScroll>
+
       {/* Enhanced CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-700 to-indigo-800 text-white">
-        <div className="container mx-auto px-6 text-center">
-          <div className="max-w-3xl mx-auto animate-fadeIn">
+      <section className="py-20 bg-gradient-to-r from-blue-700 to-indigo-800 text-white relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
+          <div className="absolute top-0 -left-10 w-40 h-40 bg-white rounded-full"></div>
+          <div className="absolute bottom-0 right-0 w-60 h-60 bg-white rounded-full"></div>
+          <div className="absolute top-1/3 right-1/4 w-20 h-20 bg-white rounded-full"></div>
+        </div>
+        
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <AnimateOnScroll animation="animate-fadeIn" className="max-w-3xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               Ready to Start Your Language Journey?
             </h2>
@@ -108,20 +163,22 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 href="/contact"
-                className="bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold hover:bg-yellow-300 hover:text-blue-800 transition-all duration-300 shadow-lg transform hover:-translate-y-1"
+                className="group relative overflow-hidden bg-white text-blue-700 px-8 py-4 rounded-lg font-semibold hover:text-blue-800 transition-all duration-300 shadow-lg"
               >
-                Contact Us
+                <span className="relative z-10">Contact Us</span>
+                <div className="absolute inset-0 bg-yellow-300 transform -translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </Link>
               <Link
                 href="/courses" 
-                className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300"
+                className="group relative bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300"
               >
-                View Courses
+                <span className="group-hover:mr-2 transition-all duration-300">View Courses</span>
+                <span className="inline-block transform opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">→</span>
               </Link>
             </div>
-          </div>
+          </AnimateOnScroll>
         </div>
       </section>
-    </div>
+    </Container>
   );
 }

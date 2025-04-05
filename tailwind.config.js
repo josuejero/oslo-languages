@@ -4,7 +4,55 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation: {
+        'float': 'float 6s ease-in-out infinite',
+        'float-delay': 'float 8s ease-in-out 2s infinite',
+        'fadeIn': 'fadeIn 1s ease-in forwards',
+        'fadeInUp': 'fadeInUp 0.8s ease-out forwards',
+        'fadeInRight': 'fadeInRight 0.8s ease-out forwards',
+        'fadeInLeft': 'fadeInLeft 0.8s ease-out forwards',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
+        fadeIn: {
+          '0%': { opacity: 0, transform: 'translateY(10px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
+        fadeInUp: {
+          '0%': { opacity: 0, transform: 'translateY(30px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
+        fadeInRight: {
+          '0%': { opacity: 0, transform: 'translateX(-30px)' },
+          '100%': { opacity: 1, transform: 'translateX(0)' },
+        },
+        fadeInLeft: {
+          '0%': { opacity: 0, transform: 'translateX(30px)' },
+          '100%': { opacity: 1, transform: 'translateX(0)' },
+        },
+      },
+      colors: {
+        // Main colors
+        'text-primary': '#171717',
+        'text-secondary': '#4B5563',
+        'text-tertiary': '#9CA3AF',
+        'text-inverse': '#FFFFFF',
+        'background-primary': '#FFFFFF',
+        'background-secondary': '#F9FAFB',
+        'action-primary': '#3B82F6',
+        'action-primaryHover': '#2563EB',
+        'border-default': '#E5E7EB',
+        'focus-ring': '#93C5FD',
+        'status-success': '#10B981',
+        'status-error': '#EF4444',
+        'status-warning': '#F59E0B',
+        'status-info': '#3B82F6',
+      },
+    },
   },
   plugins: [],
 }
