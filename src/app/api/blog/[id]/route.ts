@@ -2,11 +2,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPostBySlug, deletePost } from '@/lib/blog';
 
-// type RouteParams = {
-//   params: {
-//     id: string;
-//   };
-// };
+// Utility functions for consistent responses
+function errorResponse(message: string, status = 400) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+function successResponse(data: any, status = 200) {
+  return NextResponse.json(data, { status });
+}
 
 export async function GET(
   request: NextRequest,
@@ -16,18 +19,13 @@ export async function GET(
     const post = getPostBySlug(params.id);
     
     if (!post) {
-      return NextResponse.json(
-        { error: 'Blog post not found' },
-        { status: 404 }
-      );
+      return errorResponse('Blog post not found', 404);
     }
     
-    return NextResponse.json(post);
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to fetch blog post' },
-      { status: 500 }
-    );
+    return successResponse(post);
+  } catch (error) {
+    console.error('Error fetching blog post:', error);
+    return errorResponse('Failed to fetch blog post', 500);
   }
 }
 
@@ -39,22 +37,14 @@ export async function DELETE(
     const id = parseInt(params.id);
     
     if (isNaN(id)) {
-      return NextResponse.json(
-        { error: 'Invalid ID' },
-        { status: 400 }
-      );
+      return errorResponse('Invalid ID format');
     }
     
     deletePost(id);
     
-    return NextResponse.json(
-      { message: 'Blog post deleted successfully' },
-      { status: 200 }
-    );
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to delete blog post' },
-      { status: 500 }
-    );
+    return successResponse({ message: 'Blog post deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting blog post:', error);
+    return errorResponse('Failed to delete blog post', 500);
   }
 }

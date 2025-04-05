@@ -1,16 +1,24 @@
 // src/app/api/blog/route.ts
 import { NextResponse } from 'next/server';
 import { getAllPosts, savePost } from '@/lib/blog';
+import { BlogPost } from '@/types';
+
+// Utility functions for consistent responses
+function errorResponse(message: string, status = 400) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+function successResponse(data: any, status = 200) {
+  return NextResponse.json(data, { status });
+}
 
 export async function GET() {
   try {
     const posts = getAllPosts();
-    return NextResponse.json(posts);
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to fetch blog posts' },
-      { status: 500 }
-    );
+    return successResponse(posts);
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return errorResponse('Failed to fetch blog posts', 500);
   }
 }
 
@@ -18,15 +26,12 @@ export async function POST(request: Request) {
   try {
     const post = await request.json();
     
-    // Validate the post data
+    // Validate required fields
     if (!post.title || !post.content) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return errorResponse('Missing required fields: title and content are required');
     }
     
-    // Create a slug if not provided
+    // Create slug if not provided
     if (!post.slug) {
       post.slug = post.title
         .toLowerCase()
@@ -41,14 +46,12 @@ export async function POST(request: Request) {
     
     savePost(post);
     
-    return NextResponse.json(
-      { message: 'Blog post saved successfully', post },
-      { status: 200 }
-    );
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to save blog post' },
-      { status: 500 }
-    );
+    return successResponse({ 
+      message: 'Blog post saved successfully', 
+      post 
+    });
+  } catch (error) {
+    console.error('Error saving blog post:', error);
+    return errorResponse('Failed to save blog post', 500);
   }
 }

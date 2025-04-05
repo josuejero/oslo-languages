@@ -2,12 +2,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-interface CourseCardProps {
+// Using a more generic Course type that can be reused across the application
+export interface CourseCardProps {
   title: string;
   level: string;
   description: string;
-  imageUrl?: string;
+  imageUrl?: string; 
   slug: string;
+  ctaText?: string;
+  ctaPath?: string;
 }
 
 export default function CourseCard({ 
@@ -15,16 +18,18 @@ export default function CourseCard({
   level, 
   description, 
   imageUrl = '/images/default-course.jpg',
-  slug 
+  slug,
+  ctaText = 'Inquire Now',
+  ctaPath = `/contact?course=${slug}`
 }: CourseCardProps) {
   return (
-    <div className="border rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 bg-white h-full flex flex-col">
+    <div className="card flex flex-col h-full">
       <div className="relative h-48 w-full">
         <Image 
           src={imageUrl} 
           alt={title} 
           fill 
-          className="object-cover"
+          className="object-cover rounded-t-lg"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
@@ -39,10 +44,10 @@ export default function CourseCard({
           <p className="text-gray-600 mb-4">{description}</p>
         </div>
         <Link 
-          href={`/contact?course=${slug}`} 
-          className="mt-2 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors text-center"
+          href={ctaPath}
+          className="btn-primary text-center"
         >
-          Inquire Now
+          {ctaText}
         </Link>
       </div>
     </div>

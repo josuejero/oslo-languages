@@ -1,35 +1,48 @@
-// src/components/templates/Container.tsx
-import { ReactNode } from 'react';
+import React, { ReactNode, ElementType } from 'react';
+
+type ContainerSize = 'default' | 'narrow' | 'wide' | 'full';
+type ContainerPadding = 'none' | 'small' | 'default' | 'large';
 
 interface ContainerProps {
   children: ReactNode;
-  size?: 'default' | 'narrow' | 'wide';
-  padding?: 'none' | 'small' | 'default' | 'large';
+  size?: ContainerSize;
+  padding?: ContainerPadding;
   className?: string;
+  as?: ElementType;  // Use ElementType instead of keyof JSX.IntrinsicElements
+  id?: string;
 }
 
-export default function Container({ 
-  children, 
-  size = 'default', 
+/**
+ * A flexible container component that handles consistent layout sizing
+ * Used throughout the application for layout standardization
+ */
+export default function Container({
+  children,
+  size = 'default',
   padding = 'default',
-  className = '' 
+  className = '',
+  as: Component = 'div',   // Default to 'div'
+  id
 }: ContainerProps) {
-  const sizeClasses = {
+  const sizeClasses: Record<ContainerSize, string> = {
     default: 'container mx-auto',
     narrow: 'container mx-auto max-w-4xl',
-    wide: 'container mx-auto max-w-7xl'
+    wide:   'container mx-auto max-w-7xl',
+    full:   'w-full'
   };
 
-  const paddingClasses = {
-    none: '',
-    small: 'px-4 py-4',
+  const paddingClasses: Record<ContainerPadding, string> = {
+    none:    '',
+    small:   'px-4 py-4',
     default: 'px-4 py-8',
-    large: 'px-4 py-12'
+    large:   'px-4 py-12'
   };
+
+  const combinedClasses = `${sizeClasses[size]} ${paddingClasses[padding]} ${className}`;
 
   return (
-    <div className={`${sizeClasses[size]} ${paddingClasses[padding]} ${className}`}>
+    <Component className={combinedClasses} id={id}>
       {children}
-    </div>
+    </Component>
   );
 }

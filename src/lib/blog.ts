@@ -1,7 +1,7 @@
 // src/lib/blog.ts
 import fs from 'fs';
 import path from 'path';
-
+import { BlogPost } from '../types';
 const dataDirectory = path.join(process.cwd(), 'data');
 const blogFile = path.join(dataDirectory, 'blog-posts.json');
 
@@ -13,18 +13,6 @@ if (!fs.existsSync(dataDirectory)) {
 // Ensure the blog file exists
 if (!fs.existsSync(blogFile)) {
   fs.writeFileSync(blogFile, JSON.stringify([]), 'utf8');
-}
-
-export interface BlogPost {
-  id: number;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  date: string;
-  author: string;
-  imageUrl: string;
-  category: string;
 }
 
 export function getAllPosts(): BlogPost[] {

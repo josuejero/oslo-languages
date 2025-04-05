@@ -1,6 +1,16 @@
 // src/app/api/contact/route.ts
 import { NextResponse } from 'next/server';
 import sgMail from '@sendgrid/mail';
+import { ContactFormData } from '@/types';
+
+// Utility functions for consistent responses
+function errorResponse(message: string, status = 400) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+function successResponse(data: any, status = 200) {
+  return NextResponse.json(data, { status });
+}
 
 // Set your SendGrid API key
 const apiKey = process.env.SENDGRID_API_KEY || '';
@@ -10,25 +20,26 @@ if (apiKey && apiKey.startsWith('SG.')) {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body: ContactFormData = await request.json();
     const { name, email, subject, message } = body;
     
     // Validate inputs
     if (!name || !email || !subject || !message) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return errorResponse('Missing required fields');
     }
     
     // Check if SendGrid is properly configured
     if (!apiKey || !apiKey.startsWith('SG.')) {
       console.warn('SendGrid API key not configured or invalid');
-      // For development, you can return a mock success response
-      return NextResponse.json(
-        { message: 'Contact form submitted successfully (SendGrid disabled)' },
-        { status: 200 }
-      );
+      
+      // For development, return mock success
+      if (process.env.NODE_ENV === 'development') {
+        return successResponse({ 
+          message: 'Contact form submitted successfully (SendGrid disabled in development)' 
+        });
+      } else {
+        return errorResponse('Email service configuration error', 500);
+      }
     }
     
     // Prepare email
@@ -55,15 +66,9 @@ export async function POST(request: Request) {
     // Send email
     await sgMail.send(msg);
     
-    return NextResponse.json(
-      { message: 'Contact form submitted successfully' },
-      { status: 200 }
-    );
+    return successResponse({ message: 'Contact form submitted successfully' });
   } catch (error) {
     console.error('Error processing contact form:', error);
-    return NextResponse.json(
-      { error: 'Failed to process contact form' },
-      { status: 500 }
-    );
+    return errorResponse('Failed to process contact form', 500);
   }
 }
