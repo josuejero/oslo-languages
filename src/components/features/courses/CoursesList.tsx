@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import CourseCard from "@/components/common/CourseCard";
+import CourseCard from "./CourseCard";
 
 interface Course {
   id: number;

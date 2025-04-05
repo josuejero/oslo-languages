@@ -1,5 +1,7 @@
 export * from './blog';
 export * from './courses';
+export * from './contact'; // Add this line to export the ContactFormData type
+
 
 // Common types
 export interface BaseComponentProps {
