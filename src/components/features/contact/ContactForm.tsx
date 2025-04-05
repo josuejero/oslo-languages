@@ -1,121 +1,20 @@
-'use client'
-
 // src/components/contact/ContactForm.tsx
-import { useState, FormEvent, ChangeEvent } from 'react';
+'use client';
 
-type FormData = {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-};
-
-type SubmissionStatus = {
-  type: 'success' | 'error';
-  message: string;
-} | null;
+import { useContactForm } from './useContactForm';
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [status, setStatus] = useState<SubmissionStatus>(null);
-  
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof FormData, string>> = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)) {
-      newErrors.email = 'Invalid email address';
-    }
-    
-    if (!formData.subject.trim()) {
-      newErrors.subject = 'Subject is required';
-    }
-    
-    if (!formData.message.trim()) {
-      newErrors.message = 'Message is required';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-  
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setStatus(null);
-    
-    try {
-      console.log('Submitting contact form', { email: formData.email });
-
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to submit the form');
-      }
-
-      setStatus({
-        type: 'success',
-        message: 'Thank you for your message. We will contact you soon.'
-      });
-      
-      // Reset form after successful submission
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-
-    } catch (error) {
-      console.error('Contact form submission failed', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      
-      setStatus({
-        type: 'error',
-        message: 'Failed to submit the form. Please try again later.'
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    status,
+    handleChange,
+    handleSubmit
+  } = useContactForm();
 
   return (
-    <form 
+    <form
       onSubmit={handleSubmit}
       className="space-y-6 bg-white p-8 rounded-lg shadow-lg"
       noValidate
@@ -123,10 +22,10 @@ export default function ContactForm() {
     >
       {/* Status Messages */}
       {status && (
-        <div 
+        <div
           className={`p-4 rounded-lg ${
-            status.type === 'success' 
-              ? 'bg-green-50 text-green-700 border border-green-200' 
+            status.type === 'success'
+              ? 'bg-green-50 text-green-700 border border-green-200'
               : 'bg-red-50 text-red-700 border border-red-200'
           }`}
           role="alert"

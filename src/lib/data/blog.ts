@@ -1,7 +1,7 @@
 // src/lib/blog.ts
 import fs from 'fs';
 import path from 'path';
-import { BlogPost } from '../types';
+import { BlogPost } from '@/types';
 const dataDirectory = path.join(process.cwd(), 'data');
 const blogFile = path.join(dataDirectory, 'blog-posts.json');
 

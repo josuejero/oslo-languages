@@ -1,92 +1,38 @@
-// src/components/widgets/Testimonials.tsx
+// Testimonials.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import OptimizedImage from '@/components/common/OptimizedImage';
+import { testimonialsData } from './testimonialsData';
+import TestimonialSkeleton from './TestimonialSkeleton';
+import StarRating from './StarRating';
+import OptimizedImage from '@/components/common/media/OptimizedImage';
 
 /**
- * The Testimonial type represents a single student review
+ * Client-side component for testimonials.
  */
-type Testimonial = {
-  id: number;
-  name: string;
-  role: string;
-  image: string;
-  course: string;
-  text: string;
-  rating: number;
-};
-
-// These would typically come from an API or CMS
-const testimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: "Maria Johnson",
-    role: "Software Developer",
-    image: "/testimonials/maria.jpg",
-    course: "Norwegian A1",
-    text: "The Norwegian course at Oslo Languages exceeded my expectations. The teachers are incredibly supportive and the small class size ensures everyone gets attention.",
-    rating: 5
-  },
-  {
-    id: 2,
-    name: "Thomas Berg",
-    role: "Business Consultant",
-    image: "/testimonials/thomas.jpg",
-    course: "Business English",
-    text: "Their Business English course helped me significantly improve my professional communication skills. The focus on real-world scenarios was particularly valuable.",
-    rating: 5
-  },
-  {
-    id: 3,
-    name: "Sofia Garcia",
-    role: "Student",
-    image: "/testimonials/sofia.jpg",
-    course: "Spanish B1",
-    text: "Love the interactive teaching style! Made learning Spanish fun and practical. The cultural aspects included in the lessons were a great bonus.",
-    rating: 5
-  }
-];
-
-// Client-side component for testimonials
 export default function Testimonials() {
-  // Using a key to force remount for SSR
   const [mounted, setMounted] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Only run on client-side
+  // Run only on client-side
   useEffect(() => {
     setMounted(true);
-    
-    // Optional: Auto-advance testimonials
+
+    // Auto-advance testimonials every 7 seconds (optional)
     const timer = setInterval(() => {
-      setActiveIndex((current) => 
-        current === testimonials.length - 1 ? 0 : current + 1
+      setActiveIndex((current) =>
+        current === testimonialsData.length - 1 ? 0 : current + 1
       );
     }, 7000);
-    
+
     return () => clearInterval(timer);
   }, []);
 
-  // Don't render anything until client-side
+  // If not yet mounted, show skeleton loader
   if (!mounted) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 relative">
-          <div className="animate-pulse">
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              <div className="flex-shrink-0">
-                <div className="w-24 h-24 bg-gray-200 rounded-full"></div>
-              </div>
-              <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-6"></div>
-                <div className="h-4 bg-gray-200 rounded w-full mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded w-full mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TestimonialSkeleton />
       </div>
     );
   }
@@ -94,16 +40,18 @@ export default function Testimonials() {
   // Move to the next testimonial
   const nextTestimonial = () => {
     setActiveIndex((current) =>
-      current === testimonials.length - 1 ? 0 : current + 1
+      current === testimonialsData.length - 1 ? 0 : current + 1
     );
   };
 
-  // Move to the previous testimonial 
+  // Move to the previous testimonial
   const prevTestimonial = () => {
     setActiveIndex((current) =>
-      current === 0 ? testimonials.length - 1 : current - 1
+      current === 0 ? testimonialsData.length - 1 : current - 1
     );
   };
+
+  const currentTestimonial = testimonialsData[activeIndex];
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -112,7 +60,7 @@ export default function Testimonials() {
         <button
           onClick={prevTestimonial}
           className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 z-10 transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label={`Previous testimonial by ${testimonials[activeIndex].name}`}
+          aria-label={`Previous testimonial by ${currentTestimonial.name}`}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -124,10 +72,13 @@ export default function Testimonials() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
+
         <button
           onClick={nextTestimonial}
           className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 z-10 transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label={`Next testimonial by ${testimonials[(activeIndex + 1) % testimonials.length].name}`}
+          aria-label={`Next testimonial by ${
+            testimonialsData[(activeIndex + 1) % testimonialsData.length].name
+          }`}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -147,11 +98,10 @@ export default function Testimonials() {
             <div className="flex flex-col items-center">
               <div className="relative w-24 h-24 mb-4">
                 <div className="absolute inset-0 bg-blue-600 rounded-full opacity-10 transform -rotate-6"></div>
-                {/* Handle fallback for missing images */}
                 <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
                   <OptimizedImage
-                    src={testimonials[activeIndex].image}
-                    alt={testimonials[activeIndex].name}
+                    src={currentTestimonial.image}
+                    alt={currentTestimonial.name}
                     fill
                     className="object-cover"
                     fallbackSrc="/images/placeholder-avatar.jpg"
@@ -160,38 +110,27 @@ export default function Testimonials() {
               </div>
 
               {/* Rating Stars */}
-              <div className="flex gap-1 mb-2">
-                {[...Array(testimonials[activeIndex].rating)].map((_, i) => (
-                  <svg
-                    key={i}
-                    className="w-5 h-5 text-yellow-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-              </div>
+              <StarRating rating={currentTestimonial.rating} />
             </div>
-            
+
             {/* Content */}
             <div className="flex-1">
               <blockquote className="text-lg md:text-xl mb-6 text-gray-800 italic relative">
-                <svg 
+                <svg
                   className="absolute -top-6 -left-6 w-12 h-12 text-blue-100 transform -rotate-12"
-                  xmlns="http://www.w3.org/2000/svg" 
-                  fill="currentColor" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
                   viewBox="0 0 32 32"
                 >
                   <path d="M10 8c-3.9 0-7 3.1-7 7s3.1 7 7 7c0 0-1 3-5 3v2c0 0 8 0 8-11 0-3.9-3.1-7-7-7zm12 0c-3.9 0-7 3.1-7 7s3.1 7 7 7c0 0-1 3-5 3v2c0 0 8 0 8-11 0-3.9-3.1-7-7-7z"></path>
                 </svg>
-                <p>&quot;{testimonials[activeIndex].text}&quot;</p>
+                <p>&quot;{currentTestimonial.text}&quot;</p>
               </blockquote>
 
               <div>
-                <p className="font-bold text-lg text-gray-900">{testimonials[activeIndex].name}</p>
-                <p className="text-gray-600">{testimonials[activeIndex].role}</p>
-                <p className="text-blue-600 font-medium">{testimonials[activeIndex].course}</p>
+                <p className="font-bold text-lg text-gray-900">{currentTestimonial.name}</p>
+                <p className="text-gray-600">{currentTestimonial.role}</p>
+                <p className="text-blue-600 font-medium">{currentTestimonial.course}</p>
               </div>
             </div>
           </div>
@@ -200,7 +139,7 @@ export default function Testimonials() {
 
       {/* Dots Navigation */}
       <div className="flex justify-center gap-3 mt-8">
-        {testimonials.map((_, index) => (
+        {testimonialsData.map((_, index) => (
           <button
             key={index}
             onClick={() => setActiveIndex(index)}

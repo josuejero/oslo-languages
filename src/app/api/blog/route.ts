@@ -1,6 +1,6 @@
 // src/app/api/blog/route.ts
 import { NextResponse } from 'next/server';
-import { getAllPosts, savePost } from '@/lib/blog';
+import { getAllPosts, savePost } from '@/lib/data/blog';
 import { BlogPost } from '@/types';
 
 // Utility functions for consistent responses

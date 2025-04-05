@@ -1,6 +1,6 @@
 // src/app/api/blog/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getPostBySlug, deletePost } from '@/lib/blog';
+import { getPostBySlug, deletePost } from '@/lib/data/blog'; // Adjust the import path as necessary
 
 // Utility functions for consistent responses
 function errorResponse(message: string, status = 400) {
