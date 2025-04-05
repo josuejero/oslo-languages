@@ -1,17 +1,29 @@
 /** @type {import('next').NextConfig} */
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 const nextConfig = {
-  // Remove the experimental.serverActions flag as it's now default
-  experimental: {
-    // Other experimental features can stay
+  images: {
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    formats: ['image/avif', 'image/webp'],
   },
-  // Optionally disable SendGrid API validation during development
+  experimental: {
+    optimizeCss: true,
+    optimizeServerReact: true,
+    // experimental.serverActions is now default and no longer needs to be explicitly enabled
+  },
   env: {
     SENDGRID_VALIDATION_DISABLED: process.env.NODE_ENV === 'development' ? 'true' : 'false',
   },
   eslint: {
-    // Use the new ESLint configuration
     ignoreDuringBuilds: false,
+  },
+  poweredByHeader: false,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

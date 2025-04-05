@@ -1,9 +1,17 @@
-// src/app/api/contact/route.ts
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import sgMail from '@sendgrid/mail';
 import { ContactFormData } from '@/types';
 
-// Utility functions for consistent responses
+// Create a schema for validation using Zod
+const contactSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  subject: z.string().min(3, 'Subject must be at least 3 characters'),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
+});
+
+// Utility functions for standardized API responses
 function errorResponse(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
 }
@@ -20,19 +28,25 @@ if (apiKey && apiKey.startsWith('SG.')) {
 
 export async function POST(request: Request) {
   try {
-    const body: ContactFormData = await request.json();
-    const { name, email, subject, message } = body;
-    
-    // Validate inputs
-    if (!name || !email || !subject || !message) {
-      return errorResponse('Missing required fields');
+    // Parse the request body
+    const body = await request.json();
+
+    // Validate the input using Zod schema
+    const result = contactSchema.safeParse(body);
+    if (!result.success) {
+      // Combine all error messages into a single string
+      const errorMessages = result.error.errors.map(err => err.message).join(', ');
+      return errorResponse(errorMessages, 422);
     }
+    
+    // Destructure the validated data
+    const { name, email, subject, message } = result.data;
     
     // Check if SendGrid is properly configured
     if (!apiKey || !apiKey.startsWith('SG.')) {
       console.warn('SendGrid API key not configured or invalid');
       
-      // For development, return mock success
+      // For development, return a mock success response
       if (process.env.NODE_ENV === 'development') {
         return successResponse({ 
           message: 'Contact form submitted successfully (SendGrid disabled in development)' 
@@ -42,7 +56,7 @@ export async function POST(request: Request) {
       }
     }
     
-    // Prepare email
+    // Prepare the email message
     const msg = {
       to: process.env.ADMIN_EMAIL || 'admin@example.com',
       from: process.env.FROM_EMAIL || 'noreply@oslolanguages.com',
@@ -63,7 +77,7 @@ export async function POST(request: Request) {
       `,
     };
     
-    // Send email
+    // Send the email via SendGrid
     await sgMail.send(msg);
     
     return successResponse({ message: 'Contact form submitted successfully' });

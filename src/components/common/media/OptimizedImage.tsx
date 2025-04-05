@@ -15,6 +15,7 @@ interface OptimizedImageProps extends Omit<ImageProps, 'placeholder' | 'blurData
   aspectRatio?: number;
   lazyBoundary?: string;
   background?: string;
+  priority?: boolean;
 }
 
 export default function OptimizedImage({
@@ -64,6 +65,7 @@ export default function OptimizedImage({
           src={error ? fallbackSrc : imgSrc}
           alt={alt}
           quality={props.quality ?? 75}
+          priority={props.priority}
           className={`transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
           onLoad={() => {
             try {

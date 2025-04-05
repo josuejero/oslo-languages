@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { testimonialsData } from './testimonialsData';
 import TestimonialSkeleton from './TestimonialSkeleton';
@@ -10,21 +10,36 @@ export default function Testimonials() {
   const [mounted, setMounted] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Run only on client-side
-  useEffect(() => {
-    setMounted(true);
-
-    // Auto-advance testimonials every 7 seconds
-    const timer = setInterval(() => {
-      setActiveIndex((current) =>
-        current === testimonialsData.length - 1 ? 0 : current + 1
-      );
-    }, 7000);
-
-    return () => clearInterval(timer);
+  // Memoize nextTestimonial to avoid recreating the function on every render
+  const nextTestimonial = useCallback(() => {
+    setActiveIndex(current =>
+      current === testimonialsData.length - 1 ? 0 : current + 1
+    );
   }, []);
 
-  // If not yet mounted, show skeleton loader
+  // Memoize prevTestimonial for the same reason
+  const prevTestimonial = useCallback(() => {
+    setActiveIndex(current =>
+      current === 0 ? testimonialsData.length - 1 : current - 1
+    );
+  }, []);
+
+  // Memoize the current testimonial based on activeIndex
+  const currentTestimonial = useMemo(
+    () => testimonialsData[activeIndex],
+    [activeIndex]
+  );
+
+  // Set mounted state and auto-advance testimonials every 7 seconds
+  useEffect(() => {
+    setMounted(true);
+    const timer = setInterval(() => {
+      nextTestimonial();
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [nextTestimonial]);
+
+  // Show a skeleton loader until the component is mounted (client-side)
   if (!mounted) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -32,22 +47,6 @@ export default function Testimonials() {
       </div>
     );
   }
-
-  // Move to the next testimonial
-  const nextTestimonial = () => {
-    setActiveIndex((current) =>
-      current === testimonialsData.length - 1 ? 0 : current + 1
-    );
-  };
-
-  // Move to the previous testimonial
-  const prevTestimonial = () => {
-    setActiveIndex((current) =>
-      current === 0 ? testimonialsData.length - 1 : current - 1
-    );
-  };
-
-  const currentTestimonial = testimonialsData[activeIndex];
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -101,10 +100,8 @@ export default function Testimonials() {
                   />
                 </div>
               </div>
-              
               <StarRating rating={currentTestimonial.rating} />
             </div>
-            
             <div className="flex-1">
               <blockquote className="text-lg md:text-xl mb-6 text-gray-800 italic relative">
                 <svg 
@@ -116,7 +113,6 @@ export default function Testimonials() {
                 </svg>
                 <p>&quot;{currentTestimonial.text}&quot;</p>
               </blockquote>
-              
               <div>
                 <p className="font-bold text-lg text-gray-900">{currentTestimonial.name}</p>
                 <p className="text-gray-600">{currentTestimonial.role}</p>

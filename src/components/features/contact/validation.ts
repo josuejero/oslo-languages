@@ -1,30 +1,31 @@
-// src/components/contact/validation.ts
+import { z } from 'zod';
 import { FormData } from './types';
 
 type ValidationErrors = Partial<Record<keyof FormData, string>>;
 
+// Define a Zod schema for the contact form
+const formSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z
+    .string()
+    .min(1, 'Email is required')
+    .email('Invalid email address'),
+  subject: z.string().min(1, 'Subject is required'),
+  message: z.string().min(1, 'Message is required'),
+});
+
 export function validateForm(formData: FormData): ValidationErrors {
-  const newErrors: ValidationErrors = {};
-
-  if (!formData.name.trim()) {
-    newErrors.name = 'Name is required';
+  try {
+    formSchema.parse(formData);
+    return {};
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return error.errors.reduce((acc, curr) => {
+        const field = curr.path[0] as keyof FormData;
+        acc[field] = curr.message;
+        return acc;
+      }, {} as ValidationErrors);
+    }
+    return {};
   }
-
-  if (!formData.email.trim()) {
-    newErrors.email = 'Email is required';
-  } else if (
-    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)
-  ) {
-    newErrors.email = 'Invalid email address';
-  }
-
-  if (!formData.subject.trim()) {
-    newErrors.subject = 'Subject is required';
-  }
-
-  if (!formData.message.trim()) {
-    newErrors.message = 'Message is required';
-  }
-
-  return newErrors;
 }

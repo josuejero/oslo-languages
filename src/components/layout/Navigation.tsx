@@ -1,4 +1,3 @@
-// src/components/layout/Navigation.tsx
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
@@ -22,25 +21,22 @@ export default function Navigation() {
   const [lastFocusable, setLastFocusable] = useState<HTMLElement | null>(null);
   const pathname = usePathname();
 
-  // Handle focus management when menu opens
+  // Manage focus when the mobile menu opens
   useEffect(() => {
     if (isMenuOpen && menuRef.current) {
       const focusableElements = menuRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), input:not([disabled]), ' +
-        'select:not([disabled]), textarea:not([disabled]), ' +
-        '[tabindex]:not([tabindex="-1"])'
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
       );
-
       setFirstFocusable(focusableElements[0] || null);
       setLastFocusable(focusableElements[focusableElements.length - 1] || null);
+      // Focus the first focusable element
       focusableElements[0]?.focus();
     }
   }, [isMenuOpen]);
 
-  // Handle keyboard navigation
+  // Handle keyboard navigation and close on Escape
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isMenuOpen) return;
-
     const { key, shiftKey } = event;
 
     // Close menu on Escape key
@@ -50,33 +46,53 @@ export default function Navigation() {
       return;
     }
 
-    // Trap focus inside the mobile menu
+    // Trap focus within the mobile menu
     if (key === 'Tab') {
       if (!firstFocusable || !lastFocusable) return;
-
       if (shiftKey && document.activeElement === firstFocusable) {
         event.preventDefault();
         lastFocusable.focus();
-      }
-      else if (!shiftKey && document.activeElement === lastFocusable) {
+      } else if (!shiftKey && document.activeElement === lastFocusable) {
         event.preventDefault();
         firstFocusable.focus();
       }
     }
   };
 
-  // Close menu when clicking outside
+  // Close the menu if a click occurs outside it
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node) && 
-          buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(e.target as Node)
+      ) {
         setIsMenuOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Handle Escape key and lock body scroll when mobile menu is open
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    // Lock body scroll when menu is open
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
   return (
     <nav aria-label="Main navigation" className="relative">
@@ -86,7 +102,6 @@ export default function Navigation() {
       >
         Skip to main content
       </a>
-
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex space-x-4">
@@ -121,7 +136,6 @@ export default function Navigation() {
         <span className="sr-only">
           {isMenuOpen ? 'Close main menu' : 'Open main menu'}
         </span>
-        {/* Menu icon changes to X when menu is open */}
         <svg
           className="h-6 w-6"
           fill="none"
@@ -148,13 +162,11 @@ export default function Navigation() {
         ref={menuRef}
         onKeyDown={handleKeyDown}
         className={`
-          absolute top-full right-0 w-56
-          md:hidden z-50
+          absolute top-full right-0 w-56 md:hidden z-50
           ${isMenuOpen ? 'block' : 'hidden'}
         `}
         role="menu"
         aria-orientation="vertical"
-        aria-labelledby="mobile-menu-button"
       >
         <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg rounded-md border mt-2">
           {navigationLinks.map(({ href, label }) => (

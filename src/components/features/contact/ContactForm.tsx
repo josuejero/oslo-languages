@@ -1,4 +1,3 @@
-// src/components/contact/ContactForm.tsx
 'use client';
 
 import { useContactForm } from './useContactForm';
@@ -54,7 +53,13 @@ export default function ContactForm() {
             disabled={isSubmitting}
           />
           {errors.name && (
-            <p className="text-sm text-red-600 mt-1">{errors.name}</p>
+            <p
+              id="name-error"
+              className="text-sm text-red-600 mt-1"
+              aria-live="polite"
+            >
+              {errors.name}
+            </p>
           )}
         </div>
 
@@ -74,10 +79,17 @@ export default function ContactForm() {
               errors.email ? 'border-red-500' : 'border-gray-300'
             } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
             aria-invalid={errors.email ? 'true' : 'false'}
+            aria-describedby={errors.email ? 'email-error' : undefined}
             disabled={isSubmitting}
           />
           {errors.email && (
-            <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+            <p
+              id="email-error"
+              className="text-sm text-red-600 mt-1"
+              aria-live="polite"
+            >
+              {errors.email}
+            </p>
           )}
         </div>
       </div>
@@ -101,7 +113,13 @@ export default function ContactForm() {
           disabled={isSubmitting}
         />
         {errors.subject && (
-          <p className="text-sm text-red-600 mt-1">{errors.subject}</p>
+          <p
+            id="subject-error"
+            className="text-sm text-red-600 mt-1"
+            aria-live="polite"
+          >
+            {errors.subject}
+          </p>
         )}
       </div>
 
@@ -124,7 +142,13 @@ export default function ContactForm() {
           disabled={isSubmitting}
         />
         {errors.message && (
-          <p className="text-sm text-red-600 mt-1">{errors.message}</p>
+          <p
+            id="message-error"
+            className="text-sm text-red-600 mt-1"
+            aria-live="polite"
+          >
+            {errors.message}
+          </p>
         )}
       </div>
 

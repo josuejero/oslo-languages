@@ -1,4 +1,3 @@
-// Modify src/components/common/layout/Container.tsx
 import React, { ReactNode, ElementType } from 'react';
 
 interface ContainerProps {
@@ -34,7 +33,7 @@ export default function Container({
 
   return (
     <Component 
-      className={`${className}`}
+      className={`${sizeClasses[containerSize]} ${paddingClasses[padding]} ${className}`}
       id={id}
     >
       {children}

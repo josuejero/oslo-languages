@@ -1,11 +1,19 @@
-// Modify src/app/(marketing)/page.tsx
+import dynamic from 'next/dynamic';
 import Link from "next/link";
 import Image from "next/image";
 import Container from "@/components/common/layout/Container";
 import { features } from '@/data';
 import AnimateOnScroll from '@/components/common/animation/AnimateOnScroll';
-import Testimonials from '@/components/features/Testimonials';
-import NewsletterSignup from '@/components/features/NewsletterSignup';
+
+// Dynamically import heavy components
+const Testimonials = dynamic(() => import('@/components/features/Testimonials'), {
+  loading: () => <div className="h-80 bg-gray-100 animate-pulse rounded-lg"></div>,
+  ssr: false
+});
+
+const NewsletterSignup = dynamic(() => import('@/components/features/NewsletterSignup'), {
+  ssr: false
+});
 
 export default function Home() {
   return (

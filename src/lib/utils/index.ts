@@ -1,15 +1,43 @@
-// src/utils/index.ts
+// src/lib/utils/index.ts
+
 import { NextResponse } from 'next/server';
 import { Metadata } from 'next';
 
 /**
+ * API Client
+ * A consistent API client function for making HTTP requests to your Next.js API endpoints.
+ *
+ * @param endpoint - API endpoint (appended to `/api/`)
+ * @param options - Optional fetch configuration
+ * @returns A promise resolving to the JSON response
+ */
+export async function apiClient<T>(
+  endpoint: string, 
+  options?: RequestInit
+): Promise<T> {
+  const response = await fetch(`/api/${endpoint}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...options,
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'An error occurred');
+  }
+  
+  return response.json();
+}
+
+/**
  * API Response Helpers
- * Standardized functions for API responses to ensure consistent
- * error and success handling across all API endpoints
+ * Standardized functions for API responses to ensure consistent error and success handling.
  */
 
 /**
- * Creates a standardized error response for API endpoints
+ * Creates a standardized error response for API endpoints.
+ *
  * @param message - Error message to display
  * @param status - HTTP status code (defaults to 400 Bad Request)
  * @returns NextResponse with error details and appropriate status
@@ -22,7 +50,8 @@ export function errorResponse(message: string, status = 400) {
 }
 
 /**
- * Creates a standardized success response for API endpoints
+ * Creates a standardized success response for API endpoints.
+ *
  * @param data - Response data to return
  * @param status - HTTP status code (defaults to 200 OK)
  * @returns NextResponse with data and appropriate status
@@ -36,11 +65,12 @@ export function successResponse(data: any, status = 200) {
 
 /**
  * Metadata Generation
- * Helpers for creating consistent page metadata across the site
+ * Helpers for creating consistent page metadata across the site.
  */
 
 /**
- * Creates standardized metadata for pages
+ * Creates standardized metadata for pages.
+ *
  * @param title - Page title (will be appended with site name)
  * @param description - Page meta description
  * @param includeAppName - Whether to append "| Oslo Languages" (default true)
@@ -59,11 +89,12 @@ export function createMetadata(
 
 /**
  * Form Validation
- * Utility functions for validating form inputs
+ * Utility functions for validating form inputs.
  */
 
 /**
- * Validates an email address format
+ * Validates an email address format.
+ *
  * @param email - Email address to validate
  * @returns Boolean indicating if the email format is valid
  */
@@ -72,7 +103,8 @@ export function validateEmail(email: string): boolean {
 }
 
 /**
- * Validates that a string has minimum required length
+ * Validates that a string has the minimum required length.
+ *
  * @param value - String to validate
  * @param minLength - Minimum required length
  * @returns Boolean indicating if the string meets length requirements
@@ -82,7 +114,8 @@ export function validateMinLength(value: string, minLength: number): boolean {
 }
 
 /**
- * Validates form fields with common validation rules
+ * Validates form fields with common validation rules.
+ *
  * @param data - Object containing form field values
  * @returns Object with validation errors (empty if valid)
  */
@@ -115,11 +148,12 @@ export function validateContactForm(data: {
 
 /**
  * Date Formatting
- * Utility functions for consistent date formatting
+ * Utility functions for consistent date formatting.
  */
 
 /**
- * Formats a date string into a localized readable format
+ * Formats a date string into a localized readable format.
+ *
  * @param dateString - ISO date string or Date object
  * @param locale - Locale code (defaults to 'en-US')
  * @returns Formatted date string (e.g., "April 1, 2025")
@@ -140,7 +174,8 @@ export function formatDate(
 }
 
 /**
- * Creates a relative time string (e.g., "2 days ago")
+ * Creates a relative time string (e.g., "2 days ago").
+ *
  * @param dateString - ISO date string or Date object
  * @returns String with relative time description
  */

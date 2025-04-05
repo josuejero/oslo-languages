@@ -1,10 +1,11 @@
-// src/app/admin/login.tsx (client component)
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function AdminLogin() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,14 +16,18 @@ export default function AdminLogin() {
     setLoading(true);
     setError("");
     
-    // Simple password check - in production, use a secure auth method
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-      // Set a cookie to indicate the user is authenticated
-      document.cookie = "admin_authenticated=true; path=/; max-age=3600"; // 1 hour
-      router.push("/admin/dashboard");
-    } else {
-      setError("Invalid password");
+    // Use NextAuth's credentials provider to sign in
+    const result = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+    
+    if (result?.error) {
+      setError("Invalid email or password");
       setLoading(false);
+    } else {
+      router.push("/admin/dashboard");
     }
   };
   
@@ -38,6 +43,20 @@ export default function AdminLogin() {
         )}
         
         <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-gray-700 mb-2">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+          
           <div className="mb-4">
             <label htmlFor="password" className="block text-gray-700 mb-2">
               Password

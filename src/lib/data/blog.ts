@@ -1,48 +1,35 @@
-// src/lib/blog.ts
-import fs from 'fs';
-import path from 'path';
-import { BlogPost } from '@/types';
-const dataDirectory = path.join(process.cwd(), 'data');
-const blogFile = path.join(dataDirectory, 'blog-posts.json');
+// src/lib/data/blog.ts
+import { PrismaClient, BlogPost } from '@prisma/client';
 
-// Ensure the data directory exists
-if (!fs.existsSync(dataDirectory)) {
-  fs.mkdirSync(dataDirectory, { recursive: true });
+const prisma = new PrismaClient();
+
+export async function getAllPosts(): Promise<BlogPost[]> {
+  return prisma.blogPost.findMany({
+    orderBy: { date: 'desc' }
+  });
 }
 
-// Ensure the blog file exists
-if (!fs.existsSync(blogFile)) {
-  fs.writeFileSync(blogFile, JSON.stringify([]), 'utf8');
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  return prisma.blogPost.findUnique({
+    where: { slug }
+  });
 }
 
-export function getAllPosts(): BlogPost[] {
-  const fileContents = fs.readFileSync(blogFile, 'utf8');
-  return JSON.parse(fileContents);
-}
-
-export function getPostBySlug(slug: string): BlogPost | undefined {
-  const posts = getAllPosts();
-  return posts.find(post => post.slug === slug);
-}
-
-export function savePost(post: BlogPost): void {
-  const posts = getAllPosts();
-  const existingPostIndex = posts.findIndex(p => p.id === post.id);
-  
-  if (existingPostIndex >= 0) {
-    // Update existing post
-    posts[existingPostIndex] = post;
+export async function savePost(post: BlogPost): Promise<BlogPost> {
+  if (post.id) {
+    return prisma.blogPost.update({
+      where: { id: post.id },
+      data: post
+    });
   } else {
-    // Add new post with a new ID
-    post.id = posts.length > 0 ? Math.max(...posts.map(p => p.id)) + 1 : 1;
-    posts.push(post);
+    return prisma.blogPost.create({
+      data: post
+    });
   }
-  
-  fs.writeFileSync(blogFile, JSON.stringify(posts, null, 2), 'utf8');
 }
 
-export function deletePost(id: number): void {
-  const posts = getAllPosts();
-  const updatedPosts = posts.filter(post => post.id !== id);
-  fs.writeFileSync(blogFile, JSON.stringify(updatedPosts, null, 2), 'utf8');
+export async function deletePost(id: number): Promise<BlogPost> {
+  return prisma.blogPost.delete({
+    where: { id }
+  });
 }

@@ -1,18 +1,20 @@
-// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export function middleware(request: NextRequest) {
-  // Check if the route is an admin route (except login)
+export async function middleware(request: NextRequest) {
+  // Protect admin routes, excluding the login page
   if (
-    request.nextUrl.pathname.startsWith('/admin') && 
+    request.nextUrl.pathname.startsWith('/admin') &&
     !request.nextUrl.pathname.includes('/admin/login')
   ) {
-    // Check for authentication - this is a simple example
-    // In a real app, you would verify a JWT or session cookie
-    const isAuthenticated = request.cookies.has('admin_authenticated');
-    
-    if (!isAuthenticated) {
+    // Validate token using NextAuth's JWT utility with your secret
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+
+    if (!token) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
@@ -21,6 +23,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Only run middleware on admin routes
   matcher: '/admin/:path*',
 };
