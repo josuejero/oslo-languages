@@ -57,8 +57,7 @@ export default function RootLayout({
       </head>
 
       <body
-        className={`${inter.variable} ${robotoMono.variable} antialiased min-h-screen flex flex-col`}
-      >
+        className="min-h-screen flex flex-col overflow-x-hidden">
         <Header />
         <main id="main-content" className="flex-grow">
           {children}

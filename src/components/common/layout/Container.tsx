@@ -1,41 +1,66 @@
-// src/components/layout/Layout.tsx
-import { ReactNode } from 'react';
+// src/components/common/layout/Container.tsx
+// Modify the existing Container component to support full-width backgrounds
 
-interface LayoutProps {
+import React, { ReactNode, ElementType } from 'react';
+
+interface ContainerProps {
   children: ReactNode;
-  className?: string;
-  as?: 'div' | 'section' | 'article' | 'main';
-  containerSize?: 'default' | 'narrow' | 'wide';
+  size?: 'default' | 'narrow' | 'wide' | 'full';
   padding?: 'none' | 'small' | 'default' | 'large';
+  className?: string;
+  as?: ElementType;
+  id?: string;
+  fullWidthBackground?: boolean; // New prop for full-width backgrounds
+  backgroundColor?: string; // Optional background color
+  containerSize?: 'normal' | 'wide' | 'full';
 }
 
-const Layout = ({ 
-  children, 
-  className = '', 
+export default function Container({
+  children,
+  size = 'default',
+  padding = 'default',
+  className = '',
   as: Component = 'div',
-  containerSize = 'default',
-  padding = 'default'
-}: LayoutProps) => {
-  const containerClasses = {
-    default: 'container mx-auto',
-    narrow: 'container mx-auto max-w-4xl',
-    wide: 'container mx-auto max-w-7xl'
+  id,
+  fullWidthBackground = false,
+  backgroundColor
+}: ContainerProps) {
+  const sizeClasses: Record<string, string> = {
+    default: 'max-w-6xl mx-auto',
+    narrow: 'max-w-4xl mx-auto',
+    wide: 'max-w-7xl mx-auto',
+    full: 'w-full'
   };
 
-  const paddingClasses = {
+  const paddingClasses: Record<string, string> = {
     none: '',
     small: 'px-4 py-4',
     default: 'px-4 py-8',
     large: 'px-4 py-12'
   };
 
+  // If fullWidthBackground is true, apply background to outer container
+  // and content constraints to inner container
+  if (fullWidthBackground) {
+    return (
+      <Component 
+        className={`w-full ${backgroundColor || ''} ${className}`}
+        id={id}
+      >
+        <div className={`${sizeClasses[size]} ${paddingClasses[padding]}`}>
+          {children}
+        </div>
+      </Component>
+    );
+  }
+
+  // Standard container with constrained width
   return (
     <Component 
-      className={`${containerClasses[containerSize]} ${paddingClasses[padding]} ${className}`}
+      className={`${sizeClasses[size]} ${paddingClasses[padding]} ${className}`}
+      id={id}
     >
       {children}
     </Component>
   );
-};
-
-export default Layout;
+}
