@@ -1,3 +1,5 @@
+'use client'
+
 // src/components/contact/ContactForm.tsx
 import { useState, FormEvent, ChangeEvent } from 'react';
 
