@@ -1,8 +1,8 @@
 // src/app/(marketing)/courses/page.tsx
-import { generateMetadata } from '@/utils/schema';
+import { generateMetadata } from '@/lib/seo/metadata';
 import Layout from '@/components/layout/Layout';
 import Link from 'next/link';
-import OptimizedImage from '@/components/OptimizedImage';
+import OptimizedImage from '@/components/common/OptimizedImage';
 
 export const metadata = generateMetadata({
   title: 'Language Courses',

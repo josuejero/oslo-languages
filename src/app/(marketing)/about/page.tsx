@@ -1,5 +1,5 @@
-import { generateMetadata } from '@/utils/schema';
-import OptimizedImage from '@/components/OptimizedImage';
+import { generateMetadata } from '@/lib/seo/metadata';
+import OptimizedImage from '@/components/common/OptimizedImage';
 import { post, teachers } from '@/data/about';
 import Layout from '@/components/layout/Layout';
 import { useState } from 'react';

@@ -1,6 +1,6 @@
 // src/app/admin/layout.tsx
 import { redirect } from 'next/navigation';
-import Container from "@/components/templates/Container";
+import Container from "@/components/common/Container";
 import { cookies } from 'next/headers';
 
 export default function AdminLayout({

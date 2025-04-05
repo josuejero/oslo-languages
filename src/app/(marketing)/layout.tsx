@@ -1,5 +1,5 @@
 // src/app/(marketing)/layout.tsx
-import Container from "@/components/templates/Container";
+import Container from "@/components/common/Container";
 
 export default function MarketingLayout({
   children,

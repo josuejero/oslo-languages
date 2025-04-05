@@ -1,6 +1,6 @@
 import Link from "next/link";
-import OptimizedImage from '@/components/OptimizedImage';
-import Testimonials from '@/components/widgets/Testimonials';
+import OptimizedImage from '@/components/common/OptimizedImage';
+import Testimonials from '@/components/features/Testimonials';
 import { features } from '@/data';
 
 export default function Home() {

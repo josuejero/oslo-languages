@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import OptimizedImage from '@/components/OptimizedImage';
+import OptimizedImage from '@/components/common/OptimizedImage';
 
 /**
  * The Testimonial type represents a single student review

@@ -1,6 +1,6 @@
 // src/app/(marketing)/contact/page.tsx
 import { Suspense } from 'react';
-import ContactForm from '@/components/contact/ContactForm';
+import ContactForm from '@/components/features/contact/ContactForm';
 
 export default function Contact() {
   return (
