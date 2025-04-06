@@ -21,13 +21,13 @@ export default function Container({
   size = 'default',
   padding = 'default',
   className = '',
-  as: Component = 'div',   // Default to 'div'
+  as: Component = 'div',
   id
 }: ContainerProps) {
   const sizeClasses: Record<ContainerSize, string> = {
-    default: 'container',
-    narrow: 'container',
-    wide:   'container',
+    default: 'container mx-auto max-w-6xl w-full',  // Add mx-auto, max-width and w-full
+    narrow: 'container mx-auto max-w-4xl w-full',   // Add mx-auto, smaller max-width and w-full
+    wide:   'container mx-auto max-w-7xl w-full',   // Add mx-auto, larger max-width and w-full
     full:   'w-full'
   };
 

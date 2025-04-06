@@ -1,4 +1,4 @@
-// src/app/layout.tsx - Updated
+// src/app/layout.tsx - Modified
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import Header from "@/components/layout/Header";
@@ -16,7 +16,6 @@ const robotoMono = Roboto_Mono({
   subsets: ["latin"],
 });
 
-// Next.js 13 metadata
 export const metadata: Metadata = {
   title: "Oslo Languages | Language Courses in Oslo",
   description:
@@ -28,7 +27,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Organization structured data with extended SEO properties
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -55,9 +53,8 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${inter.variable} ${robotoMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${robotoMono.variable} h-full`}>
       <head>
-        {/* Structured Data for SEO */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -65,9 +62,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col overflow-x-hidden w-full m-0 p-0">
+      {/* Fix: Modified body class to ensure full width with no overflow */}
+      <body className="min-h-screen flex flex-col bg-white">
         <Header />
-        <main id="main-content" className="flex-grow w-full">
+        <main id="main-content" className="flex-grow">
           {children}
         </main>
         <Footer />

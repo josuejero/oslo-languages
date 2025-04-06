@@ -7,7 +7,7 @@ export default function BlogLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Container size="narrow" padding="default">
+    <Container size="full" padding="none">
       {children}
     </Container>
   );

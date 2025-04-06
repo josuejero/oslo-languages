@@ -8,7 +8,7 @@ export default function MarketingLayout({
 }) {
   // Remove the "large" padding that's causing the 48px top/bottom
   return (
-    <Container size="wide" padding="none">
+    <Container size="full" padding="none">
       {children}
     </Container>
   );
