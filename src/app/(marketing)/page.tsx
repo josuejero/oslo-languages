@@ -17,9 +17,9 @@ const NewsletterSignup = dynamic(() => import('@/components/features/NewsletterS
 
 export default function Home() {
   return (
-    <Container containerSize="wide" padding="none">
+    <Container containerSize="full" padding="none">
       {/* Hero Section with Enhanced Gradient */}
-      <section className="relative overflow-hidden py-20 md:py-28">
+      <section className="relative overflow-hidden py-20 md:py-28 w-full bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700">
         {/* Replace black background with a blue gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 opacity-90"></div>
         
@@ -62,7 +62,7 @@ export default function Home() {
       </section>
       
       {/* Testimonials Section - Light Background */}
-      <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white w-full">
         <div className="container mx-auto px-6">
           <AnimateOnScroll animation="animate-fadeIn">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-3 text-text-primary relative">

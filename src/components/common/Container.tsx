@@ -25,9 +25,9 @@ export default function Container({
   id
 }: ContainerProps) {
   const sizeClasses: Record<ContainerSize, string> = {
-    default: 'container mx-auto',
-    narrow: 'container mx-auto max-w-4xl',
-    wide:   'container mx-auto max-w-7xl',
+    default: 'container',
+    narrow: 'container',
+    wide:   'container',
     full:   'w-full'
   };
 

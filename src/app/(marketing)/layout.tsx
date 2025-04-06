@@ -6,8 +6,9 @@ export default function MarketingLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Remove the "large" padding that's causing the 48px top/bottom
   return (
-    <Container size="wide" padding="large">
+    <Container size="wide" padding="none">
       {children}
     </Container>
   );
