@@ -4,6 +4,9 @@ module.exports = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}"
   ],
+  corePlugins: {
+    container: true, // Ensure container plugin is enabled
+  },
   theme: {
     extend: {
       animation: {
