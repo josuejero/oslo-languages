@@ -1,4 +1,5 @@
-// pages/about/_StatsSection.tsx
+// src/app/(marketing)/about/_StatsSection.tsx
+
 import React from 'react';
 
 const StatsSection: React.FC = () => {

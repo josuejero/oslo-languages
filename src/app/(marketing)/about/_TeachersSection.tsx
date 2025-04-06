@@ -1,5 +1,5 @@
-// src/app/(marketing)/about/TeachersSectionClient.tsx
-'use client'; // Mark this file as a Client Component
+// src/app/(marketing)/about/_TeachersSection.tsx
+'use client'; // Mark as client component to use useState
 
 import { useState } from 'react';
 import OptimizedImage from '@/components/common/media/OptimizedImage';

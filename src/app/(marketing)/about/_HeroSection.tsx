@@ -1,4 +1,5 @@
-// pages/about/_HeroSection.tsx
+// src/app/(marketing)/about/_HeroSection.tsx
+
 import React from 'react';
 
 interface HeroSectionProps {

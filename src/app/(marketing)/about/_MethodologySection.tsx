@@ -1,4 +1,5 @@
-// pages/about/_MethodologySection.tsx
+// src/app/(marketing)/about/_MethodologySection.tsx
+
 import React from 'react';
 
 const MethodologySection: React.FC = () => {

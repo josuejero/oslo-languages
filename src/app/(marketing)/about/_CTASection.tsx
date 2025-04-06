@@ -1,4 +1,5 @@
-// pages/about/_CTASection.tsx
+// src/app/(marketing)/about/_CTASection.tsx
+
 import React from 'react';
 
 const CTASection: React.FC = () => {
