@@ -13,7 +13,7 @@ const WhyChooseUsSection: React.FC = () => {
             Why Choose Oslo Languages?
           </h2>
           <p className="text-lg text-text-secondary max-w-3xl mx-auto animate-fadeIn delay-100">
-            We provide more than just language instruction. Here&apos;s what makes us different.
+            We provide more than just language instruction. Here's what makes us different.
           </p>
         </div>
 

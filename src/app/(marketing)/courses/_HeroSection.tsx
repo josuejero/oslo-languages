@@ -25,7 +25,7 @@ const HeroSection: React.FC = () => {
           Language Courses in Oslo
         </h1>
         <p className="text-xl max-w-3xl mx-auto text-blue-100 animate-fadeIn delay-200">
-          Whether you&apos;re starting your language journey or advancing your skills,
+          Whether you're starting your language journey or advancing your skills,
           our experienced teachers are here to guide you every step of the way.
         </p>
       </div>

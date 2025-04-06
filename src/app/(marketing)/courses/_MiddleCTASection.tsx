@@ -9,7 +9,7 @@ const MiddleCTASection: React.FC = () => {
       <div className="absolute -left-16 -top-16 w-64 h-64 bg-blue-100 rounded-full opacity-50 animate-float"></div>
       <div
         className="absolute -right-16 -bottom-16 w-64 h-64 bg-blue-100 rounded-full opacity-50 animate-float"
-        style={{ animationDelay: '2s' }}
+        style={{ animationDelay: "2s" }}
       ></div>
 
       <div className="relative container mx-auto px-4 text-center z-10">

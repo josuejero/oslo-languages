@@ -1,5 +1,4 @@
 // src/app/(marketing)/courses/courseData.ts
-
 // Define the course color variants
 export type CourseColor = 'blue' | 'indigo' | 'rose';
 
