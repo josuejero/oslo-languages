@@ -1,4 +1,4 @@
-// src/components/contact/types.ts
+// src/components/features/contact/types.ts
 
 // Data structure for the contact form
 export interface FormData {

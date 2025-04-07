@@ -1,3 +1,4 @@
+// src/components/features/contact/validation.ts
 import { z } from 'zod';
 import { FormData } from './types';
 
@@ -5,13 +6,13 @@ type ValidationErrors = Partial<Record<keyof FormData, string>>;
 
 // Define a Zod schema for the contact form
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z
     .string()
     .min(1, 'Email is required')
-    .email('Invalid email address'),
-  subject: z.string().min(1, 'Subject is required'),
-  message: z.string().min(1, 'Message is required'),
+    .email('Please enter a valid email address'),
+  subject: z.string().min(3, 'Subject must be at least 3 characters'),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 
 export function validateForm(formData: FormData): ValidationErrors {

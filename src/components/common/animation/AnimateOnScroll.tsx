@@ -1,3 +1,4 @@
+// src/components/common/animation/AnimateOnScroll.tsx
 'use client';
 
 import { useEffect, useRef, ReactNode } from 'react';
