@@ -1,13 +1,16 @@
+// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
-  // Protect admin routes, excluding the login page
-  if (
-    request.nextUrl.pathname.startsWith('/admin') &&
-    !request.nextUrl.pathname.includes('/admin/login')
-  ) {
+  // Specifically exclude the login page from authentication
+  if (request.nextUrl.pathname === '/admin/login') {
+    return NextResponse.next();
+  }
+  
+  // Protect all other admin routes
+  if (request.nextUrl.pathname.startsWith('/admin')) {
     // Validate token using NextAuth's JWT utility with your secret
     const token = await getToken({
       req: request,
