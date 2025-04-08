@@ -21,7 +21,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({ coverImage }) => {
               Our <span className="text-action-primary">Story</span>
             </h2>
             <p className="text-lg text-text-secondary leading-relaxed">
-              Founded in 2015, Oslo Languages has grown to become one of Oslo's
+              Founded in 2015, Oslo Languages has grown to become one of Oslo&apos;s
               leading language schools, specializing in Norwegian, English, and
               Spanish instruction.
             </p>

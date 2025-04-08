@@ -21,7 +21,7 @@ export default function ContactPage() {
               Contact <span className="text-blue-600">Us</span>
             </h1>
             <p className="text-lg text-text-secondary mb-6">
-              Have questions about our language courses? We're here to help you on your language learning journey.
+              Have questions about our language courses? We&apos;re here to help you on your language learning journey.
             </p>
           </div>
         </AnimateOnScroll>
@@ -36,7 +36,7 @@ export default function ContactPage() {
               <div className="bg-white rounded-xl shadow-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 py-6 px-8">
                   <h2 className="text-2xl font-bold text-white">Send Us a Message</h2>
-                  <p className="text-blue-100">Fill out the form below and we'll get back to you shortly</p>
+                  <p className="text-blue-100">Fill out the form below and we&apos;ll get back to you shortly</p>
                 </div>
                 <div className="p-8">
                   <ContactForm />
