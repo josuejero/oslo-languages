@@ -1,3 +1,4 @@
+// src/app/admin/login/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -11,23 +12,34 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   
+  console.log("Admin login page rendered"); // Debug log
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Login attempt with email:", email); // Debug log (sanitize in production)
     setLoading(true);
     setError("");
     
-    // Use NextAuth's credentials provider to sign in
-    const result = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    });
-    
-    if (result?.error) {
-      setError("Invalid email or password");
+    try {
+      // Use NextAuth's credentials provider to sign in
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+      
+      console.log("Sign in result:", result?.ok ? "Success" : "Failed"); // Debug log
+      
+      if (result?.error) {
+        setError("Invalid email or password");
+        setLoading(false);
+      } else {
+        router.push("/admin/dashboard");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An unexpected error occurred");
       setLoading(false);
-    } else {
-      router.push("/admin/dashboard");
     }
   };
   
