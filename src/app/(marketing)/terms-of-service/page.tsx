@@ -133,7 +133,7 @@ export default function TermsOfService() {
             <div className="text-center max-w-2xl mx-auto">
               <h3 className="text-2xl font-bold mb-4">Have Questions About Our Terms?</h3>
               <p className="mb-6 text-blue-100">
-                If you have any questions or concerns about our Terms of Service, we're here to help. Please don't hesitate to contact our team.
+                If you have any questions or concerns about our Terms of Service, we&apos;re here to help. Please don&apos;t hesitate to contact our team.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link

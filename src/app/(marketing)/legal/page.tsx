@@ -135,7 +135,7 @@ export default function Legal() {
         <AnimateOnScroll animation="animate-fadeIn" delay={400}>
           <div className="text-center mt-12">
             <p className="text-gray-700 mb-4">
-              If you have any questions about our legal policies, please don't hesitate to contact us.
+              If you have any questions about our legal policies, please don&apos;t hesitate to contact us.
             </p>
             <Link
               href="/contact"

@@ -176,7 +176,7 @@ export default function PrivacyPolicy() {
               <div className="text-center mb-4">
                 <h3 className="text-xl font-bold text-gray-800">Have Questions About Your Data?</h3>
                 <p className="text-gray-600 mt-2">
-                  We're committed to transparency. If you have any questions about your data or our privacy practices, we're here to help.
+                  We&apos;re committed to transparency. If you have any questions about your data or our privacy practices, we&apos;re here to help.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
