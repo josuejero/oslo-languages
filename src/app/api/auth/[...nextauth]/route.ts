@@ -32,18 +32,39 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  // Critical config to prevent redirects
   pages: {
     signIn: '/admin/login',
     error: '/admin/login',
   },
-  // Prevent the default NextAuth.js callback behavior
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // Force all redirects to the base URL to avoid loops
-      console.log("NextAuth redirect called with:", { url, baseUrl });
-      return baseUrl;
+      // If the URL starts with the base URL, prioritize that
+      if (url.startsWith(baseUrl)) return url;
+      
+      // Handle admin login special case
+      if (url.includes("/admin/login")) return baseUrl + "/admin/login";
+      
+      // By default, redirect to dashboard after login
+      if (url.includes("/api/auth") || url === baseUrl) return baseUrl + "/admin/dashboard";
+      
+      // Fallback to the original URL
+      return url;
     },
+    async jwt({ token, user }) {
+      // Add admin flag to token
+      if (user) {
+        token.isAdmin = true;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Add admin flag to session
+      if (token) {
+        session.user = session.user || {};
+        session.user.isAdmin = token.isAdmin;
+      }
+      return session;
+    }
   },
   session: {
     strategy: "jwt",
