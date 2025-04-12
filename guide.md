@@ -164,7 +164,7 @@ This structure separates concerns (public assets, components, pages, API routes,
        <Header />
        <main className="p-8">
          {/* Hero Section */}
-         <section className="relative h-96 bg-cover bg-center" style={{ backgroundImage: "url('/images/default-image.jpg')" }}>
+         <section className="relative h-96 bg-cover bg-center" style={{ backgroundImage: "url('/images/hero.jpg')" }}>
            <div className="absolute inset-0 bg-black opacity-50"></div>
            <div className="relative z-10 flex flex-col items-center justify-center h-full text-white">
              <h1 className="text-4xl font-bold">Learn Languages in Oslo</h1>
@@ -477,7 +477,7 @@ export default Contact;
 2. **Performance Enhancements**  
    - Implement lazy loading for images:
      ```jsx
-     <img src="/images/default-image.jpg" loading="lazy" alt="Example" />
+     <img src="/images/example.jpg" loading="lazy" alt="Example" />
      ```
    - Optimize assets using tools like ImageOptim.
 3. **SEO Best Practices**  

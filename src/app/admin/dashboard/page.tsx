@@ -96,7 +96,7 @@ export default function AdminDashboard() {
           <div className="flex items-center space-x-3">
             <div className="bg-white p-2 rounded-lg">
               <Image 
-                src="/images/default-image.jpg" 
+                src="/images/logo.png" 
                 alt="Oslo Languages Logo" 
                 width={40} 
                 height={40}
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
               <div className="flex items-center space-x-3">
                 <div className="bg-white p-2 rounded-lg">
                   <Image 
-                    src="/images/default-image.jpg" 
+                    src="/images/logo.png" 
                     alt="Oslo Languages Logo" 
                     width={40} 
                     height={40}

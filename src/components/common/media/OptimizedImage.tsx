@@ -21,7 +21,7 @@ interface OptimizedImageProps extends Omit<ImageProps, 'placeholder' | 'blurData
 export default function OptimizedImage({
   src,
   alt,
-  fallbackSrc = '/images/default-image.jpg',
+  fallbackSrc = '/images/placeholder.jpg',
   lowQualityPlaceholder,
   aspectRatio,
   lazyBoundary = '100px',

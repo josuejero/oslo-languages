@@ -72,7 +72,7 @@ async function getBlogPosts(): Promise<BlogPostSummary[]> {
       date: "March 10, 2025",
       author: "Erik Hansen",
       slug: "norwegian-prepositions",
-      imageUrl: "/images/default-image.jpg",
+      imageUrl: "/images/blog/prepositions.jpg",
       category: "Norwegian",
       readTime: "8 min read"
     },

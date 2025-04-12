@@ -51,7 +51,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({ coverImage }) => {
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                 priority
-                aspectRatio={1}
+                aspectRatio={16 / 9}
                 sizes="(max-width: 768px) 100vw, 600px"
                 background="bg-gray-100"
                 lowQualityPlaceholder={`${coverImage}?w=20`}

@@ -68,7 +68,7 @@ export default function ContactPage() {
                 {}
                 <div className="mt-4 relative h-40 rounded-lg overflow-hidden">
                   <Image 
-                    src="/images/default-image.jpg" 
+                    src="/images/oslo-map.jpg" 
                     alt="Map showing Oslo Languages location"
                     fill
                     className="object-cover"

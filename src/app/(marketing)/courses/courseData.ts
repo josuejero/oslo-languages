@@ -24,7 +24,7 @@ export const courses: Course[] = [
     language: 'Norwegian',
     schedule: 'Morning & Evening Classes',
     description: 'Start your Norwegian language journey with our comprehensive beginner course.',
-    icon: "/images/icons/norwegian.png",
+    icon: '/images/icons/norwegian.png',
     color: 'blue',
     accent: 'emerald'
   },
@@ -35,7 +35,7 @@ export const courses: Course[] = [
     language: 'English',
     schedule: 'Flexible Schedule',
     description: 'Enhance your professional English skills with our specialized business course.',
-    icon: "/images/icons/english.png",
+    icon: '/images/icons/english.png',
     color: 'indigo',
     accent: 'amber'
   },
@@ -46,7 +46,7 @@ export const courses: Course[] = [
     language: 'Spanish',
     schedule: 'Afternoon Classes',
     description: 'Build on your basic Spanish knowledge with our elementary level course.',
-    icon: "/images/icons/spanish.png",
+    icon: '/images/icons/spanish.png',
     color: 'rose',
     accent: 'violet'
   },
@@ -57,7 +57,7 @@ export const courses: Course[] = [
     language: 'Norwegian',
     schedule: 'Evening Classes',
     description: 'Continue your Norwegian language development with our intermediate course.',
-    icon: "/images/default-image.jpg",
+    icon: '/images/icons/norwegian.png',
     color: 'blue',
     accent: 'cyan'
   },
@@ -68,7 +68,7 @@ export const courses: Course[] = [
     language: 'English',
     schedule: 'Weekend Classes',
     description: 'Focus on speaking and listening skills in everyday situations.',
-    icon: "/images/default-image.jpg",
+    icon: '/images/icons/english.png',
     color: 'indigo',
     accent: 'amber'
   },
@@ -79,7 +79,7 @@ export const courses: Course[] = [
     language: 'Spanish',
     schedule: 'Morning Classes',
     description: 'Advance your Spanish skills with our comprehensive intermediate course.',
-    icon: "/images/default-image.jpg",
+    icon: '/images/icons/spanish.png',
     color: 'rose',
     accent: 'amber'
   }

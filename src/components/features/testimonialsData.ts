@@ -17,7 +17,7 @@ export const testimonialsData: Testimonial[] = [
     id: 1,
     name: "Maria Johnson",
     role: "Software Developer",
-    image: "/testimonials/thomas.jpg",
+    image: "/testimonials/maria.jpg",
     course: "Norwegian A1",
     text: "The Norwegian course at Oslo Languages exceeded my expectations...",
     rating: 5
@@ -26,7 +26,7 @@ export const testimonialsData: Testimonial[] = [
     id: 2,
     name: "Thomas Berg",
     role: "Business Consultant",
-    image: "/testimonials/sofia.jpg",
+    image: "/testimonials/thomas.jpg",
     course: "Business English",
     text: "Their Business English course helped me significantly improve...",
     rating: 5
@@ -35,7 +35,7 @@ export const testimonialsData: Testimonial[] = [
     id: 3,
     name: "Sofia Garcia",
     role: "Student",
-    image: "/images/default-image.jpg",
+    image: "/testimonials/sofia.jpg",
     course: "Spanish B1",
     text: "Love the interactive teaching style! Made learning Spanish fun...",
     rating: 5

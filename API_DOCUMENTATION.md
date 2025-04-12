@@ -67,7 +67,7 @@ Admin API endpoints require authentication via NextAuth.js. Include the session 
       "excerpt": "Short excerpt...",
       "date": "2025-04-01",
       "author": "Author Name",
-      "imageUrl": "/images/default-image.jpg",
+      "imageUrl": "/images/blog/image.jpg",
       "category": "Category"
     },
     // More posts...
@@ -97,7 +97,7 @@ Admin API endpoints require authentication via NextAuth.js. Include the session 
   "excerpt": "Short excerpt...",
   "date": "2025-04-01",
   "author": "Author Name",
-  "imageUrl": "/images/default-image.jpg",
+  "imageUrl": "/images/blog/image.jpg",
   "category": "Category",
   "tags": ["tag1", "tag2"]
 }
