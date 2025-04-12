@@ -1,4 +1,4 @@
-// TestimonialSkeleton.tsx
+
 'use client';
 
 export default function TestimonialSkeleton() {

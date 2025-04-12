@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
@@ -12,7 +12,7 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     optimizeServerReact: true,
-    // experimental.serverActions is now default and no longer needs to be explicitly enabled
+    
   },
   env: {
     SENDGRID_VALIDATION_DISABLED: process.env.NODE_ENV === 'development' ? 'true' : 'false',

@@ -1,11 +1,11 @@
-// Modify tailwind.config.js
-/** @type {import('tailwindcss').Config} */
+
+
 module.exports = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx}"
+    "./src*.{js,ts,jsx,tsx}"
   ],
   corePlugins: {
-    container: true, // Ensure container plugin is enabled
+    container: true, 
   },
   theme: {
     extend: {
@@ -40,7 +40,7 @@ module.exports = {
         },
       },
       colors: {
-        // Main colors that match your design
+        
         'text-primary': '#171717',
         'text-secondary': '#4B5563',
         'text-tertiary': '#9CA3AF',

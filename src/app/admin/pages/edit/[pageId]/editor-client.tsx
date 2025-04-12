@@ -16,8 +16,8 @@ export default function EditorClient({ pageId }: EditorClientProps) {
   useEffect(() => {
     setIsLoading(true);
     
-    // Mock data for demonstration
-    // In a real implementation, fetch the content based on pageId
+    
+    
     setTimeout(() => {
       setContent("# Welcome to Oslo Languages\n\nWe offer high-quality language courses...");
       setIsLoading(false);
@@ -30,7 +30,7 @@ export default function EditorClient({ pageId }: EditorClientProps) {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add actual implementation to save content
+    
     console.log("Saving page content:", content);
     router.push("/admin/dashboard");
   };

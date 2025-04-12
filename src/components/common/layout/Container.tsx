@@ -1,4 +1,4 @@
-// src/components/common/layout/Container.tsx
+
 import React, { ReactNode, ElementType } from 'react';
 
 interface ContainerProps {
@@ -18,12 +18,12 @@ export default function Container({
   as: Component = 'div',
   id,
 }: ContainerProps) {
-  // Updated size classes to ensure full width
+  
   const sizeClasses: Record<string, string> = {
     default: 'w-full max-w-6xl mx-auto',
     narrow: 'w-full max-w-4xl mx-auto',
     wide: 'w-full max-w-7xl mx-auto',
-    full: 'w-full' // Ensures full width with no constraints
+    full: 'w-full' 
   };
 
   const paddingClasses: Record<string, string> = {

@@ -1,4 +1,4 @@
-// src/components/contact/useContactForm.tsx
+
 'use client';
 
 import { useState, FormEvent, ChangeEvent } from 'react';
@@ -6,7 +6,7 @@ import { FormData, SubmissionStatus } from './types';
 import { validateForm } from './validation';
 
 export function useContactForm() {
-  // State for form fields
+  
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -14,14 +14,14 @@ export function useContactForm() {
     message: ''
   });
 
-  // State for validation errors
+  
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
-  // Submission & status tracking
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<SubmissionStatus>(null);
 
-  // Handle input changes
+  
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -29,7 +29,7 @@ export function useContactForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Validate and submit form
+  
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const newErrors = validateForm(formData);
@@ -43,7 +43,7 @@ export function useContactForm() {
     setStatus(null);
 
     try {
-      // POST form data to /api/contact
+      
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,13 +55,13 @@ export function useContactForm() {
         throw new Error(result.error || 'Failed to submit the form');
       }
 
-      // Success message
+      
       setStatus({
         type: 'success',
         message: 'Thank you for your message. We will contact you soon.'
       });
 
-      // Reset form
+      
       setFormData({
         name: '',
         email: '',

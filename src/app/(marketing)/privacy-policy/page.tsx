@@ -1,4 +1,4 @@
-// src/app/(marketing)/privacy-policy/page.tsx
+
 import { Metadata } from "next";
 import Link from "next/link";
 import { Shield, Info, Database, Cookie, Mail, ArrowRight } from "lucide-react";
@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Hero Section */}
+      {}
       <section className="relative py-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-10"></div>
         
-        {/* Decorative pattern */}
+        {}
         <div
           className="absolute inset-0 opacity-10"
           style={{
@@ -39,11 +39,11 @@ export default function PrivacyPolicy() {
         </div>
       </section>
 
-      {/* Content Section */}
+      {}
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-12">
-            {/* Policy Header */}
+            {}
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
               <div className="flex items-center">
                 <Shield className="w-8 h-8 mr-4" />
@@ -54,10 +54,10 @@ export default function PrivacyPolicy() {
               </p>
             </div>
             
-            {/* Policy Content */}
+            {}
             <div className="p-8">
               <div className="space-y-8">
-                {/* Section 1 */}
+                {}
                 <AnimateOnScroll animation="animate-fadeIn" delay={100}>
                   <div className="flex gap-5">
                     <div className="flex-shrink-0">
@@ -78,7 +78,7 @@ export default function PrivacyPolicy() {
                   </div>
                 </AnimateOnScroll>
 
-                {/* Section 2 */}
+                {}
                 <AnimateOnScroll animation="animate-fadeIn" delay={200}>
                   <div className="flex gap-5">
                     <div className="flex-shrink-0">
@@ -100,7 +100,7 @@ export default function PrivacyPolicy() {
                   </div>
                 </AnimateOnScroll>
 
-                {/* Section 3 */}
+                {}
                 <AnimateOnScroll animation="animate-fadeIn" delay={300}>
                   <div className="flex gap-5">
                     <div className="flex-shrink-0">
@@ -122,7 +122,7 @@ export default function PrivacyPolicy() {
                   </div>
                 </AnimateOnScroll>
 
-                {/* Section 4 */}
+                {}
                 <AnimateOnScroll animation="animate-fadeIn" delay={400}>
                   <div className="flex gap-5">
                     <div className="flex-shrink-0">
@@ -142,7 +142,7 @@ export default function PrivacyPolicy() {
                   </div>
                 </AnimateOnScroll>
 
-                {/* Section 5 */}
+                {}
                 <AnimateOnScroll animation="animate-fadeIn" delay={500}>
                   <div className="flex gap-5">
                     <div className="flex-shrink-0">
@@ -170,7 +170,7 @@ export default function PrivacyPolicy() {
             </div>
           </div>
 
-          {/* Interactive Card */}
+          {}
           <AnimateOnScroll animation="animate-fadeIn" delay={600}>
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 shadow-md border border-blue-100 hover:shadow-lg transition-all duration-300">
               <div className="text-center mb-4">

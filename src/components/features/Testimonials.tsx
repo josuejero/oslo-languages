@@ -10,27 +10,27 @@ export default function Testimonials() {
   const [mounted, setMounted] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Memoize nextTestimonial to avoid recreating the function on every render
+  
   const nextTestimonial = useCallback(() => {
     setActiveIndex(current =>
       current === testimonialsData.length - 1 ? 0 : current + 1
     );
   }, []);
 
-  // Memoize prevTestimonial for the same reason
+  
   const prevTestimonial = useCallback(() => {
     setActiveIndex(current =>
       current === 0 ? testimonialsData.length - 1 : current - 1
     );
   }, []);
 
-  // Memoize the current testimonial based on activeIndex
+  
   const currentTestimonial = useMemo(
     () => testimonialsData[activeIndex],
     [activeIndex]
   );
 
-  // Set mounted state and auto-advance testimonials every 7 seconds
+  
   useEffect(() => {
     setMounted(true);
     const timer = setInterval(() => {
@@ -39,7 +39,7 @@ export default function Testimonials() {
     return () => clearInterval(timer);
   }, [nextTestimonial]);
 
-  // Show a skeleton loader until the component is mounted (client-side)
+  
   if (!mounted) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -51,7 +51,7 @@ export default function Testimonials() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="relative">
-        {/* Navigation Buttons */}
+        {/* Navigation buttons */}
         <button
           onClick={prevTestimonial}
           className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 z-10 transition-transform duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -84,7 +84,6 @@ export default function Testimonials() {
           </svg>
         </button>
 
-        {/* Testimonial Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 transform transition-all duration-500 hover:shadow-2xl">
           <div className="flex flex-col md:flex-row items-center text-center md:text-left gap-8">
             <div className="flex-shrink-0">
@@ -123,9 +122,9 @@ export default function Testimonials() {
         </div>
       </div>
       
-      {/* Dots Navigation */}
+      {}
       <div className="flex justify-center gap-3 mt-8">
-        {testimonialsData.map((_, index) => (
+        {testimonialsData.map((_, index: number) => (
           <button
             key={index}
             onClick={() => setActiveIndex(index)}

@@ -1,11 +1,11 @@
-// src/app/(marketing)/courses/_MiddleCTASection.tsx
+
 import React from 'react';
 import Link from 'next/link';
 
 const MiddleCTASection: React.FC = () => {
   return (
     <section className="py-16 bg-blue-50 relative overflow-hidden">
-      {/* Decorative elements */}
+      {}
       <div className="absolute -left-16 -top-16 w-64 h-64 bg-blue-100 rounded-full opacity-50 animate-float"></div>
       <div
         className="absolute -right-16 -bottom-16 w-64 h-64 bg-blue-100 rounded-full opacity-50 animate-float"

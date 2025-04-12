@@ -1,10 +1,10 @@
-// src/app/(marketing)/courses/_HeroSection.tsx
+
 import React from 'react';
 
 const HeroSection: React.FC = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white py-20">
-      {/* Decorative background pattern */}
+      {}
       <div
         className="absolute inset-0 opacity-10"
         style={{
@@ -13,7 +13,7 @@ const HeroSection: React.FC = () => {
         }}
       ></div>
 
-      {/* Decorative shapes */}
+      {}
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-5 rounded-tr-full animate-float"></div>
       <div
         className="absolute top-0 right-0 w-96 h-96 bg-blue-400 opacity-10 rounded-bl-full animate-float"

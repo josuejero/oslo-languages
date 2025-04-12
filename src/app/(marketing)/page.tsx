@@ -5,7 +5,7 @@ import Container from "@/components/common/layout/Container";
 import { features } from '@/data';
 import AnimateOnScroll from '@/components/common/animation/AnimateOnScroll';
 
-// Dynamically import heavy components
+
 const Testimonials = dynamic(() => import('@/components/features/Testimonials'), {
   loading: () => <div className="h-80 bg-gray-100 animate-pulse rounded-lg"></div>,
   ssr: false
@@ -18,16 +18,16 @@ const NewsletterSignup = dynamic(() => import('@/components/features/NewsletterS
 export default function Home() {
   return (
     <Container containerSize="full" padding="none">
-      {/* Hero Section with Enhanced Gradient */}
+      {}
       <section className="relative overflow-hidden py-20 md:py-28 w-full bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700">
-        {/* Replace black background with a blue gradient */}
+        {}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 opacity-90"></div>
         
-        {/* Animated floating shapes for visual interest */}
+        {}
         <div className="absolute right-0 bottom-0 w-64 h-64 bg-white/10 rounded-full blur-xl animate-float"></div>
         <div className="absolute left-20 top-20 w-32 h-32 bg-yellow-200/10 rounded-full blur-xl animate-float-delay"></div>
         
-        {/* Background pattern */}
+        {}
         <div className="absolute inset-0 opacity-10" style={{ 
           backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", 
           backgroundSize: "20px 20px" 
@@ -61,7 +61,7 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Testimonials Section - Light Background */}
+      {}
       <section className="py-16 bg-gradient-to-b from-gray-50 to-white w-full">
         <div className="container mx-auto px-6">
           <AnimateOnScroll animation="animate-fadeIn">
@@ -81,7 +81,7 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Course Features Section - White Background */}
+      {}
       <section className="py-20 bg-background-primary">
         <div className="container mx-auto px-6">
           <AnimateOnScroll animation="animate-fadeIn">
@@ -138,7 +138,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Newsletter Section - Light Gray Background */}
+      {}
       <AnimateOnScroll animation="animate-fadeIn">
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-6">
@@ -149,9 +149,9 @@ export default function Home() {
         </section>
       </AnimateOnScroll>
 
-      {/* CTA Section - Blue Gradient (No Black) */}
+      {}
       <section className="py-20 bg-gradient-to-r from-blue-700 to-indigo-800 text-white relative overflow-hidden">
-        {/* Animated background elements */}
+        {}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
           <div className="absolute top-0 -left-10 w-40 h-40 bg-white rounded-full"></div>
           <div className="absolute bottom-0 right-0 w-60 h-60 bg-white rounded-full"></div>

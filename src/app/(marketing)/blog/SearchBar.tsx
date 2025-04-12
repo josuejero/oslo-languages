@@ -1,4 +1,4 @@
-// src/app/(marketing)/blog/_components/SearchBar.tsx
+
 'use client';
 
 import { useState } from 'react';
@@ -8,7 +8,7 @@ export default function SearchBar() {
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality here
+    
     console.log('Searching for:', query);
   };
   

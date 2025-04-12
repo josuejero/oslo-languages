@@ -1,12 +1,12 @@
-// src/config/site.ts
+
 export const siteConfig = {
   name: 'Oslo Languages',
   description: 'Language courses in Oslo',
-  url: 'https://oslolanguages.no',
+  url: 'https://example.com',
   ogImage: '/images/og-default.jpg',
   links: {
-    facebook: 'https://facebook.com/oslolanguages',
-    instagram: 'https://instagram.com/oslolanguages',
+    facebook: 'https://facebook.com',
+    instagram: 'https://instagram.com',
   },
   contact: {
     email: 'info@oslolanguages.no',

@@ -1,8 +1,8 @@
-// src/lib/data/blog.ts
+
 import fs from 'fs';
 import path from 'path';
 
-// Define the BlogPost type
+
 export interface BlogPost {
   id: number;
   title: string;
@@ -17,10 +17,10 @@ export interface BlogPost {
   relatedPosts?: number[];
 }
 
-// Path to JSON file storing blog posts
+
 const DATA_PATH = path.join(process.cwd(), 'src/data/blog/posts.json');
 
-// Helper function to read blog posts from file
+
 function readPostsFile(): BlogPost[] {
   if (!fs.existsSync(DATA_PATH)) {
     fs.writeFileSync(DATA_PATH, JSON.stringify([]), 'utf8');
@@ -30,7 +30,7 @@ function readPostsFile(): BlogPost[] {
   return JSON.parse(fileContent);
 }
 
-// Helper function to write blog posts to file
+
 function writePostsFile(posts: BlogPost[]): void {
   const dirPath = path.dirname(DATA_PATH);
   if (!fs.existsSync(dirPath)) {
@@ -53,7 +53,7 @@ export async function savePost(post: BlogPost): Promise<BlogPost> {
   const posts = readPostsFile();
   
   if (post.id) {
-    // Update existing post
+    
     const index = posts.findIndex(p => p.id === post.id);
     if (index !== -1) {
       posts[index] = { ...post };
@@ -62,7 +62,7 @@ export async function savePost(post: BlogPost): Promise<BlogPost> {
     }
   }
   
-  // Create new post
+  
   const newPost = {
     ...post,
     id: Math.max(0, ...posts.map(p => p.id)) + 1

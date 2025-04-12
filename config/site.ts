@@ -4,8 +4,8 @@ export const siteConfig = {
   url: 'https://oslolanguages.no',
   ogImage: '/images/og-default.jpg',
   links: {
-    facebook: 'https://facebook.com/oslolanguages',
-    instagram: 'https://instagram.com/oslolanguages',
+    facebook: 'https://facebook.com',
+    instagram: 'https://instagram.com',
   },
   contact: {
     email: 'contact@oslolanguages.no',

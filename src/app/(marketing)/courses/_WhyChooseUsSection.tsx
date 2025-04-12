@@ -1,4 +1,4 @@
-// src/app/(marketing)/courses/_WhyChooseUsSection.tsx
+
 import React from 'react';
 
 const WhyChooseUsSection: React.FC = () => {
@@ -18,7 +18,7 @@ const WhyChooseUsSection: React.FC = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Feature 1 */}
+          {}
           <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-8 border border-amber-200 relative overflow-hidden group hover:shadow-lg transition-all animate-fadeIn delay-100">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200 opacity-20 rounded-bl-full group-hover:scale-110 transition-transform"></div>
             <div className="relative z-10">
@@ -47,7 +47,7 @@ const WhyChooseUsSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Feature 2 */}
+          {}
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-8 border border-emerald-200 relative overflow-hidden group hover:shadow-lg transition-all animate-fadeIn delay-200">
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-200 opacity-20 rounded-bl-full group-hover:scale-110 transition-transform"></div>
             <div className="relative z-10">
@@ -76,7 +76,7 @@ const WhyChooseUsSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Feature 3 */}
+          {}
           <div className="bg-gradient-to-br from-violet-50 to-violet-100 rounded-xl p-8 border border-violet-200 relative overflow-hidden group hover:shadow-lg transition-all animate-fadeIn delay-300">
             <div className="absolute top-0 right-0 w-32 h-32 bg-violet-200 opacity-20 rounded-bl-full group-hover:scale-110 transition-transform"></div>
             <div className="relative z-10">

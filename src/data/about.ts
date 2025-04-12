@@ -1,8 +1,8 @@
-// src/data/about.ts
+
 
 export const post = {
   coverImage: '/images/about-cover.jpg',
-  // Add more data here if needed
+  
 };
 
 export const teachers = [

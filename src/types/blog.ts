@@ -14,5 +14,5 @@ export interface BlogPost {
 }
 
 export interface BlogPostSummary extends Omit<BlogPost, 'content'> {
-  // BlogPostSummary contains all BlogPost properties except content
+  
 }

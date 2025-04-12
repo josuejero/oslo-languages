@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-// Define navigation links
+
 const navigationLinks = [
   { href: '/', label: 'Home' },
   { href: '/courses', label: 'Courses' },
@@ -21,7 +21,7 @@ export default function Navigation() {
   const [lastFocusable, setLastFocusable] = useState<HTMLElement | null>(null);
   const pathname = usePathname();
 
-  // Manage focus when the mobile menu opens
+  
   useEffect(() => {
     if (isMenuOpen && menuRef.current) {
       const focusableElements = menuRef.current.querySelectorAll<HTMLElement>(
@@ -29,24 +29,24 @@ export default function Navigation() {
       );
       setFirstFocusable(focusableElements[0] || null);
       setLastFocusable(focusableElements[focusableElements.length - 1] || null);
-      // Focus the first focusable element
+      
       focusableElements[0]?.focus();
     }
   }, [isMenuOpen]);
 
-  // Handle keyboard navigation and close on Escape
+  
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isMenuOpen) return;
     const { key, shiftKey } = event;
 
-    // Close menu on Escape key
+    
     if (key === 'Escape') {
       setIsMenuOpen(false);
       buttonRef.current?.focus();
       return;
     }
 
-    // Trap focus within the mobile menu
+    
     if (key === 'Tab') {
       if (!firstFocusable || !lastFocusable) return;
       if (shiftKey && document.activeElement === firstFocusable) {
@@ -59,7 +59,7 @@ export default function Navigation() {
     }
   };
 
-  // Close the menu if a click occurs outside it
+  
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -75,7 +75,7 @@ export default function Navigation() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Handle Escape key and lock body scroll when mobile menu is open
+  
   useEffect(() => {
     const handleEscKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isMenuOpen) {
@@ -85,7 +85,7 @@ export default function Navigation() {
     };
 
     document.addEventListener('keydown', handleEscKey);
-    // Lock body scroll when menu is open
+    
     document.body.style.overflow = isMenuOpen ? 'hidden' : '';
     
     return () => {
@@ -103,7 +103,7 @@ export default function Navigation() {
         Skip to main content
       </a>
 
-      {/* Desktop Navigation */}
+      {}
       <div className="hidden md:flex space-x-4">
         {navigationLinks.map(({ href, label }) => (
           <Link
@@ -124,7 +124,7 @@ export default function Navigation() {
         ))}
       </div>
 
-      {/* Mobile Menu Toggle Button */}
+      {}
       <button
         ref={buttonRef}
         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -156,7 +156,7 @@ export default function Navigation() {
         </svg>
       </button>
 
-      {/* Mobile Menu */}
+      {}
       <div
         id="mobile-menu"
         ref={menuRef}

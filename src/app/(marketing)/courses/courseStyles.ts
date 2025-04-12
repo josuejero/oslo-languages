@@ -1,4 +1,4 @@
-// src/app/(marketing)/courses/courseStyles.ts
+
 import { CourseColor } from './courseData';
 
 export const colorMap: Record<CourseColor, any> = {

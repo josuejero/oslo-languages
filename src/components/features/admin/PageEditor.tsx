@@ -1,4 +1,4 @@
-// src/components/features/admin/PageEditor.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -24,7 +24,7 @@ export default function PageEditor({
     if (!initialContent) {
       setIsLoading(true);
       
-      // Mock data for demonstration purposes
+      
       setTimeout(() => {
         setContent("# Welcome to Oslo Languages\n\nWe offer high-quality language courses...");
         setIsLoading(false);
@@ -43,14 +43,14 @@ export default function PageEditor({
       if (onSave) {
         await onSave(content);
       } else {
-        // Fallback implementation if no onSave handler is provided
+        
         console.log("Saving page content:", content);
       }
       
       router.push("/admin/dashboard");
     } catch (error) {
       console.error("Error saving content:", error);
-      // Handle error (show error message to user)
+      
     }
   };
   

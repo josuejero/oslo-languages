@@ -1,4 +1,4 @@
-// src/app/(marketing)/about/page.tsx
+
 
 import { generateMetadata } from '@/lib/seo/metadata';
 import Container from '@/components/common/Container';

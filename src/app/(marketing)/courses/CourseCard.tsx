@@ -1,4 +1,4 @@
-// src/app/(marketing)/courses/CourseCard.tsx
+
 import React from 'react';
 import Link from 'next/link';
 import OptimizedImage from '@/components/common/media/OptimizedImage';
@@ -21,12 +21,12 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
                   animate-fadeIn`}
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      {/* Level badge */}
+      {}
       <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold ${colors.level}`}>
         {course.level}
       </span>
 
-      {/* Header (icon + title) */}
+      {}
       <div className="flex items-start mb-4">
         <div className="flex-shrink-0 mr-4">
           <div className="w-14 h-14 rounded-full bg-background-primary shadow-sm flex items-center justify-center p-3 
@@ -51,7 +51,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
         </div>
       </div>
 
-      {/* Course details */}
+      {}
       <div className="mb-6">
         <div className="flex items-center mb-3">
           <svg
@@ -72,7 +72,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
         <p className="text-text-secondary">{course.description}</p>
       </div>
 
-      {/* Action button (push to bottom with flex-grow) */}
+      {}
       <div className="mt-auto">
         <Link
           href="/contact"

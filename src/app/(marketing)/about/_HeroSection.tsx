@@ -1,4 +1,4 @@
-// src/app/(marketing)/about/_HeroSection.tsx
+
 
 import React from 'react';
 
@@ -10,10 +10,10 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
   return (
     <section className="relative py-20 overflow-hidden">
-      {/* Animated gradient background */}
+      {}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 opacity-90"></div>
 
-      {/* Decorative pattern */}
+      {}
       <div
         className="absolute inset-0 opacity-10"
         style={{
@@ -32,7 +32,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
         </div>
       </div>
 
-      {/* Wave divider */}
+      {}
       <div className="absolute bottom-0 left-0 right-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"

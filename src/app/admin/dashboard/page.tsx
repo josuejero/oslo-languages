@@ -1,4 +1,4 @@
-// src/app/admin/dashboard/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -18,7 +18,7 @@ export default function AdminDashboard() {
   const [notifications, setNotifications] = useState(3);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Redirect if not authenticated
+  
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/admin/login");
@@ -41,7 +41,7 @@ export default function AdminDashboard() {
     router.push("/admin/login");
   };
 
-  // Stat cards data for the dashboard
+  
   const stats = [
     { 
       title: "Total Courses", 
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
     }
   ];
 
-  // Sample blog post data
+  
   const recentPosts = [
     { id: 1, title: "5 Tips to Improve Your Norwegian Pronunciation", date: "April 1, 2025", status: "Published" },
     { id: 2, title: "Common English Mistakes Made by Norwegian Speakers", date: "March 25, 2025", status: "Published" },
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
     { id: 4, title: "Why Learn Norwegian?", date: "Draft", status: "Draft" }
   ];
 
-  // Sample upcoming events/classes
+  
   const upcomingEvents = [
     { id: 1, title: "Norwegian A1 Class Start", date: "April 15, 2025", time: "18:00" },
     { id: 2, title: "Business English Workshop", date: "April 18, 2025", time: "10:00" },
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar - Desktop */}
+      {}
       <aside className="hidden md:flex flex-col w-64 bg-gradient-to-b from-blue-700 via-indigo-600 to-purple-700 text-white">
         <div className="p-5 border-b border-blue-800">
           <div className="flex items-center space-x-3">
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
         </div>
       </aside>
       
-      {/* Mobile menu button */}
+      {}
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
         </button>
       </div>
       
-      {/* Mobile sidebar */}
+      {}
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 z-40">
           <div className="fixed inset-0 bg-black opacity-50" onClick={() => setIsMenuOpen(false)}></div>
@@ -218,7 +218,7 @@ export default function AdminDashboard() {
             </div>
             
             <nav className="flex-1 py-6 px-4 space-y-1">
-              {/* Same buttons as desktop sidebar */}
+              {}
               <button 
                 onClick={() => {
                   setActiveTab("dashboard");
@@ -234,8 +234,8 @@ export default function AdminDashboard() {
                 Dashboard
               </button>
               
-              {/* Other menu items - same as desktop sidebar */}
-              {/* ... */}
+              {}
+              {}
             </nav>
             
             <div className="p-4 border-t border-blue-800">
@@ -251,9 +251,9 @@ export default function AdminDashboard() {
         </div>
       )}
       
-      {/* Main content */}
+      {}
       <main className="flex-1 max-h-screen overflow-y-auto">
-        {/* Top navigation */}
+        {}
         <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-800">
             {activeTab === "dashboard" && "Dashboard"}
@@ -264,7 +264,7 @@ export default function AdminDashboard() {
           </h1>
           
           <div className="flex items-center space-x-4">
-            {/* Notification bell */}
+            {}
             <button className="p-2 rounded-full hover:bg-gray-100 relative">
               <Bell className="w-6 h-6 text-gray-600" />
               {notifications > 0 && (
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
               )}
             </button>
             
-            {/* Admin profile */}
+            {}
             <div className="flex items-center space-x-2">
               <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold">
                 A
@@ -286,10 +286,10 @@ export default function AdminDashboard() {
           </div>
         </header>
         
-        {/* Dashboard content */}
+        {}
         {activeTab === "dashboard" && (
           <div className="p-6">
-            {/* Stats row */}
+            {}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {stats.map((stat, index) => (
                 <div 
@@ -317,9 +317,9 @@ export default function AdminDashboard() {
               ))}
             </div>
             
-            {/* Two column layout for Recent Posts and Upcoming Events */}
+            {}
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Recent Blog Posts */}
+              {}
               <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 py-4 px-6 flex justify-between items-center">
                   <h2 className="text-white font-bold text-lg">Recent Blog Posts</h2>
@@ -375,7 +375,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               
-              {/* Upcoming Events */}
+              {}
               <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="bg-gradient-to-r from-purple-600 to-pink-600 py-4 px-6 flex justify-between items-center">
                   <h2 className="text-white font-bold text-lg">Upcoming Events</h2>
@@ -422,7 +422,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             
-            {/* Quick Actions */}
+            {}
             <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100 shadow-sm">
               <h2 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -470,7 +470,7 @@ export default function AdminDashboard() {
           </div>
         )}
         
-        {/* Other tabs content would go here */}
+        {}
         {activeTab !== "dashboard" && (
           <div className="p-6">
             <div className="bg-white rounded-xl shadow-md p-8 text-center">

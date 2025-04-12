@@ -1,11 +1,11 @@
-// src/app/layout.tsx - Modified
+
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import "@/styles/globals.css";
 
-// Configure your Google fonts here
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -31,11 +31,11 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Oslo Languages",
-    url: "https://oslolanguages.no",
-    logo: "https://oslolanguages.no/images/logo.png",
+    url: "https://www.oslolanguages.com",
+    logo: "https://www.oslolanguages.com/logo.png",
     sameAs: [
-      "https://facebook.com/oslolanguages",
-      "https://instagram.com/oslolanguages",
+      "https://www.facebook.com/oslolanguages",
+      "https://www.instagram.com/oslolanguages"
     ],
     contactPoint: {
       "@type": "ContactPoint",
@@ -62,7 +62,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      {/* Fix: Modified body class to ensure full width with no overflow */}
+      {}
       <body className="min-h-screen flex flex-col bg-white">
         <Header />
         <main id="main-content" className="flex-grow">

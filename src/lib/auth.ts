@@ -1,4 +1,4 @@
-// src/lib/auth.ts
+
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -11,7 +11,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Hardcoded example - use real user lookup in production
+        
         const validCredentials = {
           email: "admin@oslolanguages.no",
           password: "admin123",
@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
           credentials?.email === validCredentials.email &&
           credentials?.password === validCredentials.password
         ) {
-          // Return user object
+          
           return {
             id: "1",
             email: validCredentials.email,
@@ -64,7 +64,7 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60, 
   },
 
   debug: process.env.NODE_ENV === "development",

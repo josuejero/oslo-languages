@@ -1,16 +1,16 @@
-// src/types/index.ts
 
-// Export all types from individual modules
+
+
 export * from './blog';
 export * from './courses';
 export * from './contact';
 
-// Common types
+
 export interface BaseComponentProps {
   className?: string;
 }
 
-// Container types for consistency
+
 export type ContainerSize = 'default' | 'narrow' | 'wide' | 'full';
 export type ContainerPadding = 'none' | 'small' | 'default' | 'large';
 

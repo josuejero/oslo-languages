@@ -1,4 +1,4 @@
-// src/app/(marketing)/contact/page.tsx
+
 import { Metadata } from 'next';
 import Image from 'next/image';
 import ContactForm from '@/components/features/contact/ContactForm';
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <section className="min-h-screen py-16 bg-gradient-to-b from-blue-50 to-white">
-      {/* Hero Header */}
+      {}
       <div className="container mx-auto px-4 mb-12">
         <AnimateOnScroll animation="animate-fadeIn">
           <div className="text-center max-w-3xl mx-auto">
@@ -27,10 +27,10 @@ export default function ContactPage() {
         </AnimateOnScroll>
       </div>
 
-      {/* Form and Info Sections */}
+      {}
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-5 gap-8 items-start">
-          {/* Contact Form Section - 3/5 width on desktop */}
+          {}
           <div className="md:col-span-3">
             <AnimateOnScroll animation="animate-fadeIn" delay={100}>
               <div className="bg-white rounded-xl shadow-xl overflow-hidden">
@@ -45,9 +45,9 @@ export default function ContactPage() {
             </AnimateOnScroll>
           </div>
 
-          {/* Contact Information Section - 2/5 width on desktop */}
+          {}
           <div className="md:col-span-2 space-y-6">
-            {/* Visit Us Card */}
+            {}
             <AnimateOnScroll animation="animate-fadeIn" delay={200}>
               <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-t-4 border-blue-500">
                 <h3 className="text-xl font-semibold mb-4 text-text-primary flex items-center">
@@ -65,7 +65,7 @@ export default function ContactPage() {
                   <p className="font-medium">Monday - Friday: 9:00 - 18:00</p>
                 </div>
                 
-                {/* Map Image */}
+                {}
                 <div className="mt-4 relative h-40 rounded-lg overflow-hidden">
                   <Image 
                     src="/images/oslo-map.jpg" 
@@ -78,7 +78,7 @@ export default function ContactPage() {
               </div>
             </AnimateOnScroll>
             
-            {/* Contact Information Card */}
+            {}
             <AnimateOnScroll animation="animate-fadeIn" delay={300}>
               <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-t-4 border-indigo-500">
                 <h3 className="text-xl font-semibold mb-4 text-text-primary flex items-center">
@@ -106,7 +106,7 @@ export default function ContactPage() {
               </div>
             </AnimateOnScroll>
             
-            {/* Social Media Card */}
+            {}
             <AnimateOnScroll animation="animate-fadeIn" delay={400}>
               <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-t-4 border-purple-500">
                 <h3 className="text-xl font-semibold mb-4 text-text-primary flex items-center">
@@ -143,7 +143,7 @@ export default function ContactPage() {
         </div>
       </div>
       
-      {/* FAQ Section */}
+      {}
       <div className="container mx-auto px-4 mt-16">
         <AnimateOnScroll animation="animate-fadeIn" delay={500}>
           <div className="text-center mb-10">

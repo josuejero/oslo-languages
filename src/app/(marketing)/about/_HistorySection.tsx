@@ -1,4 +1,4 @@
-// src/app/(marketing)/about/_HistorySection.tsx
+
 
 import React from 'react';
 import OptimizedImage from '@/components/common/media/OptimizedImage';
@@ -12,7 +12,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({ coverImage }) => {
     <section className="py-12 md:py-20">
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Text content */}
+          {}
           <div className="space-y-6 animate-fadeIn">
             <div className="inline-block px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full mb-2">
               Established 2015
@@ -36,7 +36,7 @@ const HistorySection: React.FC<HistorySectionProps> = ({ coverImage }) => {
             </p>
           </div>
 
-          {/* Image */}
+          {}
           <div className="relative animate-fadeIn delay-200">
             <div className="absolute -right-6 -bottom-6 w-full h-full border-4 border-blue-100 rounded-lg -z-10 animate-float"></div>
             <div

@@ -1,4 +1,4 @@
-// src/app/(marketing)/terms-of-service/page.tsx
+
 import { Metadata } from "next";
 import Link from "next/link";
 import { FileText, Shield, Scale, AlertCircle, RefreshCw } from "lucide-react";
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function TermsOfService() {
   return (
     <section className="min-h-screen py-16 bg-gradient-to-b from-blue-50 to-white">
-      {/* Hero Section */}
+      {}
       <div className="container mx-auto px-4 max-w-5xl">
         <AnimateOnScroll animation="animate-fadeIn">
           <h1 className="text-4xl md:text-5xl font-bold text-center text-gray-900 mb-4">
@@ -24,9 +24,9 @@ export default function TermsOfService() {
           </p>
         </AnimateOnScroll>
         
-        {/* Terms Sections */}
+        {}
         <div className="space-y-6 mb-12">
-          {/* Section 1 */}
+          {}
           <AnimateOnScroll animation="animate-fadeIn" delay={100}>
             <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-blue-500 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-blue-50 rounded-full -translate-x-10 -translate-y-20 opacity-50"></div>
@@ -46,7 +46,7 @@ export default function TermsOfService() {
             </div>
           </AnimateOnScroll>
 
-          {/* Section 2 */}
+          {}
           <AnimateOnScroll animation="animate-fadeIn" delay={200}>
             <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-indigo-500 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-50 rounded-full -translate-x-10 -translate-y-20 opacity-50"></div>
@@ -66,7 +66,7 @@ export default function TermsOfService() {
             </div>
           </AnimateOnScroll>
 
-          {/* Section 3 */}
+          {}
           <AnimateOnScroll animation="animate-fadeIn" delay={300}>
             <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-purple-500 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-purple-50 rounded-full -translate-x-10 -translate-y-20 opacity-50"></div>
@@ -86,7 +86,7 @@ export default function TermsOfService() {
             </div>
           </AnimateOnScroll>
 
-          {/* Section 4 */}
+          {}
           <AnimateOnScroll animation="animate-fadeIn" delay={400}>
             <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-amber-500 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-amber-50 rounded-full -translate-x-10 -translate-y-20 opacity-50"></div>
@@ -106,7 +106,7 @@ export default function TermsOfService() {
             </div>
           </AnimateOnScroll>
 
-          {/* Section 5 */}
+          {}
           <AnimateOnScroll animation="animate-fadeIn" delay={500}>
             <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-green-500 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-green-50 rounded-full -translate-x-10 -translate-y-20 opacity-50"></div>
@@ -127,7 +127,7 @@ export default function TermsOfService() {
           </AnimateOnScroll>
         </div>
         
-        {/* Call to Action */}
+        {}
         <AnimateOnScroll animation="animate-fadeIn" delay={600}>
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-8 text-white shadow-xl">
             <div className="text-center max-w-2xl mx-auto">

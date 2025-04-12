@@ -1,5 +1,5 @@
-// testimonialsData.ts
-// Defines the type of each testimonial and exports a data array.
+
+
 
 export type Testimonial = {
   id: number;
@@ -11,7 +11,7 @@ export type Testimonial = {
   rating: number;
 };
 
-// Hardcoded list of testimonials, could eventually come from an API or CMS
+
 export const testimonialsData: Testimonial[] = [
   {
     id: 1,

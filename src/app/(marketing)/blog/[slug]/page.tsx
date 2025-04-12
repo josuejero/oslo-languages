@@ -1,9 +1,9 @@
-// src/app/blog/[slug]/page.tsx
+
 import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-// This would be imported from the centralized types file
+
 interface BlogPostFull {
   id: number;
   title: string;
@@ -15,7 +15,7 @@ interface BlogPostFull {
   relatedPosts: number[];
 }
 
-// This would be imported from the centralized types file
+
 interface RelatedPost {
   id: number;
   title: string;
@@ -24,9 +24,9 @@ interface RelatedPost {
   slug: string;
 }
 
-// This would come from a database or CMS via a data fetching function
+
 async function getBlogPostBySlug(slug: string): Promise<BlogPostFull | null> {
-  // Placeholder data for demonstration
+  
   const blogPosts: Record<string, BlogPostFull> = {
     "improve-norwegian-pronunciation": {
       id: 1,
@@ -62,9 +62,9 @@ async function getBlogPostBySlug(slug: string): Promise<BlogPostFull | null> {
   return blogPosts[slug] || null;
 }
 
-// This would come from a database or CMS via a data fetching function
+
 async function getRelatedPosts(postIds: number[]): Promise<RelatedPost[]> {
-  // Placeholder data for demonstration
+  
   return [
     {
       id: 2,
@@ -76,7 +76,7 @@ async function getRelatedPosts(postIds: number[]): Promise<RelatedPost[]> {
   ];
 }
 
-// Format date function - would be imported from utils
+
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { 
@@ -154,7 +154,7 @@ export default async function BlogPost({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
         
-        {/* Related Posts Section */}
+        {}
         {relatedPosts.length > 0 && (
           <div className="mt-12 pt-8 border-t">
             <h2 className="text-2xl font-bold mb-6">Related Posts</h2>

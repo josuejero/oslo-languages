@@ -1,11 +1,11 @@
-// src/app/(marketing)/about/_MethodologySection.tsx
+
 
 import React from 'react';
 
 const MethodologySection: React.FC = () => {
   return (
     <section className="py-20 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
-      {/* Decorative background elements */}
+      {}
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100 rounded-full opacity-30 transform translate-x-1/2 -translate-y-1/2 animate-float"></div>
       <div
         className="absolute bottom-0 left-0 w-64 h-64 bg-purple-100 rounded-full opacity-30 transform -translate-x-1/2 translate-y-1/2 animate-float"
@@ -27,10 +27,10 @@ const MethodologySection: React.FC = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Method Card 1 */}
+          {}
           <div className="bg-background-primary p-8 rounded-xl shadow-lg border-t-4 border-blue-600 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn delay-100">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-              {/* Icon or SVG */}
+              {}
             </div>
             <h3 className="text-xl font-bold mb-4 text-text-primary">
               Communicative Approach
@@ -41,10 +41,10 @@ const MethodologySection: React.FC = () => {
             </p>
           </div>
 
-          {/* Method Card 2 */}
+          {}
           <div className="bg-background-primary p-8 rounded-xl shadow-lg border-t-4 border-indigo-600 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn delay-200">
             <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
-              {/* Icon or SVG */}
+              {}
             </div>
             <h3 className="text-xl font-bold mb-4 text-text-primary">
               Small Group Sizes
@@ -55,10 +55,10 @@ const MethodologySection: React.FC = () => {
             </p>
           </div>
 
-          {/* Method Card 3 */}
+          {}
           <div className="bg-background-primary p-8 rounded-xl shadow-lg border-t-4 border-purple-600 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn delay-300">
             <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6">
-              {/* Icon or SVG */}
+              {}
             </div>
             <h3 className="text-xl font-bold mb-4 text-text-primary">
               Cultural Integration

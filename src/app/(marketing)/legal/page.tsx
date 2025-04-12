@@ -1,4 +1,4 @@
-// src/app/(marketing)/legal/page.tsx
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Shield, File, Book } from "lucide-react";
@@ -23,7 +23,7 @@ export default function Legal() {
           </p>
         </AnimateOnScroll>
         
-        {/* Privacy Policy Section */}
+        {}
         <AnimateOnScroll animation="animate-fadeIn" delay={100}>
           <div className="bg-white p-8 md:p-10 rounded-2xl shadow-xl mb-10 hover:shadow-2xl transition-all duration-300 border-t-4 border-blue-500 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -translate-x-16 -translate-y-16 opacity-50"></div>
@@ -77,7 +77,7 @@ export default function Legal() {
           </div>
         </AnimateOnScroll>
         
-        {/* Terms of Service Section */}
+        {}
         <AnimateOnScroll animation="animate-fadeIn" delay={200}>
           <div className="bg-white p-8 md:p-10 rounded-2xl shadow-xl mb-10 hover:shadow-2xl transition-all duration-300 border-t-4 border-indigo-500 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full -translate-x-16 -translate-y-16 opacity-50"></div>
@@ -131,7 +131,7 @@ export default function Legal() {
         </AnimateOnScroll>
         
     
-        {/* Contact Section */}
+        {}
         <AnimateOnScroll animation="animate-fadeIn" delay={400}>
           <div className="text-center mt-12">
             <p className="text-gray-700 mb-4">

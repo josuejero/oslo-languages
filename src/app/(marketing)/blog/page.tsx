@@ -1,4 +1,4 @@
-// src/app/(marketing)/blog/page.tsx
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: "Tips, insights, and news about language learning and our school.",
 };
 
-// This would be imported from the centralized types file
+
 interface BlogPostSummary {
   id: number;
   title: string;
@@ -27,9 +27,9 @@ interface BlogPostSummary {
   featured?: boolean;
 }
 
-// This would come from a database or CMS via a data fetching function
+
 async function getBlogPosts(): Promise<BlogPostSummary[]> {
-  // Placeholder data for demonstration
+  
   return [
     {
       id: 1,
@@ -86,7 +86,7 @@ export default async function Blog() {
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-white">
-      {/* Hero Section */}
+      {}
       <section className="relative py-16 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-700 opacity-10"></div>
         <div className="container mx-auto px-4 relative z-10">
@@ -99,7 +99,7 @@ export default async function Blog() {
             </p>
           </AnimateOnScroll>
 
-          {/* Search and Filter Section */}
+          {}
           <div className="max-w-4xl mx-auto mb-12">
             <AnimateOnScroll animation="animate-fadeIn" delay={200}>
               <div className="bg-white p-6 rounded-xl shadow-md">
@@ -117,7 +117,7 @@ export default async function Blog() {
         </div>
       </section>
 
-      {/* Featured Post Section */}
+      {}
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
           <AnimateOnScroll animation="animate-fadeIn">
@@ -133,7 +133,7 @@ export default async function Blog() {
         </div>
       </section>
 
-      {/* Latest Posts Section */}
+      {}
       <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
           <AnimateOnScroll animation="animate-fadeIn">
@@ -155,7 +155,7 @@ export default async function Blog() {
             ))}
           </div>
           
-          {/* Pagination - would be generated dynamically based on post count */}
+          {}
           <div className="mt-16">
             <AnimateOnScroll animation="animate-fadeIn" delay={400}>
               <Pagination currentPage={1} totalPages={3} />
@@ -164,7 +164,7 @@ export default async function Blog() {
         </div>
       </section>
 
-      {/* Newsletter Section */}
+      {}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <AnimateOnScroll animation="animate-fadeIn">
@@ -181,7 +181,7 @@ export default async function Blog() {
   );
 }
 
-// Enhanced blog post card component
+
 function BlogPostCard({ post }: { post: BlogPostSummary }) {
   return (
     <article className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col">
@@ -235,7 +235,7 @@ function BlogPostCard({ post }: { post: BlogPostSummary }) {
   );
 }
 
-// Enhanced pagination component
+
 function Pagination({ currentPage, totalPages }: { currentPage: number, totalPages: number }) {
   return (
     <div className="flex justify-center">

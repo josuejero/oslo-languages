@@ -1,9 +1,9 @@
-// src/app/api/blog/route.ts
+
 import { NextResponse } from 'next/server';
 import { getAllPosts, savePost } from '@/lib/data/blog';
 import { BlogPost } from '@/types';
 
-// Utility functions for consistent responses
+
 function errorResponse(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
 }
@@ -26,12 +26,12 @@ export async function POST(request: Request) {
   try {
     const post = await request.json();
     
-    // Validate required fields
+    
     if (!post.title || !post.content) {
       return errorResponse('Missing required fields: title and content are required');
     }
     
-    // Create slug if not provided
+    
     if (!post.slug) {
       post.slug = post.title
         .toLowerCase()
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         .replace(/\s+/g, '-');
     }
     
-    // Set the date if not provided
+    
     if (!post.date) {
       post.date = new Date().toISOString().split('T')[0];
     }

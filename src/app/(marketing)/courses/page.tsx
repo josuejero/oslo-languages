@@ -1,8 +1,8 @@
-// src/app/(marketing)/courses/page.tsx
+
 import { generateMetadata } from '@/lib/seo/metadata';
 import Container from '@/components/common/Container';
 
-// Import each section component
+
 import HeroSection from './_HeroSection';
 import CourseListingsSection from './_CourseListingsSection';
 import MiddleCTASection from './_MiddleCTASection';

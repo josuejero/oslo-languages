@@ -1,4 +1,4 @@
-// src/app/(marketing)/blog/_components/FeaturedPost.tsx
+
 'use client';
 
 import Link from "next/link";
@@ -56,7 +56,7 @@ export default function FeaturedPost({ post }: { post: BlogPostSummary }) {
           </div>
           
           <motion.h3 
-            className="text-2xl md:text-3xl font-bold mb-4 leading-tight text-gray-800" // Added text-gray-800
+            className="text-2xl md:text-3xl font-bold mb-4 leading-tight text-gray-800" 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}

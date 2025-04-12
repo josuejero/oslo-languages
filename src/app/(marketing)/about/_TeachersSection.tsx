@@ -1,5 +1,5 @@
-// src/app/(marketing)/about/_TeachersSection.tsx
-'use client'; // Mark as client component to use useState
+
+'use client'; 
 
 import { useState } from 'react';
 import OptimizedImage from '@/components/common/media/OptimizedImage';
@@ -17,7 +17,7 @@ interface TeachersSectionClientProps {
 }
 
 export default function TeachersSectionClient({ teachers }: TeachersSectionClientProps) {
-  // Local state for teacher card hover
+  
   const [activeTeacher, setActiveTeacher] = useState<number | null>(null);
 
   return (

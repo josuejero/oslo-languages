@@ -1,4 +1,4 @@
-// src/app/blog/layout.tsx
+
 import Container from "@/components/common/Container";
 
 export default function BlogLayout({

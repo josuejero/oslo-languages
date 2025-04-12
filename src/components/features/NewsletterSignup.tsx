@@ -9,18 +9,18 @@ export default function NewsletterSignup() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simple validation
+    
     if (!email || !email.includes('@')) {
       setStatus('error');
       return;
     }
     
-    // In a real implementation, you would send this to your API
+    
     console.log('Subscribing email:', email);
     setStatus('success');
     setEmail('');
     
-    // Reset status after 3 seconds
+    
     setTimeout(() => setStatus(null), 3000);
   };
 

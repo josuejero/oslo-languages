@@ -1,4 +1,4 @@
-// src/app/admin/blog/[action]/[id]/page.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,20 +6,20 @@ import { useRouter } from "next/navigation";
 import MarkdownEditor from "@/components/common/editor/MarkdownEditor";
 
 export default function BlogPostEditor() {
-  // Get route parameters directly from the pathname
+  
   const router = useRouter();
   const [postId, setPostId] = useState<string>("");
-  const [action, setAction] = useState<string>("edit"); // Default to edit
+  const [action, setAction] = useState<string>("edit"); 
   
-  // Use state for content management
+  
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   
-  // Extract the postId and action from the URL on component mount
+  
   useEffect(() => {
-    // Parse postId from the URL pathname
+    
     const path = window.location.pathname;
     const segments = path.split('/');
     const id = segments[segments.length - 1];
@@ -28,11 +28,11 @@ export default function BlogPostEditor() {
     setPostId(id);
     setAction(actionType);
     
-    // Fetch initial content based on postId if we're editing
+    
     setIsLoading(true);
     
     if (actionType === "edit") {
-      // Simulate API call with timeout
+      
       setTimeout(() => {
         setTitle("Sample Blog Post");
         setContent("# Welcome to Oslo Languages\n\nThis is a sample blog post content...");
@@ -40,7 +40,7 @@ export default function BlogPostEditor() {
         setIsLoading(false);
       }, 500);
     } else {
-      // For new posts, just set loading to false
+      
       setIsLoading(false);
     }
   }, []);
@@ -51,7 +51,7 @@ export default function BlogPostEditor() {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add implementation to save the blog post
+    
     console.log("Saving blog post:", { title, content, category });
     router.push("/admin/dashboard");
   };

@@ -1,4 +1,4 @@
-// src/components/layout/Footer.tsx
+
 import Link from 'next/link';
 
 export default function Footer() {
@@ -11,7 +11,7 @@ export default function Footer() {
     >
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* About Column */}
+          {}
           <div>
             <h3 className="text-sm font-semibold tracking-wide uppercase mb-4">
               About Oslo Languages
@@ -22,7 +22,7 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Quick Links Column */}
+          {}
           <div>
             <h3 className="text-sm font-semibold tracking-wide uppercase mb-4">
               Quick Links
@@ -63,7 +63,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact Info Column */}
+          {}
           <div>
             <h3 className="text-sm font-semibold tracking-wide uppercase mb-4">
               Contact Info
@@ -76,7 +76,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Copyright Section */}
+        {}
         <div className="border-t border-white/20 mt-8 py-4">
           <p className="text-center text-sm text-gray-300">
             &copy; {currentYear} Oslo Languages. All rights reserved.

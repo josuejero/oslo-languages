@@ -1,7 +1,7 @@
-// src/app/(marketing)/courses/_CourseListingsSection.tsx
+
 import React from 'react';
-import { courses } from './courseData';          // Imported data
-import CourseCard from './CourseCard';           // Reusable component
+import { courses } from './courseData';          
+import CourseCard from './CourseCard';           
 
 const CourseListingsSection: React.FC = () => {
   return (
@@ -20,7 +20,7 @@ const CourseListingsSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Course cards */}
+        {}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {courses.map((course, index) => (
             <CourseCard key={course.id} course={course} index={index} />

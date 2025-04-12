@@ -1,8 +1,8 @@
-// src/app/(marketing)/courses/courseData.ts
-// Define the course color variants
+
+
 export type CourseColor = 'blue' | 'indigo' | 'rose';
 
-// Shape of a course item
+
 export interface Course {
   id: string;
   title: string;
@@ -15,7 +15,7 @@ export interface Course {
   accent: string;
 }
 
-// Sample course data (in a real app, fetch from CMS or API)
+
 export const courses: Course[] = [
   {
     id: 'norwegian-a1',

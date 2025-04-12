@@ -1,4 +1,4 @@
-// src/app/(marketing)/courses/_FinalCTASection.tsx
+
 import React from 'react';
 import Link from 'next/link';
 

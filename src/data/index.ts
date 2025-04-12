@@ -1,6 +1,6 @@
-// src/data/index.ts
 
-// Features/courses shown on the homepage
+
+
 export const features = [
   {
     title: 'Norwegian Courses',

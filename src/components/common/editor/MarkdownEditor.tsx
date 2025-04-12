@@ -1,4 +1,4 @@
-// src/components/common/editor/MarkdownEditor.tsx
+
 "use client";
 
 interface MarkdownEditorProps {
