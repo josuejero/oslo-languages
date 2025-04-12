@@ -23,7 +23,7 @@ Thank you for your interest in contributing to the Oslo Languages Website projec
 
 2. **Clone and install**
    ```bash
-   git clone https://github.com/yourusername/oslo-languages-website.git
+   git clone https://github.com/josuejero/oslo-languages-website.git
    cd oslo-languages-website
    npm install
    ```
