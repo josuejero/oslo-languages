@@ -23,7 +23,7 @@ export function generateMetadata({
   title,
   description,
   keywords = [],
-  image = '/images/og-default.jpg',
+  image = '/images/default-image.jpg',
   canonical,
   noIndex = false,
   locale = 'en_US',

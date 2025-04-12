@@ -17,7 +17,7 @@ export default function CourseCard({
   title, 
   level, 
   description, 
-  imageUrl = '/images/default-course.jpg',
+  imageUrl = '/images/default-image.jpg',
   slug,
   ctaText = 'Inquire Now',
   ctaPath = `/contact?course=${slug}`
