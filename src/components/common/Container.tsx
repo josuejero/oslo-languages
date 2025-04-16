@@ -1,3 +1,5 @@
+// src/components/common/Container.tsx or src/components/common/layout/Container.tsx
+// Make sure the correct component is imported in the homepage
 import React, { ReactNode, ElementType } from 'react';
 
 type ContainerSize = 'default' | 'narrow' | 'wide' | 'full';
@@ -12,10 +14,6 @@ interface ContainerProps {
   id?: string;
 }
 
-/**
- * A flexible container component that handles consistent layout sizing
- * Used throughout the application for layout standardization
- */
 export default function Container({
   children,
   size = 'default',

@@ -29,7 +29,7 @@ export default function OptimizedImage({
   className = '',
   ...props
 }: OptimizedImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   

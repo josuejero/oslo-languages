@@ -2,7 +2,7 @@
 
 module.exports = {
   content: [
-    "./src*.{js,ts,jsx,tsx}"
+    "./src/**/*.{js,ts,jsx,tsx}" // Make sure path is correct
   ],
   corePlugins: {
     container: true, 
