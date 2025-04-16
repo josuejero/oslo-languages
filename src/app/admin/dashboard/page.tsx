@@ -95,13 +95,13 @@ export default function AdminDashboard() {
         <div className="p-5 border-b border-blue-800">
           <div className="flex items-center space-x-3">
             <div className="bg-white p-2 rounded-lg">
-              <Image 
-                src="/images/logo.png" 
-                alt="Oslo Languages Logo" 
-                width={40} 
-                height={40}
-                className="rounded"
-              />
+            <Image 
+  src="/images/placeholder.png" 
+  alt="Oslo Languages Logo" 
+  width={40} 
+  height={40}
+  className="rounded"
+/>
             </div>
             <h1 className="text-xl font-bold">Admin Portal</h1>
           </div>
@@ -205,13 +205,13 @@ export default function AdminDashboard() {
             <div className="p-5 border-b border-blue-800">
               <div className="flex items-center space-x-3">
                 <div className="bg-white p-2 rounded-lg">
-                  <Image 
-                    src="/images/logo.png" 
-                    alt="Oslo Languages Logo" 
-                    width={40} 
-                    height={40}
-                    className="rounded"
-                  />
+                <Image 
+  src="/images/placeholder.png" 
+  alt="Oslo Languages Logo" 
+  width={40} 
+  height={40}
+  className="rounded"
+/>
                 </div>
                 <h1 className="text-xl font-bold">Admin Portal</h1>
               </div>

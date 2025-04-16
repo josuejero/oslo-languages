@@ -67,12 +67,12 @@ export default function ContactPage() {
                 
                 {}
                 <div className="mt-4 relative h-40 rounded-lg overflow-hidden">
-                  <Image 
-                    src="/images/oslo-map.jpg" 
-                    alt="Map showing Oslo Languages location"
-                    fill
-                    className="object-cover"
-                  />
+                <Image 
+  src="/images/placeholder.png" 
+  alt="Map showing Oslo Languages location"
+  fill
+  className="object-cover"
+/>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                 </div>
               </div>

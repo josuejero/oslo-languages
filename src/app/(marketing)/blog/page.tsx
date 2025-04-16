@@ -38,7 +38,7 @@ async function getBlogPosts(): Promise<BlogPostSummary[]> {
       date: "April 1, 2025",
       author: "Maria Berg",
       slug: "improve-norwegian-pronunciation",
-      imageUrl: "/images/blog/pronunciation.jpg",
+      imageUrl: "/images/placeholder.png",
       category: "Norwegian",
       readTime: "5 min read",
       featured: true
@@ -50,7 +50,7 @@ async function getBlogPosts(): Promise<BlogPostSummary[]> {
       date: "March 25, 2025",
       author: "John Smith",
       slug: "english-mistakes-norwegian-speakers",
-      imageUrl: "/images/blog/english-mistakes.jpg",
+      imageUrl: "/images/placeholder.png",
       category: "English",
       readTime: "7 min read"
     },
@@ -61,7 +61,7 @@ async function getBlogPosts(): Promise<BlogPostSummary[]> {
       date: "March 15, 2025",
       author: "Sofia Garcia",
       slug: "spanish-influence-norway",
-      imageUrl: "/images/blog/spanish-influence.jpg",
+      imageUrl: "/images/placeholder.png",
       category: "Spanish",
       readTime: "10 min read"
     },
@@ -72,7 +72,7 @@ async function getBlogPosts(): Promise<BlogPostSummary[]> {
       date: "March 10, 2025",
       author: "Erik Hansen",
       slug: "norwegian-prepositions",
-      imageUrl: "/images/blog/prepositions.jpg",
+      imageUrl: "/images/placeholder.png",
       category: "Norwegian",
       readTime: "8 min read"
     },
@@ -186,13 +186,13 @@ function BlogPostCard({ post }: { post: BlogPostSummary }) {
   return (
     <article className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col">
       <div className="relative h-56 w-full overflow-hidden">
-        <Image 
-          src={post.imageUrl} 
-          alt={post.title} 
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+      <Image 
+  src="/images/placeholder.png" 
+  alt={post.title} 
+  fill
+  className="object-cover transition-transform duration-500 group-hover:scale-110"
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+/>
         <div className="absolute top-4 left-4">
           <span className="inline-block px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-800 rounded-full">
             {post.category}

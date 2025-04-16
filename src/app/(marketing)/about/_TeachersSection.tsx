@@ -50,16 +50,15 @@ export default function TeachersSectionClient({ teachers }: TeachersSectionClien
                 }`}
               >
                 <div className="relative h-80 group">
-                  <OptimizedImage
-                    src={teacher.image}
-                    alt={teacher.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    aspectRatio={1}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
-                    background="bg-gray-100"
-                    lowQualityPlaceholder={`${teacher.image}?w=20`}
-                  />
+                <OptimizedImage
+  src="/images/placeholder.png"
+  alt={teacher.name}
+  fill
+  className="object-cover transition-transform duration-700 group-hover:scale-110"
+  aspectRatio={1}
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+  background="bg-gray-100"
+/>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
                 </div>
                 <div className="p-6">

@@ -90,14 +90,14 @@ export default function Testimonials() {
               <div className="relative">
                 <div className="absolute inset-0 bg-blue-600 rounded-full opacity-10 transform -rotate-6"></div>
                 <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                  <Image 
-                    src={currentTestimonial.image} 
-                    alt={currentTestimonial.name}
-                    width={96} 
-                    height={96}
-                    className="object-cover"
-                  />
-                </div>
+  <Image 
+    src="/images/placeholder.png" // Changed to use placeholder
+    alt={currentTestimonial.name}
+    width={96} 
+    height={96}
+    className="object-cover"
+  />
+</div>
               </div>
               <StarRating rating={currentTestimonial.rating} />
             </div>

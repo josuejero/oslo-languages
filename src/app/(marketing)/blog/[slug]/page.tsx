@@ -53,7 +53,7 @@ async function getBlogPostBySlug(slug: string): Promise<BlogPostFull | null> {
       `,
       date: "April 1, 2025",
       author: "Maria Berg",
-      imageUrl: "/images/blog/pronunciation.jpg",
+      imageUrl: "/images/placeholder.png",
       category: "Norwegian",
       relatedPosts: [2, 3]
     }
@@ -140,13 +140,13 @@ export default async function BlogPost({ params }: Props) {
         </div>
         
         <div className="relative h-96 w-full mb-8">
-          <Image 
-            src={post.imageUrl} 
-            alt={post.title} 
-            fill
-            className="object-cover rounded-lg"
-            sizes="(max-width: 1024px) 100vw, 800px"
-          />
+        <Image 
+  src="/images/placeholder.png" 
+  alt={post.title} 
+  fill
+  className="object-cover rounded-lg"
+  sizes="(max-width: 1024px) 100vw, 800px"
+/>
         </div>
         
         <div 

@@ -106,13 +106,13 @@ export default function Home() {
               >
                 <div className="group bg-white p-8 rounded-xl shadow-lg hover:shadow-xl border-t-4 border-action-primary transition-all duration-300 hover:-translate-y-2 flex flex-col h-full">
                   <div className="w-16 h-16 mb-6 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-all duration-300">
-                    <Image
-                      src={feature.icon}
-                      alt={feature.title}
-                      width={40}
-                      height={40}
-                      className="object-contain group-hover:scale-110 transition-all duration-300"
-                    />
+                  <Image
+  src="/images/placeholder.png"
+  alt={feature.title}
+  width={40}
+  height={40}
+  className="object-contain group-hover:scale-110 transition-all duration-300"
+/>
                   </div>
                   <h3 className="text-xl font-bold mb-3 text-text-primary group-hover:text-action-primary transition-all duration-300">
                     {feature.title}

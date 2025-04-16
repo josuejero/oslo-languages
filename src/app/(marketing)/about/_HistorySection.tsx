@@ -45,17 +45,16 @@ const HistorySection: React.FC<HistorySectionProps> = ({ coverImage }) => {
             ></div>
 
             <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl transform transition-transform duration-500 hover:scale-105 group">
-              <OptimizedImage
-                src={coverImage}
-                alt="Oslo Languages School"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                priority
-                aspectRatio={16 / 9}
-                sizes="(max-width: 768px) 100vw, 600px"
-                background="bg-gray-100"
-                lowQualityPlaceholder={`${coverImage}?w=20`}
-              />
+            <OptimizedImage
+  src="/images/placeholder.png"
+  alt="Oslo Languages School"
+  fill
+  className="object-cover transition-transform duration-700 group-hover:scale-110"
+  priority
+  aspectRatio={16 / 9}
+  sizes="(max-width: 768px) 100vw, 600px"
+  background="bg-gray-100"
+/>
             </div>
           </div>
         </div>

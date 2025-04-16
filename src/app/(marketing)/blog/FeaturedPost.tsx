@@ -22,14 +22,14 @@ export default function FeaturedPost({ post }: { post: BlogPostSummary }) {
     <article className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
       <div className="grid md:grid-cols-5 gap-0">
         <div className="md:col-span-3 relative h-64 md:h-full min-h-[300px] order-1 md:order-1">
-          <Image 
-            src={post.imageUrl} 
-            alt={post.title} 
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 60vw"
-            priority
-          />
+        <Image 
+  src="/images/placeholder.png" 
+  alt={post.title} 
+  fill
+  className="object-cover"
+  sizes="(max-width: 768px) 100vw, 60vw"
+  priority
+/>
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent md:hidden"></div>
           <div className="absolute top-4 left-4">
             <motion.span 

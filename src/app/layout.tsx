@@ -32,7 +32,7 @@ export default function RootLayout({
     "@type": "Organization",
     name: "Oslo Languages",
     url: "https://www.oslolanguages.com",
-    logo: "https://www.oslolanguages.com/logo.png",
+    logo: "https://www.oslolanguages.com/images/placeholder.png",
     sameAs: [
       "https://www.facebook.com/oslolanguages",
       "https://www.instagram.com/oslolanguages"

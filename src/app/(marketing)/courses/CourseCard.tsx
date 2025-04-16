@@ -33,12 +33,12 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, index }) => {
                           group-hover:bg-white transition-colors duration-300"
           >
             <OptimizedImage
-              src={course.icon}
-              alt={course.language}
-              width={32}
-              height={32}
-              className="w-full h-full object-contain"
-            />
+  src="/images/placeholder.png"
+  alt={course.language}
+  width={32}
+  height={32}
+  className="w-full h-full object-contain"
+/>
           </div>
         </div>
         <div>
